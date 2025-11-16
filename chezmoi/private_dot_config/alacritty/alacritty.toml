@@ -9,7 +9,7 @@ size = 20.0
 family = "FiraCode Nerd Font Mono"
 
 [scrolling]
-history = 10000
+history = 5000
 multiplier = 3
 
 [terminal.shell]
