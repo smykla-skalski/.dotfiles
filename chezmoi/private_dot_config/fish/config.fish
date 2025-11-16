@@ -7,7 +7,7 @@
 # vars
   set --export PROJECTS_PATH $HOME/Projects/github.com
   set --export MY_PROJECTS_PATH $PROJECTS_PATH/bartsmykla
-  set --export DOTFILES_PATH $MY_PROJECTS_PATH/.dotfiles
+  set --export DOTFILES_PATH $PROJECTS_PATH/smykla-labs/.dotfiles
   set --export FORTRESS_PATH /Volumes/fortress-carima
   set --export SECRETS_PATH $DOTFILES_PATH/secrets
 
