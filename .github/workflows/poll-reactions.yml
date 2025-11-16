@@ -16,46 +16,26 @@ jobs:
     name: Poll PR Reactions
     runs-on: ubuntu-24.04
     steps:
-      - name: Checkout code (shallow, sparse)
+      - name: Checkout .dotfiles (CODEOWNERS only)
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           fetch-depth: 1
           sparse-checkout: |
             .github/CODEOWNERS
-            cmd/github-action
-            pkg
-            go.mod
-            go.sum
 
-      - name: Install mise
-        uses: jdx/mise-action@be3be2260bc02bc3fbf94c5e2fed8b7964baf074 # v3.4.0
+      - name: Generate GitHub App token
+        id: generate-token
+        uses: actions/create-github-app-token@67018539274d69449ef7c02e8e71183d1719ab42 # v2.1.4
         with:
-          cache: true
-
-      - name: Cache Go modules
-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
-        with:
-          path: |
-            ~/.cache/go-build
-            ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
-
-      - name: Cache binary
-        id: cache-binary
-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
-        with:
-          path: bin/smyklot-github-action
-          key: ${{ runner.os }}-binary-${{ hashFiles('**/go.sum', 'cmd/**', 'pkg/**') }}
-
-      - name: Build action binary
-        if: steps.cache-binary.outputs.cache-hit != 'true'
-        run: go build -o bin/smyklot-github-action ./cmd/github-action
+          app-id: ${{ vars.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
 
       - name: Poll reactions on open PRs
+        uses: docker://ghcr.io/bartsmykla/smyklot:1.4.0
+        with:
+          args: poll
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ steps.generate-token.outputs.token }}
           REPO_OWNER: ${{ github.repository_owner }}
           REPO_NAME: ${{ github.event.repository.name }}
-        run: ./bin/smyklot-github-action poll
+          SMYKLOT_CONFIG: ${{ vars.SMYKLOT_CONFIG }}
