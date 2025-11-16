@@ -237,7 +237,7 @@ tasks:
       - test -z "$(git diff --name-only origin/{{.DEFAULT_BRANCH}}...HEAD 2>/dev/null | grep '\.sh$')"
     cmds:
       - echo "▶ Shell scripts changed, running shellcheck"
-      - task test:syntax:shell
+      - task lint:shell
 
   test:changed:brewfile:
     desc: Test Brewfile if changed
