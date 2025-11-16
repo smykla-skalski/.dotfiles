@@ -523,7 +523,7 @@ parse_args() {
                 echo "  --yes, -y          Skip confirmation prompts"
                 echo "  --email EMAIL      Set email (overrides git config)"
                 echo "  --name NAME        Set full name (overrides git config)"
-                echo "  --dir DIRECTORY    Installation directory (default: ~/Projects/github.com/bartsmykla/.dotfiles)"
+                echo "  --dir DIRECTORY    Installation directory (default: ~/Projects/github.com/smykla-labs/.dotfiles)"
                 echo "  --help, -h         Show this help"
                 echo ""
                 echo "Environment variables:"
