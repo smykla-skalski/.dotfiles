@@ -31,7 +31,7 @@ jobs:
           private-key: ${{ secrets.APP_PRIVATE_KEY }}
 
       - name: Poll reactions on open PRs
-        uses: docker://ghcr.io/bartsmykla/smyklot:1.4.0
+        uses: docker://ghcr.io/bartsmykla/smyklot:1.6.0
         with:
           args: poll
         env:
