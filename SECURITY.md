@@ -28,7 +28,7 @@ For this dotfiles repository, security issues include:
 
 Instead, report security issues via:
 
-1. **GitHub Security Advisories**: Use the [Security tab](https://github.com/bartsmykla/.dotfiles/security/advisories/new) to create a private security advisory
+1. **GitHub Security Advisories**: Use the [Security tab](https://github.com/smykla-labs/.dotfiles/security/advisories/new) to create a private security advisory
 2. **Email**: Contact the repository owner directly via GitHub
 
 ### Response Timeline

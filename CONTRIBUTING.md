@@ -26,8 +26,8 @@ This automatically handles all dependencies, encryption setup, and configuration
 After bootstrap completes, add the upstream remote if working from a fork:
 
 ```bash
-cd ~/Projects/github.com/bartsmykla/.dotfiles
-git remote add upstream https://github.com/bartsmykla/.dotfiles
+cd ~/Projects/github.com/smykla-labs/.dotfiles
+git remote add upstream https://github.com/smykla-labs/.dotfiles
 ```
 
 #### Option 2: Manual Setup
@@ -42,7 +42,7 @@ git remote add upstream https://github.com/bartsmykla/.dotfiles
 2. Add upstream remote:
 
    ```bash
-   git remote add upstream https://github.com/bartsmykla/.dotfiles
+   git remote add upstream https://github.com/smykla-labs/.dotfiles
    ```
 
 3. Install dependencies:

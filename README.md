@@ -2,10 +2,10 @@
 
 Personal macOS dotfiles managed with [chezmoi](https://chezmoi.io), encrypted with [age](https://age-encryption.org/), and automated with [Task](https://taskfile.dev).
 
-[![Test Dotfiles](https://github.com/bartsmykla/.dotfiles/actions/workflows/test.yaml/badge.svg)](https://github.com/bartsmykla/.dotfiles/actions/workflows/test.yaml)
-[![CodeQL](https://github.com/bartsmykla/.dotfiles/actions/workflows/codeql.yaml/badge.svg)](https://github.com/bartsmykla/.dotfiles/actions/workflows/codeql.yaml)
-[![Dependency Review](https://github.com/bartsmykla/.dotfiles/actions/workflows/dependency-review.yaml/badge.svg)](https://github.com/bartsmykla/.dotfiles/actions/workflows/dependency-review.yaml)
-[![OpenSSF Scorecard](https://github.com/bartsmykla/.dotfiles/actions/workflows/scorecards.yaml/badge.svg)](https://github.com/bartsmykla/.dotfiles/actions/workflows/scorecards.yaml)
+[![Test Dotfiles](https://github.com/smykla-labs/.dotfiles/actions/workflows/test.yaml/badge.svg)](https://github.com/smykla-labs/.dotfiles/actions/workflows/test.yaml)
+[![CodeQL](https://github.com/smykla-labs/.dotfiles/actions/workflows/codeql.yaml/badge.svg)](https://github.com/smykla-labs/.dotfiles/actions/workflows/codeql.yaml)
+[![Dependency Review](https://github.com/smykla-labs/.dotfiles/actions/workflows/dependency-review.yaml/badge.svg)](https://github.com/smykla-labs/.dotfiles/actions/workflows/dependency-review.yaml)
+[![OpenSSF Scorecard](https://github.com/smykla-labs/.dotfiles/actions/workflows/scorecards.yaml/badge.svg)](https://github.com/smykla-labs/.dotfiles/actions/workflows/scorecards.yaml)
 
 ## Features
 
@@ -55,7 +55,7 @@ BOOTSTRAP_EMAIL=user@example.com BOOTSTRAP_NAME="Full Name" \
   curl -fsSL https://smyk.la | bash -s -- --yes
 ```
 
-See [https://smyk.la](https://smyk.la) for more options. The default installation directory is `~/Projects/github.com/bartsmykla/.dotfiles`, but this can be customized using `--dir` flag or `BOOTSTRAP_DIR` environment variable.
+See [https://smyk.la](https://smyk.la) for more options. The default installation directory is `~/Projects/github.com/smykla-labs/.dotfiles`, but this can be customized using `--dir` flag or `BOOTSTRAP_DIR` environment variable.
 
 ### Manual Installation
 
@@ -70,8 +70,8 @@ If you prefer manual control over the installation process:
 
 ```bash
 # Clone repository
-git clone https://github.com/bartsmykla/.dotfiles ~/Projects/github.com/bartsmykla/.dotfiles
-cd ~/Projects/github.com/bartsmykla/.dotfiles
+git clone https://github.com/smykla-labs/.dotfiles ~/Projects/github.com/smykla-labs/.dotfiles
+cd ~/Projects/github.com/smykla-labs/.dotfiles
 
 # Install Homebrew packages
 brew bundle install --file=Brewfile
