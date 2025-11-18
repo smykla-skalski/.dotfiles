@@ -7,6 +7,9 @@
 # Ignore credentials
 .claude/.credentials.json
 
+# Ignore settings (managed by Claude Code)
+.claude/settings.json
+
 # Ignore IDE lock files and directory
 .claude/ide/
 
