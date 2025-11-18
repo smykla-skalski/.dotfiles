@@ -18,6 +18,7 @@ args = ["--command", "tmuxp load dev"]
 
 [window]
 startup_mode = "Fullscreen"
+option_as_alt = "Both"
 
 # Make Shift+Enter work for Claude Code running in tmux panes
 [[keyboard.bindings]]
