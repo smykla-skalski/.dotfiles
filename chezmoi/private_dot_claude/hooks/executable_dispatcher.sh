@@ -218,6 +218,18 @@ if [[ "$TOOL_NAME" = "Bash" && -n "$COMMAND" ]]; then
     EVENT_DETAILS="${COMMAND:0:60}${COMMAND:60:+...}"
 
     case "$COMMAND" in
+        git\ add*)
+            set +e
+            CLAUDE_GIT_COMMAND="$COMMAND" "$HOOKS_DIR/validate-git-add.sh"
+            EXIT_CODE=$?
+            set -e
+            EVENT_RESULT=$( [[ $EXIT_CODE -eq 0 ]] && echo "approved" || echo "rejected" )
+            EVENT_VALIDATOR="validate-git-add.sh"
+            EVENT_EXIT_CODE="$EXIT_CODE"
+            log_event
+            exit "$EXIT_CODE"
+            ;;
+
         git\ commit*)
             MSG=$(echo "$COMMAND" | sed -n "s/^git commit.*-m *['\"]\\(.*\\)['\"].*/\\1/p")
             if [[ -n "$MSG" ]]; then

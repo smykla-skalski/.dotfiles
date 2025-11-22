@@ -81,36 +81,50 @@ fi
 
 # Check body lines (skip title and blank lines)
 LINE_NUM=0
-IN_BODY=false
+PREV_LINE_EMPTY=false
+FOUND_FIRST_LIST=false
 for line in "${LINES[@]}"; do
     LINE_NUM=$((LINE_NUM + 1))
-    
+
     # Skip title
     if [[ "$LINE_NUM" -eq 1 ]]; then
         continue
     fi
-    
-    # Skip blank lines
+
+    # All lines after title are considered body (whether or not there's a blank line)
+    # Check if this is a blank line
     if [[ -z "$line" ]]; then
-        IN_BODY=true
+        PREV_LINE_EMPTY=true
         continue
     fi
-    
-    # Only check body lines
-    if [[ "$IN_BODY" = true ]]; then
+
+    # Process body lines (all non-empty lines after title)
+        # Check for list items (ordered or unordered)
+        if echo "$line" | grep -qE '^\s*[-*]\s+' || echo "$line" | grep -qE '^\s*[0-9]+\.\s+'; then
+            # Check if this is the first list item and there was no empty line before it
+            if [[ "$FOUND_FIRST_LIST" = false && "$PREV_LINE_EMPTY" = false ]]; then
+                ERRORS+=("❌ Missing empty line before first list item at line $LINE_NUM")
+                ERRORS+=("   List items must be preceded by an empty line")
+                ERRORS+=("   Line: '${line:0:60}${line:60:+...}'")
+            fi
+            FOUND_FIRST_LIST=true
+        fi
+
         LINE_LEN=${#line}
-        
+
         # Allow URLs to break the rule
         if echo "$line" | grep -qE "https?://"; then
+            PREV_LINE_EMPTY=false
             continue
         fi
-        
+
         # Allow up to 77 chars (72 + 5 tolerance)
         if [[ "$LINE_LEN" -gt 77 ]]; then
             ERRORS+=("❌ Line $LINE_NUM exceeds 72 characters (${LINE_LEN} chars, >5 over limit)")
             ERRORS+=("   Line: '${line:0:60}...'")
         fi
-    fi
+
+        PREV_LINE_EMPTY=false
 done
 
 # Check for PR references with # or URLs
