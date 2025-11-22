@@ -12,11 +12,12 @@ RECIPIENTS=(
   age1h3cwe6tflreqda3dqkv2qucgzswkwp8w39nqt7089tw6kmpfn9sqmln47m
 )
 
-# Read stdin content
-content=$(cat)
+# Read stdin content (preserve trailing newlines using sentinel)
+content=$(cat; echo x)
+content=${content%x}
 
 # Calculate content hash for cache key
-content_hash=$(echo -n "${content}" | shasum -a 256 | cut -d' ' -f1)
+content_hash=$(printf '%s' "${content}" | shasum -a 256 | cut -d' ' -f1)
 cache_file="${CACHE_DIR}/${content_hash}"
 
 # If cached encrypted version exists, use it
@@ -27,13 +28,14 @@ fi
 
 # Encrypt content
 mkdir -p "${CACHE_DIR}"
-encrypted=$(echo -n "${content}" | "${AGE_BIN}" --encrypt \
+encrypted=$(printf '%s' "${content}" | "${AGE_BIN}" --encrypt \
   --recipient "${RECIPIENTS[0]}" \
   --recipient "${RECIPIENTS[1]}" \
-  --armor)
+  --armor; echo x)
+encrypted=${encrypted%x}
 
 # Cache the encrypted version
-echo -n "${encrypted}" > "${cache_file}"
+printf '%s' "${encrypted}" > "${cache_file}"
 
 # Output encrypted content
-echo -n "${encrypted}"
+printf '%s' "${encrypted}"
