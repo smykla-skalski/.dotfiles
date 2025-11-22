@@ -261,6 +261,18 @@ if [[ "$TOOL_NAME" =~ ^(Write|Edit|MultiEdit)$ ]]; then
             log_event
             exit "$EXIT_CODE"
             ;;
+        *.tf)
+            # Validate Terraform/OpenTofu before writing
+            set +e
+            CLAUDE_FILE_PATH="$FILE_PATH" CLAUDE_TOOL_INPUT="$JSON_INPUT" "$HOOKS_DIR/validate-terraform.sh"
+            EXIT_CODE=$?
+            set -e
+            EVENT_RESULT=$( [[ $EXIT_CODE -eq 0 ]] && echo "approved" || echo "rejected" )
+            EVENT_VALIDATOR="validate-terraform.sh"
+            EVENT_EXIT_CODE="$EXIT_CODE"
+            log_event
+            exit "$EXIT_CODE"
+            ;;
         *)
             EVENT_RESULT="approved"
             EVENT_VALIDATOR="none"
