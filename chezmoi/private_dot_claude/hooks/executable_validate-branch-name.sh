@@ -44,8 +44,8 @@ if [[ "$BRANCH_NAME" == "main" || "$BRANCH_NAME" == "master" ]]; then
 fi
 
 # Validate branch name format: <type>/<description>
-# Type should be lowercase letters only, followed by /, then alphanumeric with hyphens
-if ! echo "$BRANCH_NAME" | grep -qE '^[a-z]+/[a-z0-9-]+$'; then
+# Type should be lowercase letters only, followed by /, then alphanumeric with hyphens and dots
+if ! echo "$BRANCH_NAME" | grep -qE '^[a-z]+/[a-z0-9.-]+$'; then
     echo "🚫 Branch name validation failed:" >&2
     echo "" >&2
     echo "❌ Invalid branch name format: $BRANCH_NAME" >&2
@@ -57,6 +57,7 @@ if ! echo "$BRANCH_NAME" | grep -qE '^[a-z]+/[a-z0-9-]+$'; then
     echo "     fix/resolve-bug" >&2
     echo "     test/framework-flexible-dns-config" >&2
     echo "     chore/update-deps" >&2
+    echo "     chore/bump-smyklot-to-v1.8.9" >&2
     echo "" >&2
     echo "   Invalid examples:" >&2
     echo "     test-framework-flexible-dns-config  (use slash, not hyphen after type)" >&2
