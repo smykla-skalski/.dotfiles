@@ -95,26 +95,22 @@
               useGlobalPkgs = true;
               useUserPackages = true;
               backupFileExtension = "hm-backup";
-              users.${username} = { pkgs, lib, ... }: {
+              users.${username} = { pkgs, lib, config, ... }: {
+                imports = [
+                  ./modules/home/fish.nix
+                  ./modules/home/starship.nix
+                  ./modules/home/tmux.nix
+                ];
+
                 home.username = username;
                 home.homeDirectory = lib.mkForce "/Users/bart.smykla@konghq.com";
                 home.stateVersion = "24.05";
 
                 home.packages = with pkgs; [
                   bat eza fd fzf ripgrep jq
-                  fish starship
                 ];
 
                 programs.home-manager.enable = true;
-
-                # Fish config managed by chezmoi for now (Phase 4 will migrate)
-                # programs.fish.enable = true;
-
-                # Starship managed by chezmoi for now
-                # programs.starship = {
-                #   enable = true;
-                #   enableFishIntegration = true;
-                # };
 
                 programs.git = {
                   enable = true;

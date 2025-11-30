@@ -49,3 +49,14 @@
 # Ignore auto-generated fish shell configuration files
 .config/fish/conf.d/omf.fish
 .config/fish/conf.d/rustup.fish
+
+# Nix-managed dotfiles (Phase 4 migration)
+# Note: Fish shell remains managed by chezmoi (has encrypted files)
+# Will migrate to sops-nix in Phase 5
+
+# Starship prompt (managed by home-manager programs.starship)
+.config/starship.toml
+
+# Tmux config (managed by home-manager programs.tmux)
+.tmux.conf
+.config/tmux
