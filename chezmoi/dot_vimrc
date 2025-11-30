@@ -8,7 +8,7 @@ endif
 let mapleader=","
 let maplocalleader=","
 
-set rtp+=$DOTFILES_PATH/.vimrc.d
+set rtp+=~/.vimrc.d
 
 runtime vundle.vim
 runtime native.vim
