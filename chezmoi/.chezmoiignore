@@ -64,3 +64,6 @@
 # Vim config (managed by home-manager programs.vim)
 .vimrc
 .vimrc.d
+
+# Alacritty config (managed by home-manager programs.alacritty)
+.config/alacritty

@@ -102,6 +102,7 @@
               backupFileExtension = "hm-backup";
               users.${username} = { pkgs, lib, config, ... }: {
                 imports = [
+                  ./modules/home/alacritty.nix
                   ./modules/home/fish.nix
                   ./modules/home/starship.nix
                   ./modules/home/tmux.nix
