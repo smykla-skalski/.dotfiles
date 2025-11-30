@@ -218,14 +218,22 @@
                   sops-nix.homeManagerModules.sops
                   ./modules/home/alacritty.nix
                   ./modules/home/atuin.nix
+                  ./modules/home/bash.nix
+                  ./modules/home/broot.nix
+                  ./modules/home/claude.nix
                   ./modules/home/direnv.nix
                   ./modules/home/exercism.nix
                   ./modules/home/fish.nix
+                  ./modules/home/grype.nix
                   ./modules/home/k9s.nix
+                  ./modules/home/lnav.nix
+                  ./modules/home/mise.nix
                   ./modules/home/packages.nix
                   ./modules/home/sops.nix
                   ./modules/home/starship.nix
+                  ./modules/home/syft.nix
                   ./modules/home/tmux.nix
+                  ./modules/home/tmuxp.nix
                   ./modules/home/vim.nix
                 ];
 

@@ -8,6 +8,9 @@
     enable = true;
     shell = "${pkgs.fish}/bin/fish";
 
+    # Enable tmuxp session manager
+    tmuxp.enable = true;
+
     # Prefix key: Ctrl+a
     prefix = "C-a";
     shortcut = "a";

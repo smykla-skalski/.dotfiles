@@ -85,3 +85,32 @@
 # Exercism config (managed by home-manager + sops-nix)
 # Note: user.json contains API token, handled via sops secret
 .config/exercism
+
+# Mise config (managed by home-manager programs.mise)
+.config/mise
+
+# Broot config (managed by home-manager programs.broot)
+.config/broot
+
+# Grype config (managed by home-manager xdg.configFile)
+.config/grype
+
+# Syft config (managed by home-manager xdg.configFile)
+.config/syft
+
+# Tmuxp config (managed by home-manager xdg.configFile)
+.config/tmuxp
+
+# Lnav config (managed by home-manager home.file)
+.lnav
+
+# Bash config (managed by home-manager programs.bash)
+.bashrc
+.profile
+.bash_profile
+
+# Claude Code config (managed by home-manager + sops-nix)
+# CLAUDE.md, installed_plugins.json, known_marketplaces.json are sops secrets
+.claude/CLAUDE.md
+.claude/installed_plugins.json
+.claude/known_marketplaces.json
