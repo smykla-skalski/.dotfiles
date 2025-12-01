@@ -1,12 +1,125 @@
 # Fish shell configuration
 #
 # Migrated from chezmoi to home-manager programs.fish.
-# Abbreviations are sourced from sops-nix secret at runtime.
 { config, lib, pkgs, ... }:
 
 {
   programs.fish = {
     enable = true;
+
+    # Shell abbreviations
+    shellAbbrs = {
+      # General utilities
+      pgc = "git_clone_to_projects";
+      e2e_clean = "make kind/stop/all; docker stop (docker ps -aq)";
+      cp = "rsync -aP";
+      bi = "brew install";
+      bic = "brew install --cask";
+      msync = "set name (basename (pwd)); mutagen sync create --name=$name (pwd) bart@smyk.la:~/$name";
+      "b." = "cd $HOME/Projects/github.com/bartsmykla/.dotfiles/";
+      binf = "brew info";
+      bs = "brew search";
+      cdl = "cd $__LAST_CLONED_REPO_PATH";
+      forget = "ssh-keygen -R";
+      k = "kubectl";
+      km = "kumactl";
+      mux = "tmuxinator";
+      td = "tmuxp load dev";
+      b = "cd $HOME/Projects/github.com/bartsmykla/";
+      purge_kuma = builtins.concatStringsSep " " [
+        ("kubectl get " + builtins.concatStringsSep "," [
+          "endpointslice"
+          "replicaset"
+          "mutatingwebhookconfiguration"
+          "validatingwebhookconfiguration"
+          "configmap"
+          "secret"
+          "crd"
+          "svc"
+          "clusterrole"
+          "clusterrolebinding"
+          "role"
+          "rolebinding"
+          "deploy"
+          "serviceaccount"
+          "ingress"
+        ])
+        "-A -o json |"
+        "jq -r '.items[]"
+        "| select(.metadata.name | contains(\"kong-mesh\") or contains(\"kuma\"))"
+        "| select(.kind != \"Namespace\" and .kind != \"Pod\")"
+        "| select(.kind != \"Secret\" or .metadata.name != \"kong-mesh-license\")"
+        "| .metadata.namespace as $ns"
+        "| \"\\(.kind | ascii_downcase)/\\(.metadata.name)\" as $res"
+        "| if $ns then \"-n \\($ns) \\($res)\" else \"\\($res)\" end'"
+        "| xargs -d \"\\n\" -I \"{}\" /bin/bash -c 'kubectl delete {} &'; wait"
+      ];
+      sshno = "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null";
+      set-ns = "kubectl config set-context --current --namespace";
+      l = "eza --all --long --icons always";
+      lt = "eza --all --long --icons always --tree";
+      awslogin = "saml2aws --session-duration 43200 -a kong-sandbox-mesh login && eval (saml2aws script -a kong-sandbox-mesh)";
+
+      # Git basics
+      ga = "git add";
+      gaa = "git add -A";
+      gco = "git checkout";
+      gcb = "git checkout -b";
+      gcs = "git commit -sS";
+      gst = "git status";
+      ggp = "git push origin (git branch --show-current)";
+      ggpf = "git push --force-with-lease origin (git branch --show-current)";
+      gbda = "git_clean_branches";
+
+      # Git checkout helpers (call functions directly, not --function)
+      gcm = "git-checkout-default";
+      gcmf = "git-checkout-default-fetch";
+      gcmff = "git-checkout-default-fetch-fast-forward";
+
+      # Git diff helpers
+      d = "git-diff-head-pbcopy";
+      dfi = "git-diff-head-files-pbcopy";
+
+      # Git push - default (origin-first)
+      p = "git-push-origin-first";
+      pF = "git-push-origin-first-force";
+      pf = "git-push-origin-first-force-with-lease";
+      pn = "git-push-origin-first-no-verify";
+      pnF = "git-push-origin-first-no-verify-force";
+      pnf = "git-push-origin-first-no-verify-force-with-lease";
+
+      # Git push - origin-first (explicit)
+      po = "git-push-origin-first";
+      poF = "git-push-origin-first-force";
+      pof = "git-push-origin-first-force-with-lease";
+      pon = "git-push-origin-first-no-verify";
+      ponF = "git-push-origin-first-no-verify-force";
+      ponf = "git-push-origin-first-no-verify-force-with-lease";
+
+      # Git push - origin (no set-upstream)
+      pO = "git-push-origin";
+      pOF = "git-push-origin-force";
+      pOf = "git-push-origin-force-with-lease";
+      pOn = "git-push-origin-no-verify";
+      pOnF = "git-push-origin-no-verify-force";
+      pOnf = "git-push-origin-no-verify-force-with-lease";
+
+      # Git push - upstream-first
+      pu = "git-push-upstream-first";
+      puF = "git-push-upstream-first-force";
+      puf = "git-push-upstream-first-force-with-lease";
+      pun = "git-push-upstream-first-no-verify";
+      punF = "git-push-upstream-first-no-verify-force";
+      punf = "git-push-upstream-first-no-verify-force-with-lease";
+
+      # Git push - upstream (no set-upstream)
+      pU = "git-push-upstream";
+      pUF = "git-push-upstream-force";
+      pUf = "git-push-upstream-force-with-lease";
+      pUn = "git-push-upstream-no-verify";
+      pUnF = "git-push-upstream-no-verify-force";
+      pUnf = "git-push-upstream-no-verify-force-with-lease";
+    };
 
     # Fisher plugins managed via Nix
     plugins = [
@@ -96,13 +209,6 @@
       # teleport (doesn't work well with 1password SSH agent)
       set --global --export TELEPORT_USE_LOCAL_SSH_AGENT false
 
-      # Source abbreviations from sops-nix secret
-      # DARWIN_USER_TEMP_DIR is not set as env var, so we use getconf
-      set -l darwin_temp_dir (getconf DARWIN_USER_TEMP_DIR 2>/dev/null)
-      if test -n "$darwin_temp_dir" -a -f "$darwin_temp_dir/secrets/fish-abbreviations.fish"
-        source "$darwin_temp_dir/secrets/fish-abbreviations.fish"
-      end
-
       # Source secrets from SECRETS_PATH directory
       for secret in $SECRETS_PATH/*
         if test -f $secret
@@ -111,10 +217,8 @@
       end
     '';
 
-    # Shell aliases (simple command substitutions)
-    shellAliases = {
-      # none for now - using abbreviations instead
-    };
+    # Shell aliases (not used - preferring abbreviations above)
+    shellAliases = { };
 
     # Custom functions
     functions = {

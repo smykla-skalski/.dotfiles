@@ -163,7 +163,7 @@
                 "rancher"
 
                 # Cloud
-                "google-cloud-sdk"
+                "gcloud-cli"
 
                 # Communication
                 "discord"
@@ -183,7 +183,7 @@
                 # Security & Networking
                 "gpg-suite"
                 "ngrok"
-                "wireshark"
+                "wireshark-app"
 
                 # Gaming/Peripherals
                 "steelseries-gg"

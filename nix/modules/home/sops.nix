@@ -20,11 +20,6 @@
     # Secrets configuration
     # Each secret becomes available at /run/user/<uid>/secrets/<name> or custom path
     secrets = {
-      # Fish shell abbreviations
-      "fish/abbreviations" = {
-        path = "%r/secrets/fish-abbreviations.fish";
-      };
-
       # K9s configuration
       "k9s/config" = {
         path = "%r/secrets/k9s-config.yaml";
