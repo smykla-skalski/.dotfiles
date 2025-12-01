@@ -71,22 +71,14 @@
       ggpf = "git push --force-with-lease origin (git branch --show-current)";
       gbda = "git_clean_branches";
 
-      # Git checkout helpers (call functions directly, not --function)
-      gcm = "git-checkout-default";
-      gcmf = "git-checkout-default-fetch";
-      gcmff = "git-checkout-default-fetch-fast-forward";
+      # Git checkout helpers - NOTE: removed, using af-based functions below
+      # gcm, gcmf, gcmff defined with --function below
 
-      # Git diff helpers
-      d = "git-diff-head-pbcopy";
-      dfi = "git-diff-head-files-pbcopy";
+      # Git diff helpers - NOTE: using af-based function below
+      # d, dfi defined with --function below
 
-      # Git push - default (origin-first)
-      p = "git-push-origin-first";
-      pF = "git-push-origin-first-force";
-      pf = "git-push-origin-first-force-with-lease";
-      pn = "git-push-origin-first-no-verify";
-      pnF = "git-push-origin-first-no-verify-force";
-      pnf = "git-push-origin-first-no-verify-force-with-lease";
+      # Git push - NOTE: using af-based function below
+      # p, pF, pf, pn, pnF, pnf defined with --function below
 
       # Git push - origin-first (explicit)
       po = "git-push-origin-first";
@@ -209,6 +201,16 @@
       # teleport (doesn't work well with 1password SSH agent)
       set --global --export TELEPORT_USE_LOCAL_SSH_AGENT false
 
+      # Set up af-based abbreviations with --function flag
+      # These abbreviations call functions that execute 'af shortcuts abbreviations <name>'
+      # which returns the expanded command string
+      abbr --erase gcm gcmf gcmff p pF pf pn pnF pnf d 2>/dev/null
+      abbr --add --function __abbr_af_gcm gcm
+      abbr --add --function __abbr_af_gcmf gcmf
+      abbr --add --function __abbr_af_gcmff gcmff
+      abbr --add --function __abbr_af_gp p
+      abbr --add --function __abbr_af_gd d
+
       # Source secrets from SECRETS_PATH directory
       for secret in $SECRETS_PATH/*
         if test -f $secret
@@ -222,6 +224,34 @@
 
     # Custom functions
     functions = {
+      # AF-based abbreviation expansion functions
+      # These functions are called by abbreviations with --function flag
+      # They return the expanded command string from 'af' tool
+      __abbr_af_gcm = {
+        description = "AF abbreviation expander for gcm";
+        body = "af shortcuts abbreviations gcm 2>/dev/null || echo git-checkout-default";
+      };
+
+      __abbr_af_gcmf = {
+        description = "AF abbreviation expander for gcmf";
+        body = "af shortcuts abbreviations gcmf 2>/dev/null || echo git-checkout-default-fetch";
+      };
+
+      __abbr_af_gcmff = {
+        description = "AF abbreviation expander for gcmff";
+        body = "af shortcuts abbreviations gcmff 2>/dev/null || echo git-checkout-default-fetch-fast-forward";
+      };
+
+      __abbr_af_gp = {
+        description = "AF abbreviation expander for gp (git push)";
+        body = "af shortcuts abbreviations gp 2>/dev/null || echo git-push-origin-first";
+      };
+
+      __abbr_af_gd = {
+        description = "AF abbreviation expander for gd (git diff)";
+        body = "af shortcuts abbreviations gd 2>/dev/null || echo git-diff-head-pbcopy";
+      };
+
       # Git utilities
       git-get-default-branch = {
         description = "Return the default branch name for the given remote";

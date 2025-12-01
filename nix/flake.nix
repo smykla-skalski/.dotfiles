@@ -255,5 +255,51 @@
       };
 
       darwinPackages = self.darwinConfigurations.${hostname}.pkgs;
+
+      # Standalone Home Manager entry so the CLI can be run without sudo.
+      homeConfigurations = {
+        # Short alias to avoid quoting the @ in commands: home-manager switch --flake ./nix#home-bart
+        home-bart =
+          let
+            hmPkgs = import nixpkgs {
+              system = "aarch64-darwin";
+              config.allowUnfree = true;
+            };
+            envUser = builtins.getEnv "USER";
+            envHome = builtins.getEnv "HOME";
+            userName = if envUser != "" then envUser else username;
+            userHome = if envHome != "" then envHome else "/Users/${username}";
+          in
+          home-manager.lib.homeManagerConfiguration {
+            pkgs = hmPkgs;
+            modules = [
+              {
+                home.username = userName;
+                home.homeDirectory = userHome;
+                home.stateVersion = "24.05";
+              }
+              sops-nix.homeManagerModules.sops
+              ./modules/home/alacritty.nix
+              ./modules/home/atuin.nix
+              ./modules/home/bash.nix
+              ./modules/home/broot.nix
+              ./modules/home/claude.nix
+              ./modules/home/direnv.nix
+              ./modules/home/exercism.nix
+              ./modules/home/fish.nix
+              ./modules/home/grype.nix
+              ./modules/home/k9s.nix
+              ./modules/home/lnav.nix
+              ./modules/home/mise.nix
+              ./modules/home/packages.nix
+              ./modules/home/sops.nix
+              ./modules/home/starship.nix
+              ./modules/home/syft.nix
+              ./modules/home/tmux.nix
+              ./modules/home/tmuxp.nix
+              ./modules/home/vim.nix
+            ];
+          };
+      };
     };
 }

@@ -16,6 +16,7 @@
     # ============================================================================
     # Shell & Terminal
     # ============================================================================
+    home-manager  # home-manager CLI in PATH
     # fish - managed via programs.fish
     # bash - system default
     # starship - managed via programs.starship
