@@ -11,7 +11,7 @@
     ./fish/functions
     ./fish/plugins.nix
     ./fish/keybindings.nix
-    ./fish/external
+    ./fish/completions.nix
   ];
 
   programs.fish = {

@@ -50,8 +50,18 @@
               sleep 0.4
           end
 
-          # Call the actual broot command with all arguments
-          command broot $argv
+          # Call broot with proper shell integration
+          # This pattern allows broot to execute commands (like cd) in the current shell
+          set -l cmd_file (mktemp)
+          if broot --outcmd $cmd_file $argv
+              read --local --null cmd < $cmd_file
+              rm -f $cmd_file
+              eval $cmd
+          else
+              set -l code $status
+              rm -f $cmd_file
+              return $code
+          end
         '';
       };
     };
