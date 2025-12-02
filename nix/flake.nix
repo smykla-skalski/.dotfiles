@@ -223,10 +223,12 @@
                   ./modules/home/atuin.nix
                   ./modules/home/bash.nix
                   ./modules/home/broot.nix
+                  ./modules/home/broot-tips.nix
                   ./modules/home/claude.nix
                   ./modules/home/direnv.nix
                   ./modules/home/exercism.nix
                   ./modules/home/fish.nix
+                  ./modules/home/gocheat-broot.nix
                   ./modules/home/grype.nix
                   ./modules/home/k9s.nix
                   ./modules/home/lnav.nix
@@ -291,10 +293,12 @@
               ./modules/home/atuin.nix
               ./modules/home/bash.nix
               ./modules/home/broot.nix
+              ./modules/home/broot-tips.nix
               ./modules/home/claude.nix
               ./modules/home/direnv.nix
               ./modules/home/exercism.nix
               ./modules/home/fish.nix
+              ./modules/home/gocheat-broot.nix
               ./modules/home/grype.nix
               ./modules/home/k9s.nix
               ./modules/home/lnav.nix
