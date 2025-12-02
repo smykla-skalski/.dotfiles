@@ -1,27 +1,23 @@
 # Broot file navigator configuration
 #
-# Migrated from chezmoi to home-manager programs.broot.
+# Fully migrated from chezmoi to home-manager with all improvements.
 # Broot is a modern file manager/navigator for the terminal.
-#
-# Note: Broot uses HJSON in chezmoi but Nix generates TOML.
-# Skin files are placed in xdg.configFile for conditional loading.
 { config, lib, pkgs, ... }:
 
-let
-  # Path to broot dotfiles
-  brootDotfiles = ../../dotfiles/broot;
-in
 {
   programs.broot = {
     enable = true;
 
-    # Enable shell integrations
+    # Enable shell integrations for 'br' command
     enableFishIntegration = true;
     enableBashIntegration = true;
 
     settings = {
       # Show selection mark (triangle)
       show_selection_mark = true;
+
+      # Default flags: g=git status, h=hidden files, c=count/sizes
+      default_flags = "ghc";
 
       # Max file size for content search
       content_search_max_file_size = "10MB";
@@ -53,12 +49,35 @@ in
           leave_broot = false;
         }
 
+        # Create new directory (NEW)
+        {
+          invocation = "mkdir {subpath}";
+          shortcut = "md";
+          execution = "mkdir -p {directory}/{subpath}";
+          leave_broot = false;
+        }
+
         # Git diff
         {
           invocation = "git_diff";
           shortcut = "gd";
           leave_broot = false;
           execution = "git difftool -y {file}";
+        }
+
+        # Git status quick view (NEW)
+        {
+          invocation = "git_status";
+          shortcut = "gs";
+          execution = ":git_status";
+          leave_broot = false;
+        }
+
+        # Toggle git status filter (NEW)
+        {
+          key = "alt-g";
+          execution = ":toggle_git_status";
+          leave_broot = false;
         }
 
         # Backup file
@@ -76,6 +95,89 @@ in
           key = "ctrl-t";
           execution = "$SHELL";
           set_working_dir = true;
+          leave_broot = false;
+        }
+
+        # Norton Commander style copy (NEW)
+        {
+          key = "F5";
+          external = "cp -r {file} {other-panel-directory}";
+          leave_broot = false;
+        }
+
+        # Norton Commander style move (NEW)
+        {
+          key = "F6";
+          external = "mv {file} {other-panel-directory}";
+          leave_broot = false;
+        }
+
+        # Total search for large directories (NEW)
+        {
+          invocation = "total_search";
+          shortcut = "ts";
+          key = "ctrl-s";
+          execution = ":total_search";
+          leave_broot = false;
+        }
+
+        # Quick parent directory navigation (NEW)
+        {
+          invocation = "parent";
+          shortcut = "p";
+          key = "ctrl-p";
+          execution = ":parent";
+          leave_broot = false;
+        }
+
+        # Reveal in Finder (macOS) (NEW)
+        {
+          invocation = "reveal";
+          shortcut = "r";
+          execution = "open -R {file}";
+          leave_broot = false;
+        }
+
+        # Vim-style navigation - line up (NEW)
+        {
+          key = "ctrl-k";
+          execution = ":line_up";
+          leave_broot = false;
+        }
+
+        # Vim-style navigation - line down (NEW)
+        {
+          key = "ctrl-j";
+          execution = ":line_down";
+          leave_broot = false;
+        }
+
+        # Vim-style navigation - page up (NEW)
+        {
+          key = "ctrl-u";
+          execution = ":page_up";
+          leave_broot = false;
+        }
+
+        # Vim-style navigation - page down (NEW)
+        {
+          key = "ctrl-d";
+          execution = ":page_down";
+          leave_broot = false;
+        }
+
+        # Go to git root (NEW)
+        {
+          invocation = "gtr";
+          execution = ":focus {git-root}";
+          leave_broot = false;
+        }
+
+        # Go to home directory (NEW)
+        {
+          invocation = "home";
+          key = "ctrl-home";
+          execution = ":focus ~";
           leave_broot = false;
         }
       ];
