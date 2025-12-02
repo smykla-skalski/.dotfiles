@@ -20,7 +20,6 @@
     # fish - managed via programs.fish
     # bash - system default
     # starship - managed via programs.starship
-    atuin         # Shell history sync
     # tmux - managed via programs.tmux
     tmuxp         # Tmux session manager
 

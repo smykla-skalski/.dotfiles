@@ -30,13 +30,6 @@
       # broot integration
       [ -f "$HOME/.config/broot/launcher/bash/br" ] && source "$HOME/.config/broot/launcher/bash/br"
 
-      # atuin - shell history tool
-      if [ -f "$HOME/.atuin/bin/env" ]; then
-        . "$HOME/.atuin/bin/env"
-        [[ -f ~/.bash-preexec.sh ]] && source ~/.bash-preexec.sh
-        eval "$(atuin init bash)"
-      fi
-
       # Rancher Desktop
       [ -d "$HOME/.rd/bin" ] && export PATH="$HOME/.rd/bin:$PATH"
     '';
@@ -51,9 +44,6 @@
 
       # Cargo environment
       [ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
-
-      # atuin environment
-      [ -f "$HOME/.atuin/bin/env" ] && . "$HOME/.atuin/bin/env"
 
       # Rancher Desktop
       [ -d "$HOME/.rd/bin" ] && export PATH="$HOME/.rd/bin:$PATH"
