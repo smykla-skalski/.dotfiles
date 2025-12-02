@@ -190,11 +190,6 @@
         jump shell fish | source
       end
 
-      # mise tool version manager
-      if test -f "$HOME/.local/bin/mise"
-        $HOME/.local/bin/mise activate fish | source
-      end
-
       # 1password SSH agent
       set --global --export SSH_AUTH_SOCK "$HOME/.1password/agent.sock"
 
