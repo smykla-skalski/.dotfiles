@@ -189,10 +189,11 @@
       }
     ];
 
-    # Catppuccin-inspired color scheme (dark blue theme)
+    # Monokai color scheme
+    # Gocheat only supports 'accent' (keybinds) and 'subtext' (descriptions)
     styles = {
-      accent = "#c3e88d";      # Green (keybinds)
-      subtext = "#82aaff";     # Light blue (descriptions)
+      accent = "#66d9ef";      # Monokai cyan for keybinds
+      subtext = "#a6e22e";     # Monokai green for descriptions
     };
   };
 
