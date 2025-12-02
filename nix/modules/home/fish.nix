@@ -141,8 +141,32 @@
       set --export LC_ALL en_US.UTF-8
       set --export LANG en_US.UTF-8
 
-      # Homebrew
-      /opt/homebrew/bin/brew shellenv | source
+      # fzf configuration (fzf 0.67.0+)
+      # These are set here instead of _fzf_wrapper.fish for more control
+      # See: https://github.com/junegunn/fzf#environment-variables
+      set --export FZF_DEFAULT_OPTS "\
+        --cycle \
+        --layout=reverse \
+        --border=rounded \
+        --height=90% \
+        --preview-window=wrap \
+        --marker='*' \
+        --highlight-line \
+        --info=inline-right \
+        --tmux=bottom,50% \
+        --color=bg+:-1,gutter:-1 \
+        --bind='ctrl-/:toggle-preview'"
+
+      # fzf.fish history-specific options
+      # Better time format showing relative day if recent
+      set --global fzf_history_time_format "%Y-%m-%d %H:%M"
+      # Additional history options (appended to defaults)
+      set --global fzf_history_opts "--no-sort"
+
+      # Homebrew (skip if already initialized to speed up subshells)
+      if not set -q HOMEBREW_PREFIX
+        /opt/homebrew/bin/brew shellenv | source
+      end
 
       # PATH additions
       fish_add_path --global --move $FORTRESS_PATH/.dotfiles/bin
@@ -158,17 +182,14 @@
         source "$DOTFILES_PATH/tmp/mise-completions.fish"
       end
 
-      # fzf bindings (history handled by Atuin)
+      # fzf bindings
+      # History: Ctrl+R (default) - supports multi-select with Tab/Shift+Tab
       fzf_configure_bindings \
         --directory=\cf \
         --git_log=\co \
         --git_status=\cs \
         --processes=\cp \
-        --variables=\cv \
-        --history=
-
-      # Note: Atuin shell history handled by programs.atuin in atuin.nix
-      # with enableFishIntegration = true
+        --variables=\cv
 
       # ansible config
       set --global --export ANSIBLE_CONFIG "$DOTFILES_PATH/ansible/ansible.cfg"
@@ -524,7 +545,7 @@
   };
 
   # Install related packages
-  # Note: atuin and direnv are handled by their own modules (atuin.nix, direnv.nix)
+  # Note: direnv is handled by its own module (direnv.nix)
   home.packages = with pkgs; [
     # fzf integration (used by fzf.fish plugin)
     fzf
@@ -578,7 +599,7 @@
     "fish/completions/kubectl.fish".source = ../../dotfiles/fish/completions/kubectl.fish;
     "fish/completions/mise.fish".source = ../../dotfiles/fish/completions/mise.fish;
 
-    # broot integration
-    "fish/functions/br.fish".source = ../../dotfiles/fish/functions/br.fish;
+    # Note: broot integration (br.fish) is handled by programs.broot in broot.nix
+    # with enableFishIntegration = true
   };
 }

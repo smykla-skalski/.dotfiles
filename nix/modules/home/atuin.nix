@@ -1,12 +1,14 @@
 # Atuin shell history configuration
 #
-# Migrated from chezmoi to home-manager programs.atuin.
-# Atuin provides encrypted shell history sync across machines.
+# DISABLED: Migrated to fzf + native Fish history for simplicity
+# fzf history search provides multi-select with Tab/Shift+Tab
+#
+# To re-enable Atuin, set enable = true below.
 { config, lib, pkgs, ... }:
 
 {
   programs.atuin = {
-    enable = true;
+    enable = false;
 
     # Enable fish shell integration
     enableFishIntegration = true;

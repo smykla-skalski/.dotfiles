@@ -14,6 +14,10 @@ function _fzf_search_history --description "Search command history. Replace the 
     # Then, to get raw command from history entries, delete everything up to it. The ? on regex is
     # necessary to make regex non-greedy so it won't match into commands containing the char.
     set -f time_prefix_regex '^.*? │ '
+
+    # Build the delete command - extracts command from timestamped entry and deletes from history
+    set -f delete_cmd "string replace --regex '$time_prefix_regex' '' -- {} | xargs -I% fish -c 'builtin history delete --exact --case-sensitive -- \"%\"'"
+
     # Delinate commands throughout pipeline using null rather than newlines because commands can be multi-line
     set -f commands_selected (
         builtin history --null --show-time="$fzf_history_time_format │ " |
@@ -25,6 +29,11 @@ function _fzf_search_history --description "Search command history. Replace the 
             --query=(commandline) \
             --preview="string replace --regex '$time_prefix_regex' '' -- {} | fish_indent --ansi" \
             --preview-window="bottom:3:wrap" \
+            --header="Tab/Shift-Tab:select | Ctrl-A:all | Ctrl-D:none | Ctrl-Y:copy | Shift-Del:delete" \
+            --bind="ctrl-a:select-all,ctrl-d:deselect-all" \
+            --bind="shift-up:up+toggle,shift-down:down+toggle" \
+            --bind="ctrl-y:execute-silent(string replace --regex '$time_prefix_regex' '' -- {} | pbcopy)+abort" \
+            --bind="shift-delete:execute-silent($delete_cmd)+reload(builtin history --null --show-time='$fzf_history_time_format │ ')" \
             $fzf_history_opts |
         string split0 |
         # remove timestamps from commands selected
