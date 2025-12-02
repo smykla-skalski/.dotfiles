@@ -6,12 +6,8 @@
     # docker conf.d
     "fish/conf.d/docker.fish".source = ../../../../dotfiles/fish/conf.d/docker.fish;
 
-    # fisher function
-    "fish/functions/fisher.fish".source = ../../../../dotfiles/fish/functions/fisher.fish;
-
     # completions from tools
     "fish/completions/docker.fish".source = ../../../../dotfiles/fish/completions/docker.fish;
-    "fish/completions/fisher.fish".source = ../../../../dotfiles/fish/completions/fisher.fish;
     "fish/completions/golangci-lint.fish".source = ../../../../dotfiles/fish/completions/golangci-lint.fish;
     "fish/completions/goreleaser.fish".source = ../../../../dotfiles/fish/completions/goreleaser.fish;
     "fish/completions/hcloud.fish".source = ../../../../dotfiles/fish/completions/hcloud.fish;
