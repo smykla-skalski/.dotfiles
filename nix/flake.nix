@@ -31,187 +31,46 @@
       hostname = "bartsmykla";
       # Username with special characters needs careful handling
       username = "bart.smykla@konghq.com";
+
+      # Shared Home Manager module imports (DRY principle)
+      homeModules = [
+        sops-nix.homeManagerModules.sops
+        ./modules/home/alacritty.nix
+        ./modules/home/atuin.nix
+        ./modules/home/bash.nix
+        ./modules/home/broot.nix
+        ./modules/home/broot-tips.nix
+        ./modules/home/claude.nix
+        ./modules/home/command-suggestions.nix
+        ./modules/home/direnv.nix
+        ./modules/home/exercism.nix
+        ./modules/home/fish.nix
+        ./modules/home/gocheat-broot.nix
+        ./modules/home/grype.nix
+        ./modules/home/k9s.nix
+        ./modules/home/lnav.nix
+        ./modules/home/mise.nix
+        ./modules/home/packages.nix
+        ./modules/home/sops.nix
+        ./modules/home/starship.nix
+        ./modules/home/syft.nix
+        ./modules/home/tmux.nix
+        ./modules/home/tmuxp.nix
+        ./modules/home/vim.nix
+      ];
     in
     {
       darwinConfigurations.${hostname} = nix-darwin.lib.darwinSystem {
         inherit system;
         modules = [
+          # Host-specific configuration
+          ./hosts/bartsmykla
+
           # Darwin system configuration
-          ({ pkgs, lib, ... }: {
-            # Required for user-specific options (homebrew, system.defaults, etc.)
-            system.primaryUser = username;
+          ./modules/darwin
 
-            # Disable nix-darwin's Nix management (using Determinate Nix)
-            nix.enable = false;
-
-            nixpkgs.config.allowUnfree = true;
-            nixpkgs.hostPlatform = system;
-
-            environment.systemPackages = with pkgs; [ git ];
-
-            # Enable fish shell system-wide with nix-darwin paths
-            programs.fish = {
-              enable = true;
-              # Use babelfish to pre-translate bash scripts at build time
-              # instead of foreign-env (fenv) translating at runtime (~250ms savings)
-              useBabelfish = true;
-              babelfishPackage = pkgs.babelfish;
-              shellInit = ''
-                # Add nix-darwin managed paths
-                fish_add_path --prepend --move /run/current-system/sw/bin
-                fish_add_path --prepend --move /etc/profiles/per-user/$USER/bin
-                fish_add_path --prepend --move $HOME/.nix-profile/bin
-              '';
-            };
-
-            # Touch ID for sudo (works in tmux with pam-reattach)
-            security.pam.services.sudo_local.touchIdAuth = true;
-            security.pam.services.sudo_local.reattach = true;
-
-            system.defaults = {
-              dock = {
-                autohide = true;
-                mru-spaces = false;
-                show-recents = false;
-              };
-              finder = {
-                AppleShowAllExtensions = true;
-                FXPreferredViewStyle = "clmv";
-                ShowPathbar = true;
-                ShowStatusBar = true;
-              };
-              NSGlobalDomain = {
-                AppleShowAllExtensions = true;
-                InitialKeyRepeat = 15;
-                KeyRepeat = 2;
-              };
-            };
-
-            homebrew = {
-              enable = true;
-              onActivation = {
-                autoUpdate = false;
-                # "none" = don't remove unlisted packages (safe)
-                # "uninstall" = remove unlisted packages
-                # "zap" = remove + delete all data (DANGEROUS)
-                cleanup = "none";
-              };
-
-              # Third-party taps
-              taps = [
-                "bufbuild/buf"
-                "chipmk/tap"
-                "speakeasy-api/tap"
-                "aquaproj/aqua"
-                "aquasecurity/trivy"
-                "cyclonedx/cyclonedx"
-                "derailed/popeye"
-                "hashicorp/tap"
-                "mutagen-io/mutagen"
-                "helm/tap"
-                "grafana/grafana"
-                "pamburus/tap"
-                "homebrew/services"
-              ];
-
-              # Formulas not available in nixpkgs
-              brews = [
-                "chipmk/tap/docker-mac-net-connect" # Docker networking
-                "cyclonedx/cyclonedx/cyclonedx-cli" # CycloneDX SBOM
-                "derailed/popeye/popeye"  # Kubernetes cluster linter
-                "mutagen-io/mutagen/mutagen" # File sync
-                "pamburus/tap/hl"         # JSON log viewer
-                "lnav"                    # Log viewer (HEAD build)
-                "kumactl"                 # Kuma service mesh CLI
-                "swiftlint"               # Swift linter
-                "vale"                    # Prose linter
-                "cfn-lint"                # CloudFormation linter
-                "commitlint"              # Commit message linter
-                "check-jsonschema"        # JSON Schema validator
-                "aqua"                    # CLI version manager
-                "chart-releaser"          # Helm charts releaser
-                "vexctl"                  # VEX metadata tool
-                "muffet"                  # Website link checker
-                "speakeasy-api/tap/speakeasy" # API client generation
-                "toxiproxy"               # TCP proxy for chaos
-                "kubeshark"               # Kubernetes network analyzer
-                "jump"                    # Directory bookmarking
-              ];
-
-              # GUI Applications (casks)
-              casks = [
-                # Essential
-                "1password-cli"
-                "alfred"
-                "rectangle"
-
-                # Terminals
-                "alacritty"
-                "iterm2"
-                "kitty"
-
-                # Browsers
-                "brave-browser"
-                "firefox@developer-edition"
-                "opera"
-
-                # Development
-                "cursor"
-                "visual-studio-code"
-                "jetbrains-toolbox"
-                "insomnia"
-
-                # AI Tools
-                "chatgpt"
-                "claude"
-
-                # Container & Kubernetes
-                "orbstack"
-                "rancher"
-
-                # Cloud
-                "gcloud-cli"
-
-                # Communication
-                "discord"
-                "signal"
-
-                # Utilities
-                "bartender"
-                "caffeine"
-                "hiddenbar"
-                "raycast"
-                "send-to-kindle"
-
-                # Productivity
-                "obsidian"
-                "omnigraffle"
-
-                # Security & Networking
-                "gpg-suite"
-                "ngrok"
-                "wireshark-app"
-
-                # Gaming/Peripherals
-                "steelseries-gg"
-
-                # Infrastructure
-                "hashicorp-vagrant"
-
-                # Fonts
-                "font-fira-code"
-                "font-fira-code-nerd-font"
-                "font-fira-mono-nerd-font"
-              ];
-            };
-
-            # Set hostname to match flake configuration name
-            networking.hostName = hostname;
-            networking.computerName = hostname;
-            networking.localHostName = hostname;
-
-            system.stateVersion = 5;
-          })
+          # Set primary user (required for homebrew, system.defaults, etc.)
+          { system.primaryUser = username; }
 
           # Home-manager module
           home-manager.darwinModules.home-manager
@@ -221,31 +80,7 @@
               useUserPackages = true;
               backupFileExtension = "hm-backup";
               users.${username} = { pkgs, lib, config, ... }: {
-                imports = [
-                  sops-nix.homeManagerModules.sops
-                  ./modules/home/alacritty.nix
-                  ./modules/home/atuin.nix
-                  ./modules/home/bash.nix
-                  ./modules/home/broot.nix
-                  ./modules/home/broot-tips.nix
-                  ./modules/home/claude.nix
-                  ./modules/home/command-suggestions.nix
-                  ./modules/home/direnv.nix
-                  ./modules/home/exercism.nix
-                  ./modules/home/fish.nix
-                  ./modules/home/gocheat-broot.nix
-                  ./modules/home/grype.nix
-                  ./modules/home/k9s.nix
-                  ./modules/home/lnav.nix
-                  ./modules/home/mise.nix
-                  ./modules/home/packages.nix
-                  ./modules/home/sops.nix
-                  ./modules/home/starship.nix
-                  ./modules/home/syft.nix
-                  ./modules/home/tmux.nix
-                  ./modules/home/tmuxp.nix
-                  ./modules/home/vim.nix
-                ];
+                imports = homeModules;
 
                 home.username = username;
                 home.homeDirectory = lib.mkForce "/Users/bart.smykla@konghq.com";
@@ -285,7 +120,7 @@
           in
           home-manager.lib.homeManagerConfiguration {
             pkgs = hmPkgs;
-            modules = [
+            modules = homeModules ++ [
               {
                 home.username = userName;
                 home.homeDirectory = userHome;
@@ -293,29 +128,6 @@
                 # Add af package from flake input
                 home.packages = [ af.packages.${system}.default ];
               }
-              sops-nix.homeManagerModules.sops
-              ./modules/home/alacritty.nix
-              ./modules/home/atuin.nix
-              ./modules/home/bash.nix
-              ./modules/home/broot.nix
-              ./modules/home/broot-tips.nix
-              ./modules/home/claude.nix
-              ./modules/home/command-suggestions.nix
-              ./modules/home/direnv.nix
-              ./modules/home/exercism.nix
-              ./modules/home/fish.nix
-              ./modules/home/gocheat-broot.nix
-              ./modules/home/grype.nix
-              ./modules/home/k9s.nix
-              ./modules/home/lnav.nix
-              ./modules/home/mise.nix
-              ./modules/home/packages.nix
-              ./modules/home/sops.nix
-              ./modules/home/starship.nix
-              ./modules/home/syft.nix
-              ./modules/home/tmux.nix
-              ./modules/home/tmuxp.nix
-              ./modules/home/vim.nix
             ];
           };
       };
