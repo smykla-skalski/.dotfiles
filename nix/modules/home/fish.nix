@@ -147,6 +147,7 @@
       # PATH additions
       fish_add_path --global --move $FORTRESS_PATH/.dotfiles/bin
       fish_add_path --global --move "$HOME/.cargo/bin"
+      fish_add_path --global --move "$HOME/.local/bin"
       fish_add_path --global --move "$HOME/bin"
       fish_add_path --global --move "$HOMEBREW_PREFIX/opt/coreutils/libexec/gnubin"
       fish_add_path --global --append "$HOME/.krew/bin"
