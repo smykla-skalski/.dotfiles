@@ -86,11 +86,11 @@
       },
       "locked": {
         "dir": "nix",
-        "lastModified": 1764708184,
-        "narHash": "sha256-X7jiKJUsWxpuwtETijXI6ixtxcqXFIa/v0dAw3vEKvA=",
+        "lastModified": 1764712300,
+        "narHash": "sha256-3CZM4fb4InGxrJMe9iKc0G50eCcdTRMP/fD7hwCaOZQ=",
         "owner": "smykla-labs",
         "repo": "klaudiush",
-        "rev": "3fba39f36e9dedc4b714f27e6efe27e3ff1421ad",
+        "rev": "7e2b9532c2e9e1da1e6e9b50e671c085a05d2e8e",
         "type": "github"
       },
       "original": {
