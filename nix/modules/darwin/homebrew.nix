@@ -56,6 +56,7 @@
     casks = [
       "1password-cli"                         # Password manager CLI
       "alfred"                                # Productivity launcher
+      "hammerspoon"                           # macOS automation
       "rectangle"                             # Window management
       "alacritty"                             # GPU terminal emulator
       "iterm2"                                # Terminal emulator

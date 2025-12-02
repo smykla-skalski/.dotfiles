@@ -20,7 +20,7 @@
     };
 
     af = {
-      url = "github:bartsmykla/af";
+      url = "github:smykla-labs/af";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
@@ -45,11 +45,12 @@
         ./modules/home/direnv.nix
         ./modules/home/exercism.nix
         ./modules/home/fish.nix
-        ./modules/home/navi.nix
         ./modules/home/grype.nix
+        ./modules/home/hammerspoon.nix
         ./modules/home/k9s.nix
         ./modules/home/lnav.nix
         ./modules/home/mise.nix
+        ./modules/home/navi.nix
         ./modules/home/packages.nix
         ./modules/home/sops.nix
         ./modules/home/starship.nix
