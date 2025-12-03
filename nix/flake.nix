@@ -60,6 +60,7 @@
         ./modules/home/mise.nix
         ./modules/home/navi.nix
         ./modules/home/packages.nix
+        ./modules/home/shell-aliases.nix
         ./modules/home/sops.nix
         ./modules/home/starship.nix
         ./modules/home/syft.nix

@@ -16,6 +16,9 @@
       # Set BASH_ENV for non-interactive subshells (needed by make)
       export BASH_ENV="$HOME/.bash_env"
 
+      # Source shared shell aliases (from Fish abbreviations)
+      [ -f "$HOME/.config/shell/aliases.sh" ] && source "$HOME/.config/shell/aliases.sh"
+
       # Cargo environment
       [ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
 
@@ -41,6 +44,9 @@
 
       # Set BASH_ENV so non-interactive bash shells (like make) can find mise
       export BASH_ENV="$HOME/.bash_env"
+
+      # Source shared shell aliases (from Fish abbreviations)
+      [ -f "$HOME/.config/shell/aliases.sh" ] && source "$HOME/.config/shell/aliases.sh"
 
       # Cargo environment
       [ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"

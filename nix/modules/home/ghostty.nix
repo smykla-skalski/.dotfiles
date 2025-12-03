@@ -60,7 +60,8 @@ in
 
       # Aesthetics
       background-opacity = 0.95;
-      unfocused-split-opacity = 0.7;
+      unfocused-split-opacity = 0.5;
+      unfocused-split-fill = "#000000";
 
       # Performance
       adjust-cell-width = 0;
