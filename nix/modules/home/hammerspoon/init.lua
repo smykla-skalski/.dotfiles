@@ -155,35 +155,56 @@ end
 -- Core Functionality
 -------------------------------------------------------------------------------
 
---- Detect if the current primary screen is an external monitor
--- Checks the builtin property from screen info to determine if the
--- primary screen is the built-in MacBook display or an external monitor
--- @return boolean true if external monitor is active, false if built-in
+--- Detect if an external monitor is connected
+-- Checks all screens to see if any external monitor is present
+-- When multiple displays are active, we want to use the larger font
+-- @return boolean true if any external monitor is connected
 local function isExternalMonitorActive()
-  local primaryScreen = hs.screen.primaryScreen()
-  if not primaryScreen then
-    log.w("No primary screen found")
+  local allScreens = hs.screen.allScreens()
+
+  if not allScreens or #allScreens == 0 then
+    log.w("No screens found")
     return false
   end
 
-  -- Check screen info to identify built-in display
-  local screenInfo = primaryScreen:getInfo()
-  if not screenInfo then
-    log.w(string.format("Cannot get screen info for: %s", primaryScreen:name()))
-    -- Fallback: assume external if we can't determine
-    return true
+  -- Known built-in display name patterns
+  local builtInPatterns = {
+    "^Built%-in",  -- "Built-in Retina Display"
+    "^Color LCD",  -- Older MacBooks
+  }
+
+  -- Check if any screen is an external monitor
+  for _, screen in ipairs(allScreens) do
+    local screenName = screen:name()
+    local isBuiltIn = false
+
+    -- First try getInfo() if available
+    local screenInfo = screen:getInfo()
+    if screenInfo and screenInfo.builtin ~= nil then
+      isBuiltIn = screenInfo.builtin
+    else
+      -- Fallback: check screen name against known built-in patterns
+      for _, pattern in ipairs(builtInPatterns) do
+        if screenName:match(pattern) then
+          isBuiltIn = true
+          break
+        end
+      end
+    end
+
+    if not isBuiltIn then
+      -- Found an external monitor
+      log.d(string.format(
+        "External monitor detected: %s",
+        screenName
+      ))
+      return true
+    end
   end
 
-  local isBuiltIn = screenInfo.builtin or false
-
-  log.d(string.format(
-    "Primary screen: %s (builtin: %s)",
-    primaryScreen:name(),
-    tostring(isBuiltIn)
-  ))
-
-  -- Return true if it's NOT the built-in display (i.e., it's external)
-  return not isBuiltIn
+  -- No external monitors found, only built-in display
+  log.d("Only built-in display detected")
+  return false
 end
 
 --- Update font size in a single other.xml file (creates if doesn't exist)
@@ -363,20 +384,20 @@ end
 
 --- Handle screen configuration changes
 -- Called when display configuration changes or system wakes from sleep
--- Determines which display is active and applies appropriate font size
+-- Determines which displays are active and applies appropriate font size
 local function screenChanged()
-  local isExternal = isExternalMonitorActive()
-  local displayType = isExternal and "external monitor" or "built-in display"
+  local hasExternalMonitor = isExternalMonitorActive()
+  local displayType = hasExternalMonitor and "external monitor connected" or "built-in only"
 
-  log.i(string.format("Screen configuration changed. Active display: %s", displayType))
+  log.i(string.format("Screen configuration changed. Display: %s", displayType))
 
-  if isExternal then
-    -- External monitor is active
-    log.i(string.format("External monitor detected - setting font size to %d", config.fontSizeWithMonitor))
+  if hasExternalMonitor then
+    -- External monitor connected (use larger font for external or dual display)
+    log.i(string.format("Using larger font size %d for external monitor", config.fontSizeWithMonitor))
     updateJetBrainsIDEFontSize(config.fontSizeWithMonitor)
   else
-    -- Built-in display is active
-    log.i(string.format("Built-in display detected - setting font size to %d", config.fontSizeWithoutMonitor))
+    -- Only built-in display
+    log.i(string.format("Using smaller font size %d for built-in display", config.fontSizeWithoutMonitor))
     updateJetBrainsIDEFontSize(config.fontSizeWithoutMonitor)
   end
 end
@@ -415,9 +436,9 @@ screenWatcher:start()
 caffeineWatcher = hs.caffeinate.watcher.new(systemWoke)
 caffeineWatcher:start()
 
-local isExternal = isExternalMonitorActive()
-local displayType = isExternal and "external monitor" or "built-in display"
-log.i(string.format("Display font adjuster loaded. Active display: %s", displayType))
+local hasExternalMonitor = isExternalMonitorActive()
+local displayType = hasExternalMonitor and "external monitor connected" or "built-in only"
+log.i(string.format("Display font adjuster loaded. Display: %s", displayType))
 
 -- Perform initial font size adjustment based on current display configuration
 -- This ensures fonts are correct when Hammerspoon starts up

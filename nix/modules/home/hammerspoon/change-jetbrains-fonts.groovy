@@ -81,21 +81,20 @@ static void updateEditorFontOptions(int fontSize) {
 }
 
 /**
- * Reset color schemes to use application default font
- * Updates the color scheme font size to match app default since
- * we cannot uncheck "Use color scheme font" programmatically
- * @param fontSize the font size to set
+ * Disable "Use color scheme font instead of the default" checkbox
+ * Forces all schemes to use the application default font settings
  */
-static void syncColorSchemeFonts(int fontSize) {
+static void disableColorSchemeFonts() {
     def editorColorsManager = EditorColorsManager.getInstance()
 
-    // Update all schemes to match the app default font size
+    // Disable color scheme font for all schemes
     editorColorsManager?.allSchemes?.each { EditorColorsScheme scheme ->
         if (scheme && !scheme.readOnly) {
             try {
-                scheme.setEditorFontSize(fontSize)
+                // Setting font preferences to null forces use of app default
+                scheme.fontPreferences = null
             } catch (Exception ex) {
-                System.err.println("Could not set font size for scheme ${scheme.name}: ${ex.message}")
+                System.err.println("Could not disable color scheme font for ${scheme.name}: ${ex.message}")
             }
         }
     }
@@ -104,9 +103,9 @@ static void syncColorSchemeFonts(int fontSize) {
     def globalScheme = editorColorsManager?.globalScheme
     if (globalScheme && !globalScheme.readOnly) {
         try {
-            globalScheme.setEditorFontSize(fontSize)
+            globalScheme.fontPreferences = null
         } catch (Exception ex) {
-            System.err.println("Could not set font size for global scheme: ${ex.message}")
+            System.err.println("Could not disable color scheme font for global scheme: ${ex.message}")
         }
     }
 }
@@ -164,7 +163,7 @@ static void updateFontSizes() {
 
     try {
         updateEditorFontOptions(fontSize)
-        syncColorSchemeFonts(fontSize)
+        disableColorSchemeFonts()
         updateUIFontSettings(fontSize)
         refreshUIAndEditors()
     } catch (Exception ex) {
