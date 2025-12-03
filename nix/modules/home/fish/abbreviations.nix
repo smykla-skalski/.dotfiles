@@ -20,6 +20,12 @@
     mux = "tmuxinator";
     td = "tmuxp load dev";
     b = "cd $HOME/Projects/github.com/bartsmykla/";
+
+    # Home Manager
+    hmn = "home-manager news --flake $DOTFILES_PATH/nix#home-bart";
+    hms = "home-manager switch --flake $DOTFILES_PATH/nix#home-bart";
+    hmg = "home-manager generations --flake $DOTFILES_PATH/nix#home-bart";
+    hmp = "home-manager packages --flake $DOTFILES_PATH/nix#home-bart";
     purge_kuma = builtins.concatStringsSep " " [
       ("kubectl get " + builtins.concatStringsSep "," [
         "endpointslice"

@@ -1,6 +1,9 @@
 { config, lib, ... }:
 
 {
-  # Deploy Hammerspoon configuration from external Lua file
-  home.file.".hammerspoon/init.lua".source = ./hammerspoon/init.lua;
+  # Deploy Hammerspoon configuration and scripts
+  home.file = {
+    ".hammerspoon/init.lua".source = ./hammerspoon/init.lua;
+    ".hammerspoon/change-jetbrains-fonts.groovy".source = ./hammerspoon/change-jetbrains-fonts.groovy;
+  };
 }

@@ -1,5 +1,6 @@
--- Hammerspoon Config: Auto-adjust IDE font sizes based on external display
--- Monitors display connection/disconnection events
+-- Hammerspoon Config: Auto-adjust IDE font sizes based on active display
+-- Detects whether built-in display or external monitor is active
+-- Monitors display changes and system wake events
 -- Lua 5.3 compatible with best practices applied
 
 local log = hs.logger.new('display-font-adjuster', 'info')
@@ -18,41 +19,60 @@ local config = {
     "IntelliJIdea*",
     "PyCharm*",
     "CLion*",
-    "DataGrip*"
+    "DataGrip*",
   },
 
   -- Paths
   jetbrainsBasePath = "/Library/Application Support/JetBrains",
+
+  -- Timing
+  wakeDelaySeconds = 1.0,
 }
 
 -- Module state
 local screenWatcher = nil
+local caffeineWatcher = nil
 
 -------------------------------------------------------------------------------
 -- Utility Functions
 -------------------------------------------------------------------------------
 
--- Safely read a file with proper error handling and resource cleanup
+--- Safely read a file with proper error handling and resource cleanup
+-- @param filepath The path to the file to read
+-- @return content, error Content string on success, nil on failure
+-- @return error nil on success, error string on failure
 local function safeReadFile(filepath)
   local file, err = io.open(filepath, "r")
   if not file then
     return nil, string.format("Failed to open file: %s", err)
   end
 
-  local success, content = pcall(function()
-    return file:read("*all")
+  local content
+  local success, readErr = pcall(function()
+    content = file:read("*all")
   end)
 
-  file:close()
+  -- Ensure file is always closed, even if an error occurred
+  local closeSuccess, closeErr = pcall(function()
+    file:close()
+  end)
+
+  if not closeSuccess then
+    log.w(string.format("Failed to close file %s: %s", filepath, closeErr))
+  end
 
   if not success then
-    return nil, string.format("Failed to read file: %s", content)
+    return nil, string.format("Failed to read file: %s", readErr)
   end
 
   return content, nil
 end
 
--- Safely write a file with proper error handling and resource cleanup
+--- Safely write a file with proper error handling and resource cleanup
+-- @param filepath The path to the file to write
+-- @param content The content to write to the file
+-- @return success, error true on success, false on failure
+-- @return error nil on success, error string on failure
 local function safeWriteFile(filepath, content)
   local file, err = io.open(filepath, "w")
   if not file then
@@ -63,7 +83,14 @@ local function safeWriteFile(filepath, content)
     file:write(content)
   end)
 
-  file:close()
+  -- Ensure file is always closed, even if an error occurred
+  local closeSuccess, closeErr = pcall(function()
+    file:close()
+  end)
+
+  if not closeSuccess then
+    log.w(string.format("Failed to close file %s: %s", filepath, closeErr))
+  end
 
   if not success then
     return false, string.format("Failed to write file: %s", writeErr)
@@ -72,7 +99,8 @@ local function safeWriteFile(filepath, content)
   return true, nil
 end
 
--- Get JetBrains base path with validation
+--- Get JetBrains base path with validation
+-- @return path The full path to JetBrains directory, or nil if not found
 local function getJetBrainsPath()
   local home = os.getenv("HOME")
   if not home or home == "" then
@@ -92,7 +120,10 @@ local function getJetBrainsPath()
   return path
 end
 
--- Find IDE directories using hs.fs (more efficient than shell find)
+--- Find IDE directories using hs.fs (more efficient than shell find)
+-- @param basePath The base directory to search in
+-- @param pattern Shell glob pattern (e.g., "GoLand*")
+-- @return results Array of matching directory paths
 local function findIDEDirectories(basePath, pattern)
   local results = {}
 
@@ -124,50 +155,117 @@ end
 -- Core Functionality
 -------------------------------------------------------------------------------
 
--- Get all connected screens count
-local function getScreenCount()
-  return #hs.screen.allScreens()
-end
-
--- Update font size in a single editor.xml file
-local function updateEditorXmlFile(xmlPath, fontSize)
-  -- Read file
-  local content, readErr = safeReadFile(xmlPath)
-  if not content then
-    log.w(string.format("Cannot read %s: %s", xmlPath, readErr))
+--- Detect if the current primary screen is an external monitor
+-- Checks the builtin property from screen info to determine if the
+-- primary screen is the built-in MacBook display or an external monitor
+-- @return boolean true if external monitor is active, false if built-in
+local function isExternalMonitorActive()
+  local primaryScreen = hs.screen.primaryScreen()
+  if not primaryScreen then
+    log.w("No primary screen found")
     return false
   end
 
-  -- Update FONT_SIZE values
+  -- Check screen info to identify built-in display
+  local screenInfo = primaryScreen:getInfo()
+  if not screenInfo then
+    log.w(string.format("Cannot get screen info for: %s", primaryScreen:name()))
+    -- Fallback: assume external if we can't determine
+    return true
+  end
+
+  local isBuiltIn = screenInfo.builtin or false
+
+  log.d(string.format(
+    "Primary screen: %s (builtin: %s)",
+    primaryScreen:name(),
+    tostring(isBuiltIn)
+  ))
+
+  -- Return true if it's NOT the built-in display (i.e., it's external)
+  return not isBuiltIn
+end
+
+--- Update font size in a single other.xml file (creates if doesn't exist)
+-- @param xmlPath The full path to the other.xml file
+-- @param fontSize The font size to set (must be positive integer)
+-- @return boolean true if file was modified and saved, false otherwise
+local function updateOtherXmlFile(xmlPath, fontSize)
+  -- Validate fontSize
+  if type(fontSize) ~= "number" or fontSize <= 0 then
+    log.e(string.format("Invalid fontSize: %s", tostring(fontSize)))
+    return false
+  end
+
+  local content, readErr = safeReadFile(xmlPath)
+  local newContent
   local modified = false
-  local newContent = content
 
-  -- Update FONT_SIZE (declare count as local to avoid global pollution)
-  local count
-  newContent, count = string.gsub(
-    newContent,
-    '(<option name="FONT_SIZE" value=")%d+(")',
-    '%1' .. fontSize .. '%2'
-  )
-  if count > 0 then
+  if not content then
+    -- File doesn't exist, create it with NotRoamableUiSettings
+    log.i(string.format("Creating new other.xml: %s", xmlPath))
+
+    -- Ensure the options directory exists
+    local optionsDir = xmlPath:match("(.*/)")
+    if optionsDir then
+      local dirAttrs = hs.fs.attributes(optionsDir)
+      if not dirAttrs then
+        -- Create options directory if it doesn't exist
+        local success = hs.execute(string.format('mkdir -p "%s"', optionsDir))
+        if not success then
+          log.e(string.format("Failed to create directory: %s", optionsDir))
+          return false
+        end
+      end
+    end
+
+    newContent = string.format([[<application>
+  <component name="NotRoamableUiSettings">
+    <option name="fontSize" value="%s.0" />
+  </component>
+</application>
+]], fontSize)
     modified = true
+  else
+    newContent = content
+
+    -- Try to update existing fontSize
+    local count
+    newContent, count = string.gsub(
+      newContent,
+      '(<option name="fontSize" value=")%d+%.?%d*(")',
+      '%1' .. fontSize .. '.0%2'
+    )
+
+    if count > 0 then
+      modified = true
+    else
+      -- fontSize doesn't exist, check if NotRoamableUiSettings component exists
+      if newContent:match('<component name="NotRoamableUiSettings">') then
+        -- Component exists, add fontSize option to it
+        newContent, count = string.gsub(
+          newContent,
+          '(<component name="NotRoamableUiSettings">)',
+          '%1\n    <option name="fontSize" value="' .. fontSize .. '.0" />'
+        )
+        modified = count > 0
+      else
+        -- Component doesn't exist, add it before </application>
+        newContent, count = string.gsub(
+          newContent,
+          '(</application>)',
+          '  <component name="NotRoamableUiSettings">\n    <option name="fontSize" value="' .. fontSize .. '.0" />\n  </component>\n%1'
+        )
+        modified = count > 0
+      end
+    end
   end
 
-  -- Update FONT_SIZE_2D
-  newContent, count = string.gsub(
-    newContent,
-    '(<option name="FONT_SIZE_2D" value=")%d+%.?%d*(")',
-    '%1' .. fontSize .. '.0%2'
-  )
-  if count > 0 then
-    modified = true
-  end
-
-  -- Write back if modified
+  -- Write if modified or newly created
   if modified then
     local success, writeErr = safeWriteFile(xmlPath, newContent)
     if success then
-      log.i(string.format("Updated: %s", xmlPath))
+      log.i(string.format("Updated UI font in: %s", xmlPath))
       return true
     else
       log.e(string.format("Failed to write %s: %s", xmlPath, writeErr))
@@ -178,7 +276,11 @@ local function updateEditorXmlFile(xmlPath, fontSize)
   return false
 end
 
--- Update font size in JetBrains IDE editor.xml files
+--- Update font size in all JetBrains IDE configuration files
+-- Updates UI fonts (other.xml) only
+-- Editor fonts are handled by ideScript which sets the default font and
+-- disables "Use color scheme font" checkbox
+-- @param fontSize The font size to apply to all IDEs
 local function updateJetBrainsIDEFontSize(fontSize)
   local jetbrainsPath = getJetBrainsPath()
   if not jetbrainsPath then
@@ -188,49 +290,105 @@ local function updateJetBrainsIDEFontSize(fontSize)
 
   log.i(string.format("Updating JetBrains IDE font sizes to %d", fontSize))
 
-  local updateCount = 0
+  local uiUpdateCount = 0
 
   -- Find all JetBrains IDE directories
   for _, pattern in ipairs(config.idePatterns) do
     local ideDirs = findIDEDirectories(jetbrainsPath, pattern)
 
     for _, ideDir in ipairs(ideDirs) do
-      local editorXmlPath = ideDir .. "/options/editor.xml"
-
-      -- Check if editor.xml exists
-      local attrs = hs.fs.attributes(editorXmlPath)
-      if attrs and attrs.mode == "file" then
-        if updateEditorXmlFile(editorXmlPath, fontSize) then
-          updateCount = updateCount + 1
+      -- Update UI font in other.xml (both local and settingsSync locations)
+      local locations = {"/options/other.xml", "/settingsSync/options/other.xml"}
+      for _, location in ipairs(locations) do
+        local otherXmlPath = ideDir .. location
+        if updateOtherXmlFile(otherXmlPath, fontSize) then
+          uiUpdateCount = uiUpdateCount + 1
         end
       end
     end
   end
 
-  -- Show notification only if files were updated
-  if updateCount > 0 then
-    hs.notify.new({
-      title = "IDE Font Size Updated",
-      informativeText = string.format("Updated %d file(s) to font size %d", updateCount, fontSize)
-    }):send()
+  -- Apply font changes to running IDEs without restart
+  if uiUpdateCount > 0 then
+    local runningApps = hs.application.runningApplications()
+    local scriptPath = os.getenv("HOME") .. "/.hammerspoon/change-jetbrains-fonts.groovy"
+
+    for _, app in ipairs(runningApps) do
+      local appName = app:name()
+      local appPath = app:path()
+
+      -- Check if this is a JetBrains IDE
+      -- Filter: must be in Applications and have exact IDE name (not system services)
+      if appPath and appPath:match("/Applications/") then
+        for _, pattern in ipairs(config.idePatterns) do
+          local ideBaseName = pattern:gsub("%*", "")
+          -- Exact match for IDE name (not partial match to avoid system services)
+          if appName == ideBaseName then
+            log.i(string.format("Applying font changes to %s via ideScript", appName))
+
+            -- Get the IDE's command-line launcher name
+            local ideLauncher = ideBaseName:lower()
+
+            -- Write font size to temp file for ideScript to read
+            local tempFile = os.getenv("TMPDIR") .. "jetbrains-font-size.txt"
+            local file = io.open(tempFile, "w")
+            if file then
+              file:write(tostring(fontSize))
+              file:close()
+            end
+
+            -- Execute ideScript to change fonts without restart
+            local cmd = string.format(
+              '"%s" ideScript "%s" 2>&1',
+              app:path() .. "/Contents/MacOS/" .. ideLauncher,
+              scriptPath
+            )
+
+            local output, status = hs.execute(cmd)
+            if not status then
+              log.w(string.format("Failed to reload fonts in %s: %s", appName, output or "unknown error"))
+            end
+
+            break  -- Don't check other patterns for this app
+          end
+        end
+      end
+    end
+
+    log.i(string.format("Updated %d UI font(s) to size %d", uiUpdateCount, fontSize))
   else
     log.i("No IDE configuration files found to update")
   end
 end
 
--- Handle screen configuration changes
+--- Handle screen configuration changes
+-- Called when display configuration changes or system wakes from sleep
+-- Determines which display is active and applies appropriate font size
 local function screenChanged()
-  local screenCount = getScreenCount()
-  log.i(string.format("Screen configuration changed. Total screens: %d", screenCount))
+  local isExternal = isExternalMonitorActive()
+  local displayType = isExternal and "external monitor" or "built-in display"
 
-  if screenCount > 1 then
-    -- External monitor connected
+  log.i(string.format("Screen configuration changed. Active display: %s", displayType))
+
+  if isExternal then
+    -- External monitor is active
     log.i(string.format("External monitor detected - setting font size to %d", config.fontSizeWithMonitor))
     updateJetBrainsIDEFontSize(config.fontSizeWithMonitor)
   else
-    -- Only built-in display
-    log.i(string.format("Single display detected - setting font size to %d", config.fontSizeWithoutMonitor))
+    -- Built-in display is active
+    log.i(string.format("Built-in display detected - setting font size to %d", config.fontSizeWithoutMonitor))
     updateJetBrainsIDEFontSize(config.fontSizeWithoutMonitor)
+  end
+end
+
+--- Handle system wake from sleep
+-- Called by caffeinate watcher when system power state changes
+-- @param eventType The caffeinate watcher event type
+local function systemWoke(eventType)
+  if eventType == hs.caffeinate.watcher.systemDidWake then
+    log.i("System woke from sleep - checking display configuration")
+    -- Small delay to allow display detection to stabilize
+    hs.timer.doAfter(config.wakeDelaySeconds, screenChanged)
   end
 end
 
@@ -238,24 +396,29 @@ end
 -- Initialization
 -------------------------------------------------------------------------------
 
--- Stop existing watcher if present (prevents memory leak on reload)
+-- Stop existing watchers if present (prevents memory leak on reload)
 if screenWatcher then
   screenWatcher:stop()
   screenWatcher = nil
+end
+
+if caffeineWatcher then
+  caffeineWatcher:stop()
+  caffeineWatcher = nil
 end
 
 -- Set up screen watcher
 screenWatcher = hs.screen.watcher.new(screenChanged)
 screenWatcher:start()
 
-log.i(string.format("Display font adjuster loaded. Monitoring %d screen(s)", getScreenCount()))
+-- Set up caffeine watcher for wake events
+caffeineWatcher = hs.caffeinate.watcher.new(systemWoke)
+caffeineWatcher:start()
 
--- Show initial notification
-hs.notify.new({
-  title = "Hammerspoon Loaded",
-  informativeText = "Display font adjuster is active"
-}):send()
+local isExternal = isExternalMonitorActive()
+local displayType = isExternal and "external monitor" or "built-in display"
+log.i(string.format("Display font adjuster loaded. Active display: %s", displayType))
 
--- Optional: Set initial font size based on current configuration
--- Uncomment the next line if you want to adjust fonts on Hammerspoon load
--- screenChanged()
+-- Perform initial font size adjustment based on current display configuration
+-- This ensures fonts are correct when Hammerspoon starts up
+screenChanged()
