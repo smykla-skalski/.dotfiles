@@ -1,0 +1,117 @@
+{
+  "includeCoAuthoredBy": false,
+  "permissions": {
+    "allow": [
+      "Bash(actionlint:*)",
+      "Bash(base64:*)",
+      "Bash(checkmake:*)",
+      "Bash(command:*)",
+      "Bash(diff:*)",
+      "Bash(echo:*)",
+      "Bash(gh pr checks:*)",
+      "Bash(gh pr view:*)",
+      "Bash(gh repo view:*)",
+      "Bash(gh repo list:*)",
+      "Bash(gh run list:*)",
+      "Bash(gh run view:*)",
+      "Bash(gh run watch:*)",
+      "Bash(gh variable list:*)",
+      "Bash(git branch:*)",
+      "Bash(git cat-file:*)",
+      "Bash(git cat:*)",
+      "Bash(git config --get:*)",
+      "Bash(git describe:*)",
+      "Bash(git diff:*)",
+      "Bash(git fetch:*)",
+      "Bash(git log:*)",
+      "Bash(git ls-files:*)",
+      "Bash(git ls-tree:*)",
+      "Bash(git remote:*)",
+      "Bash(git rev-list:*)",
+      "Bash(git rev-parse:*)",
+      "Bash(git show:*)",
+      "Bash(git status:*)",
+      "Bash(git worktree list:*)",
+      "Bash(go fmt:*)",
+      "Bash(golangci-lint:*)",
+      "Bash(grep:*)",
+      "Bash(hadolint:*)",
+      "Bash(jq:*)",
+      "Bash(launchctl kickstart:*)",
+      "Bash(launchctl list:*)",
+      "Bash(ls:*)",
+      "Bash(make check:*)",
+      "Bash(make fmt:*)",
+      "Bash(make format:*)",
+      "Bash(make lint:*)",
+      "Bash(make test:*)",
+      "Bash(markdownlint:*)",
+      "Bash(mise:*)",
+      "Bash(mkdir:*)",
+      "Bash(printf:*)",
+      "Bash(task check:*)",
+      "Bash(task fmt:*)",
+      "Bash(task format:*)",
+      "Bash(task lint:*)",
+      "Bash(task test:*)",
+      "Bash(tree:*)",
+      "Bash(which:*)",
+      "Bash(yamllint:*)",
+      "WebFetch"
+    ],
+    "ask": [
+      "Bash(gh workflow run:*)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "klaudiush --hook-type PreToolUse"
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "klaudiush --hook-type PreToolUse",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "klaudiush --hook-type Notification"
+          }
+        ]
+      }
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "bash /Users/bart.smykla@konghq.com/.claude/statusline-command.sh"
+  },
+  "enabledPlugins": {
+    "pr-review-toolkit@claude-code-plugins": true,
+    "agent-sdk-dev@claude-code-plugins": false,
+    "commit-commands@claude-code-plugins": true,
+    "feature-dev@claude-code-plugins": true,
+    "security-guidance@claude-code-plugins": true,
+    "code-review@claude-code-plugins": true,
+    "document-skills@anthropic-agent-skills": true,
+    "example-skills@anthropic-agent-skills": true,
+    "claude-code-wakatime@wakatime": true,
+    "tool-evaluator@awesome-claude-code-plugins": true
+  },
+  "alwaysThinkingEnabled": true,
+  "model": "sonnet"
+}

@@ -11,6 +11,7 @@
     # Enable shell integrations for 'br' command
     enableFishIntegration = true;
     enableBashIntegration = true;
+    enableZshIntegration = true;
 
     settings = {
       # Show selection mark (triangle)

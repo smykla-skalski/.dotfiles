@@ -125,7 +125,4 @@ in
 {
   # Create the aliases file in the config directory
   home.file.".config/shell/aliases.sh".source = aliasFile;
-
-  # Also export the aliases for bash/zsh to use
-  home.shellAliases = fishAbbrs;
 }

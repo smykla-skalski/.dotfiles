@@ -41,7 +41,6 @@
       homeModules = [
         sops-nix.homeManagerModules.sops
         klaudiush.homeManagerModules.default
-        ./modules/home/atuin.nix
         ./modules/home/bash.nix
         ./modules/home/broot.nix
         ./modules/home/broot-tips.nix
@@ -61,12 +60,14 @@
         ./modules/home/navi.nix
         ./modules/home/packages.nix
         ./modules/home/shell-aliases.nix
+        ./modules/home/shell-functions.nix
         ./modules/home/sops.nix
         ./modules/home/starship.nix
         ./modules/home/syft.nix
         ./modules/home/tmux.nix
         ./modules/home/tmuxp.nix
         ./modules/home/vim.nix
+        ./modules/home/zsh.nix
       ];
     in
     {

@@ -21,7 +21,8 @@ let
     }
 
     git-get-first-remote() {
-      local remotes=$(git remote)
+      local remotes
+      remotes=$(git remote)
       if echo "$remotes" | grep -q '^upstream$'; then
         echo upstream
       elif echo "$remotes" | grep -q '^origin$'; then
@@ -32,8 +33,10 @@ let
     }
 
     git-checkout-default() {
-      local remote=$(git-get-first-remote)
-      local default_branch=$(git-get-default-branch "$remote")
+      local remote
+      local default_branch
+      remote=$(git-get-first-remote)
+      default_branch=$(git-get-default-branch "$remote")
       git checkout "$default_branch"
     }
 

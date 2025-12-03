@@ -16,6 +16,8 @@
     set --export EDITOR vim
     set --export LC_ALL en_US.UTF-8
     set --export LANG en_US.UTF-8
+    set --export SHELL /bin/bash
+    set --export BASH_ENV $HOME/.bash_env
 
     # fzf configuration (fzf 0.67.0+)
     # These are set here instead of _fzf_wrapper.fish for more control
