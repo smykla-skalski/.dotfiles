@@ -51,6 +51,7 @@
         ./modules/home/exercism.nix
         ./modules/home/fish.nix
         ./modules/home/ghostty.nix
+        ./modules/home/goland.nix
         ./modules/home/grype.nix
         ./modules/home/hammerspoon.nix
         ./modules/home/k9s.nix
