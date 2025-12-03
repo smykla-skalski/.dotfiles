@@ -112,6 +112,9 @@
                   settings.user.email = "bartek@smykla.com";
                 };
 
+                # Suppress "Last login" message
+                home.file.".hushlogin".text = "";
+
                 # Add af package from flake input
                 home.packages = [ af.packages.${system}.default ];
               };
@@ -148,6 +151,8 @@
                 home.username = userName;
                 home.homeDirectory = userHome;
                 home.stateVersion = "24.05";
+                # Suppress "Last login" message
+                home.file.".hushlogin".text = "";
                 # Add af package from flake input
                 home.packages = [ af.packages.${system}.default ];
               }
