@@ -5,6 +5,34 @@
 { config, lib, pkgs, ... }:
 
 {
+  # Create .bash_env for non-interactive shells (used by BASH_ENV)
+  home.file.".bash_env" = {
+    text = ''
+      # Non-interactive bash environment
+      # This file is sourced by non-interactive bash shells (like make, Claude Code, etc.)
+      # via BASH_ENV environment variable
+
+      # Enable alias expansion in non-interactive shells (required for aliases to work)
+      shopt -s expand_aliases
+
+      # Add ~/.local/bin to PATH for mise executable
+      export PATH="$HOME/.local/bin:$PATH"
+
+      # For non-interactive shells, use mise hook-env instead of activate
+      # This sets up PATH and other environment variables immediately
+      if command -v mise >/dev/null 2>&1; then
+          eval "$(mise hook-env -s bash)"
+      fi
+
+      # Source shared shell functions (from Fish functions)
+      [ -f "$HOME/.config/shell/functions.sh" ] && source "$HOME/.config/shell/functions.sh"
+
+      # Source shared shell aliases (from Fish abbreviations)
+      [ -f "$HOME/.config/shell/aliases.sh" ] && source "$HOME/.config/shell/aliases.sh"
+    '';
+    force = true;  # Overwrite existing .bash_env
+  };
+
   programs.bash = {
     enable = true;
 
@@ -15,6 +43,9 @@
 
       # Set BASH_ENV for non-interactive subshells (needed by make)
       export BASH_ENV="$HOME/.bash_env"
+
+      # Source shared shell functions (from Fish functions)
+      [ -f "$HOME/.config/shell/functions.sh" ] && source "$HOME/.config/shell/functions.sh"
 
       # Source shared shell aliases (from Fish abbreviations)
       [ -f "$HOME/.config/shell/aliases.sh" ] && source "$HOME/.config/shell/aliases.sh"
@@ -44,6 +75,9 @@
 
       # Set BASH_ENV so non-interactive bash shells (like make) can find mise
       export BASH_ENV="$HOME/.bash_env"
+
+      # Source shared shell functions (from Fish functions)
+      [ -f "$HOME/.config/shell/functions.sh" ] && source "$HOME/.config/shell/functions.sh"
 
       # Source shared shell aliases (from Fish abbreviations)
       [ -f "$HOME/.config/shell/aliases.sh" ] && source "$HOME/.config/shell/aliases.sh"
