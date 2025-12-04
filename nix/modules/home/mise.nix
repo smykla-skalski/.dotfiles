@@ -20,7 +20,6 @@
       tools = {
         actionlint = "1.7.8";
         age = "1.2.1";
-        chezmoi = "2.67.0";
         cosign = "3.0.2";
         go = "1.25.4";
         golangci-lint = "2.6.2";
