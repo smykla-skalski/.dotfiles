@@ -228,6 +228,51 @@ export CLAUDE_HOOKS_TRACE=true    # Verbose trace
 tail -f ~/.claude/hooks/dispatcher.log
 ```
 
+## Hammerspoon Debugging & IPC
+
+Config: `nix/modules/home/hammerspoon/init.lua` → `~/.hammerspoon/init.lua` (symlinked by home-manager)
+
+**Console**: Hammerspoon menubar → "Console..." (view errors/logs)
+
+### Status Checks
+
+```bash
+hs -c "print(config ~= nil)"                          # Config loaded?
+hs -c "print(type(updateGhosttyFontSize))"           # Function exists? (should be "function")
+hs -c "print(config.ghosttyFontSizeWithMonitor)"     # Check values
+hs -c "hs.reload()"                                   # Reload ("message port invalid" = normal)
+```
+
+### Debug Mode
+
+Enable verbose logging, startup alerts, display detection:
+
+```bash
+hs -c "toggleDebugMode()"              # Toggle via IPC
+# OR: Cmd+Alt+Ctrl+H → Enable Debug Mode → Save → Reload
+# OR: DEBUG_MODE=true hs
+```
+
+### View Logs
+
+```bash
+hs -c "print(hs.console.getConsole())"  # Console output
+hs -c "log.printHistory()"               # Logger history
+```
+
+### Troubleshooting
+
+**"config is nil"** → init.lua failed to load:
+
+1. Check Console (menubar → Console...) for Lua errors
+2. `ls -la ~/.hammerspoon/init.lua` (verify symlink)
+3. `home-manager switch --flake $DOTFILES_PATH/nix#home-bart` (rebuild)
+4. `hs -c "hs.reload()"`
+
+**"message port invalid"** → Normal during reload, ignore
+
+**Docs**: [hs.ipc](https://www.hammerspoon.org/docs/hs.ipc.html) · [hs.logger](https://www.hammerspoon.org/docs/hs.logger.html) · [hs.console](https://www.hammerspoon.org/docs/hs.console.html)
+
 ## Git Workflow
 
 - **Branch-based development**: All changes must go through pull requests
