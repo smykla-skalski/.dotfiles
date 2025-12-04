@@ -88,7 +88,7 @@
 
       git_status = {
         style = "bg:#DA627D";
-        format = "[$all_status$ahead_behind ]($style)";
+        format = "([$all_status$ahead_behind ]($style))";
       };
 
       git_commit = {
