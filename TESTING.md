@@ -37,7 +37,6 @@ Workflow validates:
 2. Configuration file validity
 3. Fish configuration loading
 4. Age encryption/decryption
-5. Chezmoi initialization
 
 See [`.github/workflows/test.yaml`](.github/workflows/test.yaml) for details.
 

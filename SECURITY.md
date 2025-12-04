@@ -51,7 +51,7 @@ This repository follows these security practices:
 
 ### Age Encryption
 
-- Private key stored at `~/.config/chezmoi/key.txt` (never committed)
+- Private key stored at `~/.config/age/key.txt` (never committed)
 - Encrypted files: `secrets/**`, `todos/**`, `CLAUDE.md`, `**/**.secret.*`
 - Transparent encryption via git clean/smudge filters
 

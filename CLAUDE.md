@@ -76,7 +76,7 @@ SOPS_AGE_KEY_FILE=~/.config/chezmoi/key.txt sops nix/secrets/secrets.yaml
 
 Encryption using age for repository files:
 
-- **Key location**: `~/.config/chezmoi/key.txt` (never commit)
+- **Key location**: `~/.config/age/key.txt` (never commit)
 - **Repository files**: Encrypted via git clean/smudge filters
 
 Encrypted file patterns (`.gitattributes`):
@@ -338,7 +338,7 @@ Refer to documentation for detailed workflows:
 
 ## Security Notes
 
-- **Age key**: `~/.config/chezmoi/key.txt` is private, never commit
+- **Age key**: `~/.config/age/key.txt` is private, never commit
 - **Encrypted files**: Never expose actual content in commit messages
 - **Secrets**: Managed via sops-nix for nix configs, git filters for repo files
 - **Git filters**: Clean/smudge filters handle transparent encryption

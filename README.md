@@ -1,6 +1,6 @@
 # .dotfiles
 
-Personal macOS dotfiles managed with [chezmoi](https://chezmoi.io), encrypted with [age](https://age-encryption.org/), and automated with [Task](https://taskfile.dev).
+Personal macOS dotfiles managed with [Nix](https://nixos.org/) and [Home Manager](https://github.com/nix-community/home-manager), encrypted with [age](https://age-encryption.org/), and automated with [Task](https://taskfile.dev).
 
 [![Test Dotfiles](https://github.com/smykla-labs/.dotfiles/actions/workflows/test.yaml/badge.svg)](https://github.com/smykla-labs/.dotfiles/actions/workflows/test.yaml)
 [![CodeQL](https://github.com/smykla-labs/.dotfiles/actions/workflows/codeql.yaml/badge.svg)](https://github.com/smykla-labs/.dotfiles/actions/workflows/codeql.yaml)
@@ -9,7 +9,7 @@ Personal macOS dotfiles managed with [chezmoi](https://chezmoi.io), encrypted wi
 
 ## Features
 
-- **Dotfile Management**: chezmoi for cross-machine synchronization
+- **Dotfile Management**: Nix with Home Manager for declarative configuration
 - **Encryption**: age for secrets (multi-recipient: personal + CI keys)
 - **Testing**: Automated syntax checks and linting via Task
 - **Security**: CodeQL analysis, dependency scanning, OpenSSF Scorecard
@@ -32,7 +32,7 @@ This will automatically:
 - Install Homebrew and all dependencies
 - Clone the repository to the correct location
 - Set up age encryption
-- Configure chezmoi and apply dotfiles
+- Configure Nix and apply system configuration
 - Install Vim and Tmux plugins
 - Set up git hooks
 
@@ -77,15 +77,12 @@ cd ~/Projects/github.com/smykla-labs/.dotfiles
 brew bundle install --file=Brewfile
 
 # Get age key from 1Password
-mkdir -p ~/.config/chezmoi
-op document get dyhxf4wgavxqwqt23wbsl5my2m > ~/.config/chezmoi/key.txt
-chmod 600 ~/.config/chezmoi/key.txt
+mkdir -p ~/.config/age
+op document get dyhxf4wgavxqwqt23wbsl5my2m > ~/.config/age/key.txt
+chmod 600 ~/.config/age/key.txt
 
-# Initialize chezmoi
-chezmoi init --source "$PWD/chezmoi"
-
-# Apply dotfiles
-chezmoi apply
+# Apply dotfiles via Home Manager
+home-manager switch --flake ./nix#home-bart
 
 # Install vim plugins (Vundle)
 vim +PluginInstall +qall
@@ -134,24 +131,27 @@ Git hooks automate quality checks:
 
 ## Core Tools
 
-- **[chezmoi](https://chezmoi.io)**: Dotfile management
+- **[Nix](https://nixos.org/)**: Package management and system configuration
+- **[Home Manager](https://github.com/nix-community/home-manager)**: User environment management
+- **[nix-darwin](https://github.com/LnL7/nix-darwin)**: macOS system configuration
+- **[sops-nix](https://github.com/Mic92/sops-nix)**: Secrets management
 - **[age](https://age-encryption.org/)**: File encryption
 - **[Task](https://taskfile.dev)**: Task automation
 - **[mise](https://mise.jdx.dev/)**: Tool version management
 - **[Fish](https://fishshell.com/)**: Shell
-- **[Homebrew](https://brew.sh)**: Package management
+- **[Homebrew](https://brew.sh)**: Package management (legacy)
 
 ## Encryption
 
 Sensitive files are encrypted with age using two systems:
 
-### Chezmoi-Managed
+### Nix Secrets (sops-nix)
 
-Files like `encrypted_*.age` in `chezmoi/` source:
+Secrets managed via `nix/secrets/secrets.yaml`:
 
 ```bash
-chezmoi add --encrypt ~/.config/sensitive-file
-chezmoi edit ~/.config/sensitive-file
+# Edit secrets
+SOPS_AGE_KEY_FILE=~/.config/age/key.txt sops nix/secrets/secrets.yaml
 ```
 
 ### Git-Filter Managed

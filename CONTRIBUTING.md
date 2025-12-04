@@ -253,6 +253,13 @@ See [TESTING.md](TESTING.md) for comprehensive testing documentation.
 
 The dotfiles use age encryption for sensitive files via git filters.
 
+### Nix Secrets (sops-nix)
+
+Secrets in `nix/secrets/secrets.yaml`:
+
+- Edit: `SOPS_AGE_KEY_FILE=~/.config/age/key.txt sops nix/secrets/secrets.yaml`
+- Deployed by Home Manager
+
 ### Git-Filter Files
 
 Files automatically encrypted via `.gitattributes` (CLAUDE.md, secrets/, todos/):

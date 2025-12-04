@@ -7,8 +7,6 @@ Quick reference for common issues and debugging techniques.
 ```bash
 task test           # Run all tests
 task lint           # Run all linters
-chezmoi verify      # Verify chezmoi state
-chezmoi doctor      # Check chezmoi setup
 ```
 
 ## Bootstrap Script Issues
@@ -36,8 +34,8 @@ bash /tmp/bootstrap.sh
 
 ```bash
 op signin                                # Sign in to 1Password
-op document get dyhxf4wgavxqwt23wbsl5my2m > ~/.config/chezmoi/key.txt
-chmod 600 ~/.config/chezmoi/key.txt
+op document get dyhxf4wgavxqwt23wbsl5my2m > ~/.config/age/key.txt
+chmod 600 ~/.config/age/key.txt
 ```
 
 **Manual key entry:**
@@ -95,17 +93,6 @@ cd ~/Projects/github.com/smykla-labs/.dotfiles
 task install
 ```
 
-### Chezmoi Init Hangs
-
-If chezmoi init hangs waiting for input:
-
-```bash
-# Ctrl+C to cancel
-# Run with environment variables
-BOOTSTRAP_EMAIL=user@example.com BOOTSTRAP_NAME="Full Name" \
-  curl -fsSL https://smyk.la | bash -s -- --yes
-```
-
 ### Bootstrap Completes but Shell Not Changed
 
 **Restart terminal:**
@@ -122,44 +109,28 @@ echo $SHELL                              # Should show Fish path
 chsh -s $(which fish)                    # Set if not default
 ```
 
-## Chezmoi Issues
+## Nix Issues
 
-### Files Not Syncing
+### Home Manager Build Fails
 
-**Check state:**
+**Check configuration:**
 
 ```bash
-chezmoi diff                # See pending changes
-chezmoi status              # Check modified files
+home-manager switch --flake $DOTFILES_PATH/nix#home-bart --show-trace
 ```
 
-**Apply changes:**
+**Rebuild with debugging:**
 
 ```bash
-chezmoi apply --verbose     # Apply with detailed output
+nix build --show-trace $DOTFILES_PATH/nix#homeConfigurations.home-bart.activationPackage
 ```
 
-**Fix out-of-sync file:**
+### Configuration Not Applied
+
+**Force rebuild:**
 
 ```bash
-chezmoi forget ~/.config/problematic-file
-chezmoi add ~/.config/problematic-file
-```
-
-### Encrypted Files Not Decrypting
-
-**Check age key:**
-
-```bash
-ls -la ~/.config/chezmoi/key.txt        # Should exist with 600 perms
-age --decrypt --identity ~/.config/chezmoi/key.txt < chezmoi/encrypted_test.age
-```
-
-**Re-add encrypted file:**
-
-```bash
-chezmoi forget ~/.config/problematic-file
-chezmoi add --encrypt ~/.config/problematic-file
+home-manager switch --flake $DOTFILES_PATH/nix#home-bart --impure
 ```
 
 ## Git Filter Issues
@@ -177,7 +148,7 @@ git config filter.age.smudge    # Should show decryption command
 
 ```bash
 git config filter.age.clean "~/.git/age-clean.sh"
-git config filter.age.smudge "age --decrypt --identity ~/.config/chezmoi/key.txt 2>/dev/null || cat"
+git config filter.age.smudge "age --decrypt --identity ~/.config/age/key.txt 2>/dev/null || cat"
 ```
 
 **Force re-encryption:**
@@ -252,17 +223,18 @@ age --decrypt --identity ~/.config/age/ci-key.txt < CLAUDE.md
 
 The dotfiles system uses:
 
-- **chezmoi**: Manages dotfiles, applies templates, encrypts secrets
-- **age**: Encrypts files (both chezmoi-managed and git-filter managed)
+- **Nix/Home Manager**: Declaratively manages dotfiles and system configuration
+- **sops-nix**: Manages secrets in `nix/secrets/secrets.yaml`
+- **age**: Encrypts files (both sops-nix secrets and git-filter managed files)
 - **Task**: Runs tests and linters
 - **mise**: Manages tool versions
 
 ### Two Encryption Systems
 
-1. **Chezmoi encryption** (`encrypted_*.age` in source):
-   - Managed by chezmoi
-   - Use `chezmoi add --encrypt` to add
-   - Decrypt on `chezmoi apply`
+1. **sops-nix secrets** (`nix/secrets/secrets.yaml`):
+   - Managed via sops with age encryption
+   - Edit: `SOPS_AGE_KEY_FILE=~/.config/age/key.txt sops nix/secrets/secrets.yaml`
+   - Deployed by Home Manager
 
 2. **Git filter encryption** (via `.gitattributes`):
    - Transparent encryption on commit
