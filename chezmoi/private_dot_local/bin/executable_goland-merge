@@ -1,5 +1,0 @@
-#!/bin/bash
-# Wrapper for GoLand merge that waits for completion
-# Usage: goland-merge <local> <remote> [base] <merged>
-
-exec "/Users/bart.smykla@konghq.com/Applications/GoLand.app/Contents/MacOS/goland" merge "$@"

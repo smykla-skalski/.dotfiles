@@ -76,7 +76,7 @@ git remote add upstream https://github.com/smykla-labs/.dotfiles
    ```
 
 2. Make your changes in the appropriate location:
-   - Dotfiles: `chezmoi/` source directory
+   - Dotfiles: `nix/modules/` (nix/home-manager configuration)
    - Documentation: `docs/`, root `.md` files
    - Tasks: `Taskfile.yaml`
    - CI: `.github/workflows/`
@@ -105,9 +105,9 @@ Footer (optional)
 Use specific types for infrastructure changes:
 
 | Type       | Use Case                | Example                                       |
-|------------|-------------------------|-----------------------------------------------|
+|:-----------|:------------------------|:----------------------------------------------|
 | `feat`     | New user-facing feature | `feat(fish): add git helper function`         |
-| `fix`      | Bug fix                 | `fix(chezmoi): correct age encryption path`   |
+| `fix`      | Bug fix                 | `fix(nix): correct age encryption path`       |
 | `docs`     | Documentation only      | `docs(readme): add installation steps`        |
 | `ci`       | CI/CD changes           | `ci(workflow): add macos-14 to test matrix`   |
 | `test`     | Test changes            | `test(fish): add syntax validation`           |
@@ -225,13 +225,13 @@ See [TESTING.md](TESTING.md) for comprehensive testing documentation.
 
 ```text
 .dotfiles/
-├── chezmoi/                   # Chezmoi source directory
-│   ├── .chezmoi.toml.tmpl     # Chezmoi config template
-│   ├── .chezmoiignore         # Ignore patterns
-│   └── private_dot_config/    # Config files (~/.config/)
-│       └── fish/              # Fish shell config
-│           ├── config.fish
-│           └── functions/     # Custom functions
+├── nix/                       # Nix configuration
+│   ├── flake.nix              # Flake entry point
+│   ├── flake.lock             # Locked dependencies
+│   ├── modules/               # Nix modules
+│   │   ├── darwin/            # nix-darwin modules (system-level)
+│   │   └── home/              # home-manager modules (user-level)
+│   └── secrets/               # sops-nix encrypted secrets
 ├── .github/
 │   └── workflows/
 │       ├── codeql.yaml        # CodeQL security analysis
@@ -242,7 +242,7 @@ See [TESTING.md](TESTING.md) for comprehensive testing documentation.
 │   └── pre-push               # Test check
 ├── spec/                      # ShellSpec tests
 ├── Taskfile.yaml              # Task automation
-├── Brewfile                   # Homebrew packages
+├── Brewfile                   # Homebrew packages (legacy)
 ├── README.md                  # Project overview
 ├── CONTRIBUTING.md            # This file
 ├── SECURITY.md                # Security policy
@@ -251,16 +251,7 @@ See [TESTING.md](TESTING.md) for comprehensive testing documentation.
 
 ## Encryption
 
-The dotfiles use age encryption for sensitive files. There are two encryption systems:
-
-### Chezmoi-Managed Files
-
-Files prefixed with `encrypted_` and `.age` extension in `chezmoi/` source:
-
-```bash
-chezmoi add --encrypt ~/.config/sensitive-file    # Add encrypted file
-chezmoi edit ~/.config/sensitive-file             # Edit encrypted file
-```
+The dotfiles use age encryption for sensitive files via git filters.
 
 ### Git-Filter Files
 
@@ -272,7 +263,7 @@ Files automatically encrypted via `.gitattributes` (CLAUDE.md, secrets/, todos/)
 
 ### Key Management
 
-- **Personal key**: `~/.config/chezmoi/key.txt` (never commit)
+- **Personal key**: `~/.config/age/key.txt` (never commit)
 - **CI key**: Stored in `AGE_CI_KEY` GitHub Secret
 - Both keys can decrypt files (multi-recipient encryption)
 
