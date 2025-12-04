@@ -35,11 +35,13 @@ in
   home.file.".claude/statusline-command.sh" = {
     executable = true;
     source = ./claude/statusline-command.sh;
+    force = true;
   };
 
   home.file.".claude/statusline-debug.sh" = {
     executable = true;
     source = ./claude/statusline-debug.sh;
+    force = true;
   };
 
   # Symlink CLAUDE.md from sops secret

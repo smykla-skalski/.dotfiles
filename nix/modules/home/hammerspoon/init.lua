@@ -520,12 +520,6 @@ end
 -- This updates ALL splits/tabs/windows globally via ctrl+a>r (reload_config)
 -- @param fontSize number - target font size
 local function updateGhosttyFontSize(fontSize)
-  local ghostty = hs.application.find("Ghostty")
-  if not ghostty then
-    log.d("Ghostty not running, skipping font update")
-    return
-  end
-
   log.i(string.format("Updating Ghostty font size to %d via config overlay", fontSize))
 
   -- Path to Ghostty config overlay (writable, not managed by Nix)
@@ -546,31 +540,78 @@ local function updateGhosttyFontSize(fontSize)
 
   log.i(string.format("Updated font-size in overlay: %s", overlayPath))
 
-  -- Send reload_config command to Ghostty (affects all splits/tabs/windows)
-  local windows = ghostty:allWindows()
+  -- Use window filter to find ALL Ghostty windows (more reliable across spaces)
+  local windows = hs.window.filter.new(false):setAppFilter('Ghostty'):getWindows()
+
   if not windows or #windows == 0 then
     log.w("No Ghostty windows found to send reload command")
     return
   end
 
+  log.d(string.format("Found %d Ghostty window(s) via window filter", #windows))
+
+  -- Get Ghostty application object
+  local ghostty = hs.application.get("Ghostty")
+  if not ghostty then
+    log.w("Ghostty application not found, but windows exist - using fallback")
+    ghostty = windows[1]:application()
+  end
+
   -- Remember currently focused window
   local currentlyFocused = hs.window.focusedWindow()
 
-  -- Focus any Ghostty window and send reload command
-  windows[1]:focus()
-  hs.timer.usleep(20000)  -- 20ms
+  -- Track successful reloads
+  local successCount = 0
+  local failCount = 0
 
-  -- Send ctrl+a>r (reload_config)
-  hs.eventtap.keyStroke({"ctrl"}, "a", 0, ghostty)
-  hs.timer.usleep(50000)  -- 50ms
-  hs.eventtap.keyStroke({}, "r", 0, ghostty)
+  -- Activate Ghostty application first (ensures it's frontmost)
+  ghostty:activate()
+  hs.timer.usleep(100000)  -- 100ms for activation
 
-  -- Restore focus
-  if currentlyFocused and currentlyFocused:isVisible() then
-    currentlyFocused:focus()
+  -- Send reload to each Ghostty window (including those on other spaces)
+  for i, window in ipairs(windows) do
+    local success, err = pcall(function()
+      -- Verify window still exists (don't check isVisible as it fails for other spaces)
+      if not window then
+        log.d(string.format("Window %d is no longer available, skipping", i))
+        return
+      end
+
+      -- Focus this window (works even if on different space)
+      -- This will switch spaces if needed
+      window:focus()
+      hs.timer.usleep(75000)  -- 75ms for space switching
+
+      -- Send ctrl+a>r (reload_config)
+      -- First send ctrl+a
+      hs.eventtap.keyStroke({"ctrl"}, "a", 0)
+      hs.timer.usleep(50000)  -- 50ms between chord keys
+      -- Then send r
+      hs.eventtap.keyStroke({}, "r", 0)
+      hs.timer.usleep(25000)  -- 25ms before next window
+
+      log.d(string.format("Sent reload command to window %d", i))
+      successCount = successCount + 1
+    end)
+
+    if not success then
+      failCount = failCount + 1
+      log.w(string.format("Failed to reload window %d: %s", i, tostring(err)))
+    end
   end
 
-  log.i("Sent reload_config to Ghostty - all splits/tabs/windows updated")
+  -- Restore original focus
+  if currentlyFocused and currentlyFocused:isVisible() then
+    pcall(function()
+      currentlyFocused:focus()
+    end)
+  end
+
+  if successCount > 0 then
+    log.i(string.format("Sent reload_config to %d Ghostty window(s) (%d failed)", successCount, failCount))
+  else
+    log.w("Failed to reload any Ghostty windows")
+  end
 end
 
 --- Handle screen configuration changes
@@ -719,6 +760,7 @@ screenChanged()
 -------------------------------------------------------------------------------
 
 local configWindow = nil
+local originalFocusedWindow = nil
 
 --- Show configuration UI (global for IPC debugging)
 function showConfigUI()
@@ -727,6 +769,9 @@ function showConfigUI()
     pcall(function() configWindow:delete() end)
     configWindow = nil
   end
+
+  -- Save the currently focused window to restore later
+  originalFocusedWindow = hs.window.focusedWindow()
 
   log.i("Creating configuration UI window")
 
@@ -1591,16 +1636,31 @@ function showConfigUI()
         -- Restart poll timer with new interval
         restartPollTimer()
 
-        -- Apply new font settings immediately
-        screenChanged()
-
-        -- Close window without notification
+        -- Close window first to allow proper focus changes
         if checkTimer then
           checkTimer:stop()
           checkTimer = nil
         end
         configWindow:delete()
         configWindow = nil
+
+        -- Apply new font settings after window is closed
+        -- Longer delay to ensure window is fully closed and system updates window list
+        hs.timer.doAfter(0.3, function()
+          screenChanged()
+
+          -- Restore focus to original window after all updates complete
+          -- Add delay to let Ghostty updates finish
+          hs.timer.doAfter(0.5, function()
+            if originalFocusedWindow and originalFocusedWindow:isVisible() then
+              pcall(function()
+                originalFocusedWindow:focus()
+                log.i("Restored focus to original window")
+              end)
+            end
+            originalFocusedWindow = nil
+          end)
+        end)
       elseif action.type == "close" then
         log.i("Closing configuration UI")
         if checkTimer then
@@ -1609,6 +1669,17 @@ function showConfigUI()
         end
         configWindow:delete()
         configWindow = nil
+
+        -- Restore focus to original window when canceling
+        hs.timer.doAfter(0.1, function()
+          if originalFocusedWindow and originalFocusedWindow:isVisible() then
+            pcall(function()
+              originalFocusedWindow:focus()
+              log.i("Restored focus to original window (canceled)")
+            end)
+          end
+          originalFocusedWindow = nil
+        end)
       elseif action.type == "updateIDEs" then
         log.i("Updating IDE patterns")
         config.idePatterns = action.data
