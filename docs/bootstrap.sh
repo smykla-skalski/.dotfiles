@@ -4,7 +4,6 @@
 # Usage: curl -fsSL https://smyk.la | bash
 #        curl -fsSL https://smyk.la | bash -s -- --yes
 #        curl -fsSL https://smyk.la | bash -s -- --dir ~/my-dotfiles
-#        BOOTSTRAP_EMAIL=user@example.com BOOTSTRAP_NAME="Full Name" curl -fsSL https://smyk.la | bash -s -- --yes
 
 # shellcheck disable=SC2310  # Functions in conditions with set -e is expected behavior
 
@@ -14,7 +13,7 @@ set -euo pipefail
 readonly REPO_ORG="bartsmykla"
 readonly REPO_NAME=".dotfiles"
 readonly REPO_URL="https://github.com/${REPO_ORG}/${REPO_NAME}.git"
-readonly AGE_KEY_PATH="${HOME}/.config/chezmoi/key.txt"
+readonly AGE_KEY_PATH="${HOME}/.config/age/key.txt"
 readonly AGE_KEY_OP_ID="dyhxf4wgavxqwt23wbsl5my2m"
 
 # Colors for output
@@ -26,8 +25,6 @@ readonly NC='\033[0m' # No Color
 
 # Flags and configurable options
 YES_FLAG=false
-BOOTSTRAP_EMAIL="${BOOTSTRAP_EMAIL:-}"
-BOOTSTRAP_NAME="${BOOTSTRAP_NAME:-}"
 BOOTSTRAP_DIR="${BOOTSTRAP_DIR:-${HOME}/Projects/github.com/${REPO_ORG}/${REPO_NAME}}"
 TARGET_DIR="${BOOTSTRAP_DIR}"
 
@@ -286,98 +283,6 @@ install_dependencies() {
 }
 
 #
-# Chezmoi configuration
-#
-
-get_user_email() {
-    # Priority: env var > git config > prompt
-    if [[ -n "${BOOTSTRAP_EMAIL}" ]]; then
-        echo "${BOOTSTRAP_EMAIL}"
-        return 0
-    fi
-
-    local git_email
-    git_email=$(git config --global user.email 2>/dev/null || echo "")
-
-    if [[ -n "${git_email}" ]]; then
-        if [[ "${YES_FLAG}" == "true" ]]; then
-            echo "${git_email}"
-            return 0
-        fi
-
-        read -rp "Email address [${git_email}]: " input_email
-        echo "${input_email:-${git_email}}"
-    else
-        if [[ "${YES_FLAG}" == "true" ]]; then
-            die "Email is required. Set BOOTSTRAP_EMAIL environment variable or git config user.email"
-        fi
-        read -rp "Email address: " input_email
-        echo "${input_email}"
-    fi
-}
-
-get_user_name() {
-    # Priority: env var > git config > prompt
-    if [[ -n "${BOOTSTRAP_NAME}" ]]; then
-        echo "${BOOTSTRAP_NAME}"
-        return 0
-    fi
-
-    local git_name
-    git_name=$(git config --global user.name 2>/dev/null || echo "")
-
-    if [[ -n "${git_name}" ]]; then
-        if [[ "${YES_FLAG}" == "true" ]]; then
-            echo "${git_name}"
-            return 0
-        fi
-
-        read -rp "Full name [${git_name}]: " input_name
-        echo "${input_name:-${git_name}}"
-    else
-        if [[ "${YES_FLAG}" == "true" ]]; then
-            die "Full name is required. Set BOOTSTRAP_NAME environment variable or git config user.name"
-        fi
-        read -rp "Full name: " input_name
-        echo "${input_name}"
-    fi
-}
-
-setup_chezmoi() {
-    log_info "Setting up chezmoi..."
-
-    cd "${TARGET_DIR}"
-
-    local email
-    local name
-
-    email=$(get_user_email)
-    name=$(get_user_name)
-
-    if [[ -z "${email}" ]] || [[ -z "${name}" ]]; then
-        die "Email and name are required"
-    fi
-
-    log_info "Initializing chezmoi with email=${email}, name=${name}"
-
-    # Export for chezmoi template
-    export CHEZMOI_EMAIL="${email}"
-    export CHEZMOI_NAME="${name}"
-
-    chezmoi init --source "${TARGET_DIR}/chezmoi"
-
-    log_success "Chezmoi initialized"
-}
-
-apply_dotfiles() {
-    log_info "Applying dotfiles..."
-
-    chezmoi apply
-
-    log_success "Dotfiles applied successfully"
-}
-
-#
 # Plugin installation
 #
 
@@ -456,14 +361,17 @@ print_success_message() {
     echo ""
     echo "Next steps:"
     echo ""
-    echo "  1. Restart your terminal or run:"
+    echo "  1. Deploy dotfiles via home-manager:"
+    echo "     home-manager switch --flake ${TARGET_DIR}/nix#home-bart"
+    echo ""
+    echo "  2. Restart your terminal or run:"
     echo "     exec \$(which fish)"
     echo ""
-    echo "  2. Install Tmux plugins:"
+    echo "  3. Install Tmux plugins:"
     echo "     - Start tmux: tmux"
     echo "     - Press: Ctrl-b + I"
     echo ""
-    echo "  3. Verify configuration:"
+    echo "  4. Verify configuration:"
     echo "     cd ${TARGET_DIR}"
     echo "     task test"
     echo ""
@@ -487,23 +395,6 @@ parse_args() {
                 YES_FLAG=true
                 shift
                 ;;
-            --email)
-                if [[ -z "${2:-}" || "${2:-}" == -* ]]; then
-                    die "--email requires a value"
-                fi
-                if [[ ! "${2}" =~ ^[^@]+@[^@]+\.[^@]+$ ]]; then
-                    die "--email must be a valid email address"
-                fi
-                BOOTSTRAP_EMAIL="$2"
-                shift 2
-                ;;
-            --name)
-                if [[ -z "${2:-}" || "${2:-}" == -* ]]; then
-                    die "--name requires a value"
-                fi
-                BOOTSTRAP_NAME="$2"
-                shift 2
-                ;;
             --dir)
                 if [[ -z "${2:-}" || "${2:-}" == -* ]]; then
                     die "--dir requires a value"
@@ -521,20 +412,15 @@ parse_args() {
                 echo ""
                 echo "Options:"
                 echo "  --yes, -y          Skip confirmation prompts"
-                echo "  --email EMAIL      Set email (overrides git config)"
-                echo "  --name NAME        Set full name (overrides git config)"
                 echo "  --dir DIRECTORY    Installation directory (default: ~/Projects/github.com/smykla-labs/.dotfiles)"
                 echo "  --help, -h         Show this help"
                 echo ""
                 echo "Environment variables:"
-                echo "  BOOTSTRAP_EMAIL    Set email address"
-                echo "  BOOTSTRAP_NAME     Set full name"
                 echo "  BOOTSTRAP_DIR      Installation directory"
                 echo ""
                 echo "Examples:"
                 echo "  curl -fsSL https://smyk.la | bash -s -- --yes"
                 echo "  curl -fsSL https://smyk.la | bash -s -- --dir ~/dotfiles"
-                echo "  BOOTSTRAP_EMAIL=user@example.com curl -fsSL https://smyk.la | bash"
                 exit 0
                 ;;
             *)
@@ -568,8 +454,9 @@ main() {
 
     # Installation
     install_dependencies
-    setup_chezmoi
-    apply_dotfiles
+
+    # Note: Dotfiles are deployed via nix and home-manager
+    # Run: home-manager switch --flake $DOTFILES_PATH/nix#home-bart
 
     # Plugins and hooks
     install_vim_plugins

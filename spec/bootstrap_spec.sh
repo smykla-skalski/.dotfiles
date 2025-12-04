@@ -77,18 +77,6 @@ Describe 'Bootstrap Script'
             The output should include "Skip confirmation prompts"
         End
 
-        It 'includes --email option in help'
-            When call bash "${BOOTSTRAP_SCRIPT}" --help
-            The output should include "--email EMAIL"
-            The output should include "Set email"
-        End
-
-        It 'includes --name option in help'
-            When call bash "${BOOTSTRAP_SCRIPT}" --help
-            The output should include "--name NAME"
-            The output should include "Set full name"
-        End
-
         It 'includes --dir option in help'
             When call bash "${BOOTSTRAP_SCRIPT}" --help
             The output should include "--dir DIRECTORY"
@@ -98,16 +86,6 @@ Describe 'Bootstrap Script'
         It 'includes --help option in help'
             When call bash "${BOOTSTRAP_SCRIPT}" --help
             The output should include "--help, -h"
-        End
-
-        It 'includes BOOTSTRAP_EMAIL in help'
-            When call bash "${BOOTSTRAP_SCRIPT}" --help
-            The output should include "BOOTSTRAP_EMAIL"
-        End
-
-        It 'includes BOOTSTRAP_NAME in help'
-            When call bash "${BOOTSTRAP_SCRIPT}" --help
-            The output should include "BOOTSTRAP_NAME"
         End
 
         It 'includes BOOTSTRAP_DIR in help'
@@ -140,7 +118,7 @@ Describe 'Bootstrap Script'
 
         It 'has age key path configuration'
             When call grep -o 'AGE_KEY_PATH="[^"]*"' "${BOOTSTRAP_SCRIPT}"
-            The output should include ".config/chezmoi/key.txt"
+            The output should include ".config/age/key.txt"
         End
 
         It 'has 1Password age key ID'
@@ -230,16 +208,6 @@ Describe 'Bootstrap Script'
 
         It 'has install_dependencies function'
             When call grep -c "^install_dependencies()" "${BOOTSTRAP_SCRIPT}"
-            The output should not equal "0"
-        End
-
-        It 'has setup_chezmoi function'
-            When call grep -c "^setup_chezmoi()" "${BOOTSTRAP_SCRIPT}"
-            The output should not equal "0"
-        End
-
-        It 'has apply_dotfiles function'
-            When call grep -c "^apply_dotfiles()" "${BOOTSTRAP_SCRIPT}"
             The output should not equal "0"
         End
 
@@ -342,30 +310,6 @@ Describe 'Bootstrap Script'
             The stderr should be present
         End
 
-        It 'rejects --email without value'
-            When run bash "${BOOTSTRAP_SCRIPT}" --email
-            The status should be failure
-            The stderr should include "--email requires a value"
-        End
-
-        It 'rejects --email with flag as value'
-            When run bash "${BOOTSTRAP_SCRIPT}" --email --name
-            The status should be failure
-            The stderr should include "--email requires a value"
-        End
-
-        It 'rejects --name without value'
-            When run bash "${BOOTSTRAP_SCRIPT}" --name
-            The status should be failure
-            The stderr should include "--name requires a value"
-        End
-
-        It 'rejects --name with flag as value'
-            When run bash "${BOOTSTRAP_SCRIPT}" --name --email
-            The status should be failure
-            The stderr should include "--name requires a value"
-        End
-
         It 'rejects --dir without value'
             When run bash "${BOOTSTRAP_SCRIPT}" --dir
             The status should be failure
@@ -376,30 +320,6 @@ Describe 'Bootstrap Script'
             When run bash "${BOOTSTRAP_SCRIPT}" --dir --yes
             The status should be failure
             The stderr should include "--dir requires a value"
-        End
-
-        It 'rejects invalid email format'
-            When run bash "${BOOTSTRAP_SCRIPT}" --email "invalid-email" --help
-            The status should be failure
-            The stderr should include "--email must be a valid email address"
-        End
-
-        It 'rejects email without domain'
-            When run bash "${BOOTSTRAP_SCRIPT}" --email "user@" --help
-            The status should be failure
-            The stderr should include "--email must be a valid email address"
-        End
-
-        It 'rejects email without @'
-            When run bash "${BOOTSTRAP_SCRIPT}" --email "userdomain.com" --help
-            The status should be failure
-            The stderr should include "--email must be a valid email address"
-        End
-
-        It 'accepts valid email format'
-            When run bash "${BOOTSTRAP_SCRIPT}" --email "user@example.com" --help
-            The status should be success
-            The output should include "Bootstrap script for bartsmykla's dotfiles"
         End
     End
 
@@ -464,20 +384,6 @@ Describe 'Bootstrap Script'
         End
     End
 
-    Describe 'User input validation with --yes flag'
-        It 'fails fast when email is required with --yes flag'
-            When call grep -B 2 -A 2 "Email is required" "${BOOTSTRAP_SCRIPT}"
-            The output should include "YES_FLAG"
-            The output should include "die"
-        End
-
-        It 'fails fast when name is required with --yes flag'
-            When call grep -B 2 -A 2 "Full name is required" "${BOOTSTRAP_SCRIPT}"
-            The output should include "YES_FLAG"
-            The output should include "die"
-        End
-    End
-
     Describe 'Integration tests for --yes flag fail-fast behavior'
         setup_test_env() {
             # Create temporary test directory
@@ -525,33 +431,10 @@ Describe 'Bootstrap Script'
         It 'fails immediately with --yes when age key is unavailable'
             Skip if "Test requires macOS" test "$(uname)" != "Darwin"
 
-            # Unset environment variables
-            unset BOOTSTRAP_EMAIL
-            unset BOOTSTRAP_NAME
-
             When run bash "${BOOTSTRAP_SCRIPT}" --yes --dir "${TEST_HOME}/.dotfiles"
             The status should be failure
             The stderr should include "Age key is required"
             The output should include "bartsmykla's dotfiles bootstrap"
-        End
-
-        It 'accepts email from environment variable with --yes flag'
-            export BOOTSTRAP_EMAIL="test@example.com"
-            export BOOTSTRAP_NAME="Test User"
-
-            When run bash "${BOOTSTRAP_SCRIPT}" --yes --help
-            The status should be success
-            The output should include "Bootstrap script for bartsmykla's dotfiles"
-            The stderr should be present
-        End
-
-        It 'accepts email from --email flag with --yes'
-            export BOOTSTRAP_NAME="Test User"
-
-            When run bash "${BOOTSTRAP_SCRIPT}" --yes --email "test@example.com" --help
-            The status should be success
-            The output should include "Bootstrap script for bartsmykla's dotfiles"
-            The stderr should be present
         End
     End
 
