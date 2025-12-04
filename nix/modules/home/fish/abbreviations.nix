@@ -24,6 +24,7 @@
     # Home Manager
     hmn = "home-manager news --flake $DOTFILES_PATH/nix#home-bart";
     hms = "home-manager switch --flake $DOTFILES_PATH/nix#home-bart";
+    nixup = "nix flake update --flake $DOTFILES_PATH/nix && home-manager switch --flake $DOTFILES_PATH/nix#home-bart && sudo darwin-rebuild switch --flake $DOTFILES_PATH/nix#bartsmykla";
     hmsr = "home-manager switch --flake $DOTFILES_PATH/nix#home-bart && hs -c \"hs.reload()\"";
     hmg = "home-manager generations --flake $DOTFILES_PATH/nix#home-bart";
     hmp = "home-manager packages --flake $DOTFILES_PATH/nix#home-bart";
