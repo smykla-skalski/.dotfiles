@@ -49,11 +49,11 @@ jobs:
           echo "/home/linuxbrew/.linuxbrew/sbin" >> "$GITHUB_PATH"
 
       # Install dependencies
-      # age/chezmoi needed for setup steps before mise-action
+      # age needed for git filters to decrypt age-encrypted files (secrets/, todos/)
       # Tools installed later by mise: task, shellcheck, markdownlint, actionlint
       - name: Install dependencies
         run: |
-          brew install fish check-jsonschema shellspec vim age chezmoi
+          brew install fish check-jsonschema shellspec vim age
 
       # Set up age decryption key for CI
       - name: Setup age key
@@ -69,39 +69,11 @@ jobs:
           git config filter.age.clean "cat"
           git config filter.age.required true
 
-      # Test chezmoi can initialize and apply dotfiles with encrypted files
-      - name: Test chezmoi init and apply
-        run: |
-          # Set up chezmoi config with CI key (bypass template prompts)
-          mkdir -p ~/.config/chezmoi
-          cp ~/.config/age/ci-key.txt ~/.config/chezmoi/key.txt
-          cat > ~/.config/chezmoi/chezmoi.toml <<EOF
-          encryption = "age"
-
-          [data]
-              email = "ci@example.com"
-              name = "CI Test"
-              osid = "linux"
-
-          [age]
-              identity = "~/.config/chezmoi/key.txt"
-              recipients = [
-                  "age1c459u9ehvrjrsh6v2sun69mw3p6apuku8cjh9q8eeax2etr439pshvnn4z",
-                  "age1h3cwe6tflreqda3dqkv2qucgzswkwp8w39nqt7089tw6kmpfn9sqmln47m"
-              ]
-          EOF
-          # Initialize chezmoi with existing config (skip template processing)
-          chezmoi init --source "$PWD/chezmoi" --config-path ~/.config/chezmoi/chezmoi.toml
-          # Apply dotfiles to deploy mise config and other dotfiles
-          chezmoi apply
-          # Verify chezmoi can read encrypted files
-          chezmoi verify || echo "Chezmoi verification completed"
-
-      # Install mise tools from chezmoi-managed config
+      # Install mise tools (dotfiles deployed via nix/home-manager, not tested in CI)
       - name: Install mise tools
         uses: jdx/mise-action@146a28175021df8ca24f8ee1828cc2a60f980bd5  # v3.5.1
         with:
-          install_args: actionlint age chezmoi npm:markdownlint-cli shellcheck task
+          install_args: actionlint age npm:markdownlint-cli shellcheck task
 
       # Run all tests using Taskfile
       - name: Run tests
