@@ -3,7 +3,7 @@
 # Manages Claude Code config files via sops-nix secrets.
 # The secrets are decrypted at runtime and symlinked to ~/.claude/
 #
-# Edit secrets: SOPS_AGE_KEY_FILE=~/.config/chezmoi/key.txt sops nix/secrets/secrets.yaml
+# Edit secrets: SOPS_AGE_KEY_FILE=~/.config/age/key.txt sops nix/secrets/secrets.yaml
 #
 # To update settings.json:
 # 1. Edit ~/.claude/settings.json with your changes
@@ -30,6 +30,17 @@ in
   # Create settings.json.default from template
   # Copy this to settings.json if you want to reset to defaults
   home.file.".claude/settings.json.default".text = settingsJson;
+
+  # Statusline scripts
+  home.file.".claude/statusline-command.sh" = {
+    executable = true;
+    source = ./claude/statusline-command.sh;
+  };
+
+  home.file.".claude/statusline-debug.sh" = {
+    executable = true;
+    source = ./claude/statusline-debug.sh;
+  };
 
   # Symlink CLAUDE.md from sops secret
   home.activation.linkClaudeSecrets = lib.hm.dag.entryAfter [ "writeBoundary" "sops-nix" ] ''
