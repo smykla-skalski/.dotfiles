@@ -1134,6 +1134,7 @@ function showConfigUI()
     .save-btn.saving {
       pointer-events: none;
       opacity: 0.8;
+      color: transparent;
     }
     .save-btn.saving::after {
       content: "";
