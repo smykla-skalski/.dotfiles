@@ -81,7 +81,11 @@
           ./modules/darwin
 
           # Set primary user (required for homebrew, system.defaults, etc.)
-          { system.primaryUser = username; }
+          {
+            system.primaryUser = username;
+            # Required by home-manager nix-darwin integration
+            users.users.${username}.uid = 501;
+          }
 
           # Overlay to add klaudiush to pkgs
           ({ pkgs, ... }: {
