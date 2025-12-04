@@ -1616,6 +1616,31 @@ function showConfigUI()
           newConfig.ghosttyFontSizeWithMonitor, newConfig.ghosttyFontSizeWithoutMonitor,
           tostring(newConfig.debugMode)))
 
+        -- Track which settings actually changed
+        local debugModeChanged = config.debugMode ~= newConfig.debugMode
+        local jetbrainsChanged = config.fontSizeWithMonitor ~= newConfig.fontSizeWithMonitor or
+                                 config.fontSizeWithoutMonitor ~= newConfig.fontSizeWithoutMonitor or
+                                 config.jetbrainsBasePath ~= newConfig.jetbrainsBasePath
+        local ghosttyChanged = config.ghosttyFontSizeWithMonitor ~= newConfig.ghosttyFontSizeWithMonitor or
+                               config.ghosttyFontSizeWithoutMonitor ~= newConfig.ghosttyFontSizeWithoutMonitor or
+                               config.ghosttyConfigOverlayPath ~= newConfig.ghosttyConfigOverlayPath
+        local pollIntervalChanged = config.pollIntervalSeconds ~= newConfig.pollIntervalSeconds
+
+        -- Check if IDE patterns changed
+        local idePatternsChanged = #config.idePatterns ~= #newConfig.idePatterns
+        if not idePatternsChanged then
+          for i, pattern in ipairs(config.idePatterns) do
+            if pattern ~= newConfig.idePatterns[i] then
+              idePatternsChanged = true
+              break
+            end
+          end
+        end
+        jetbrainsChanged = jetbrainsChanged or idePatternsChanged
+
+        log.d(string.format("Changes detected: debugMode=%s, jetbrains=%s, ghostty=%s, pollInterval=%s",
+          tostring(debugModeChanged), tostring(jetbrainsChanged), tostring(ghosttyChanged), tostring(pollIntervalChanged)))
+
         -- Update config with new values
         config.debugMode = newConfig.debugMode
         config.fontSizeWithMonitor = newConfig.fontSizeWithMonitor
@@ -1627,14 +1652,18 @@ function showConfigUI()
         config.wakeDelaySeconds = newConfig.wakeDelaySeconds
         config.pollIntervalSeconds = newConfig.pollIntervalSeconds
 
-        -- Update logger level if debug mode changed
-        updateLoggerLevel(config.debugMode)
+        -- Update logger level only if debug mode changed
+        if debugModeChanged then
+          updateLoggerLevel(config.debugMode)
+        end
 
         -- Save to persistent storage
         saveConfig(config)
 
-        -- Restart poll timer with new interval
-        restartPollTimer()
+        -- Restart poll timer only if interval changed
+        if pollIntervalChanged then
+          restartPollTimer()
+        end
 
         -- Close window first to allow proper focus changes
         if checkTimer then
@@ -1644,14 +1673,29 @@ function showConfigUI()
         configWindow:delete()
         configWindow = nil
 
-        -- Apply new font settings after window is closed
+        -- Apply font settings only for changed values
         -- Longer delay to ensure window is fully closed and system updates window list
         hs.timer.doAfter(0.3, function()
-          screenChanged()
+          local hasExternalMonitor = isExternalMonitorActive()
+
+          -- Only update JetBrains fonts if relevant settings changed
+          if jetbrainsChanged then
+            local fontSize = hasExternalMonitor and config.fontSizeWithMonitor or config.fontSizeWithoutMonitor
+            log.i(string.format("Applying JetBrains font size %d", fontSize))
+            updateJetBrainsIDEFontSize(fontSize)
+          end
+
+          -- Only update Ghostty fonts if relevant settings changed
+          if ghosttyChanged then
+            local fontSize = hasExternalMonitor and config.ghosttyFontSizeWithMonitor or config.ghosttyFontSizeWithoutMonitor
+            log.i(string.format("Applying Ghostty font size %d", fontSize))
+            updateGhosttyFontSize(fontSize)
+          end
 
           -- Restore focus to original window after all updates complete
-          -- Add delay to let Ghostty updates finish
-          hs.timer.doAfter(0.5, function()
+          -- Add delay to let font updates finish (if any)
+          local focusDelay = (jetbrainsChanged or ghosttyChanged) and 0.5 or 0.1
+          hs.timer.doAfter(focusDelay, function()
             if originalFocusedWindow and originalFocusedWindow:isVisible() then
               pcall(function()
                 originalFocusedWindow:focus()
