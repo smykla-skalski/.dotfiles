@@ -37,12 +37,7 @@ let
 in
 {
   xdg.configFile = {
-    # Cached completion wrappers for Cobra-based tools
-    "fish/completions/kubectl.fish".source =
-      mkCachedCompletion "kubectl" "${pkgs.kubectl}/bin/kubectl";
-
-    "fish/completions/docker.fish".source =
-      mkCachedCompletion "docker" "${pkgs.docker-client}/bin/docker";
+    # Note: kubectl and docker completions are provided by OrbStack
 
     "fish/completions/k3d.fish".source =
       mkCachedCompletion "k3d" "${pkgs.k3d}/bin/k3d";
