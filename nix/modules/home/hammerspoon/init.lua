@@ -1606,6 +1606,15 @@ function showConfigUI()
         </div>
         <div class="description">Shows verbose logging and startup alerts (requires reload)</div>
       </div>
+      <div class="config-item">
+        <label>Per-Window Font Sizing (Ghostty)</label>
+        <div class="checkbox-wrapper">
+          <input type="checkbox" id="ghosttyPerWindowFontSizing" %s>
+          <span class="custom-checkbox"></span>
+          <label for="ghosttyPerWindowFontSizing">Enable Per-Window Font Sizing</label>
+        </div>
+        <div class="description">Adjust font size individually per window based on which monitor it's on (experimental)</div>
+      </div>
     </div>
 
     <div class="buttons">
@@ -1789,6 +1798,7 @@ function showConfigUI()
 
       const config = {
         debugMode: document.getElementById('debugMode').checked,
+        ghosttyPerWindowFontSizing: document.getElementById('ghosttyPerWindowFontSizing').checked,
         fontSizeWithMonitor: parseInt(document.getElementById('fontSizeWithMonitor').value),
         fontSizeWithoutMonitor: parseInt(document.getElementById('fontSizeWithoutMonitor').value),
         ghosttyFontSizeWithMonitor: parseInt(document.getElementById('ghosttyFontSizeWithMonitor').value),
@@ -1857,6 +1867,7 @@ function showConfigUI()
     config.pollIntervalSeconds,
     config.ghosttyConfigOverlayPath,
     config.debugMode and 'checked="checked"' or '',
+    config.ghosttyPerWindowFontSizing and 'checked="checked"' or '',
     os.getenv("HOME")
   )
 
@@ -1922,12 +1933,14 @@ function showConfigUI()
 
         -- Track which settings actually changed
         local debugModeChanged = config.debugMode ~= newConfig.debugMode
+        local perWindowModeChanged = config.ghosttyPerWindowFontSizing ~= newConfig.ghosttyPerWindowFontSizing
         local jetbrainsChanged = config.fontSizeWithMonitor ~= newConfig.fontSizeWithMonitor or
                                  config.fontSizeWithoutMonitor ~= newConfig.fontSizeWithoutMonitor or
                                  config.jetbrainsBasePath ~= newConfig.jetbrainsBasePath
         local ghosttyChanged = config.ghosttyFontSizeWithMonitor ~= newConfig.ghosttyFontSizeWithMonitor or
                                config.ghosttyFontSizeWithoutMonitor ~= newConfig.ghosttyFontSizeWithoutMonitor or
-                               config.ghosttyConfigOverlayPath ~= newConfig.ghosttyConfigOverlayPath
+                               config.ghosttyConfigOverlayPath ~= newConfig.ghosttyConfigOverlayPath or
+                               perWindowModeChanged
         local pollIntervalChanged = config.pollIntervalSeconds ~= newConfig.pollIntervalSeconds
 
         -- Check if IDE patterns changed
@@ -1947,6 +1960,7 @@ function showConfigUI()
 
         -- Update config with new values
         config.debugMode = newConfig.debugMode
+        config.ghosttyPerWindowFontSizing = newConfig.ghosttyPerWindowFontSizing
         config.fontSizeWithMonitor = newConfig.fontSizeWithMonitor
         config.fontSizeWithoutMonitor = newConfig.fontSizeWithoutMonitor
         config.ghosttyFontSizeWithMonitor = newConfig.ghosttyFontSizeWithMonitor
@@ -1991,9 +2005,14 @@ function showConfigUI()
 
           -- Only update Ghostty fonts if relevant settings changed
           if ghosttyChanged then
-            local fontSize = hasExternalMonitor and config.ghosttyFontSizeWithMonitor or config.ghosttyFontSizeWithoutMonitor
-            log.i(string.format("Applying Ghostty font size %d", fontSize))
-            updateGhosttyFontSize(fontSize)
+            if config.ghosttyPerWindowFontSizing then
+              log.i("Applying per-window Ghostty font sizing")
+              updateAllGhosttyWindows()
+            else
+              local fontSize = hasExternalMonitor and config.ghosttyFontSizeWithMonitor or config.ghosttyFontSizeWithoutMonitor
+              log.i(string.format("Applying global Ghostty font size %d", fontSize))
+              updateGhosttyFontSize(fontSize)
+            end
           end
 
           -- Restore focus to original window after all updates complete
