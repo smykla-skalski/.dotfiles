@@ -425,6 +425,133 @@ local function cleanupGhosttyWindowStates()
   end
 end
 
+--- Adjust font size for a specific Ghostty window using keystroke simulation
+-- Sends cmd+= (increase) or cmd+- (decrease) keystrokes to change font size
+-- @param window hs.window object to adjust
+-- @param targetSize Target font size (integer)
+-- @param currentSize Current font size (integer)
+-- @return boolean true if adjustment was attempted, false if skipped
+local function adjustGhosttyWindowFontSize(window, targetSize, currentSize)
+  if not window or not window:isStandard() then
+    log.w("adjustGhosttyWindowFontSize called with invalid window")
+    return false
+  end
+
+  if type(targetSize) ~= "number" or type(currentSize) ~= "number" then
+    log.e(string.format("Invalid font sizes: target=%s, current=%s", tostring(targetSize), tostring(currentSize)))
+    return false
+  end
+
+  local delta = targetSize - currentSize
+  if delta == 0 then
+    log.d(string.format("Window %d already at target size %d, skipping adjustment", window:id(), targetSize))
+    return false
+  end
+
+  -- Store original focused window to restore later
+  local originalWindow = hs.window.focusedWindow()
+
+  -- Focus the target window
+  if not window:focus() then
+    log.w(string.format("Failed to focus window %d for font adjustment", window:id()))
+    return false
+  end
+
+  -- Wait for focus to settle
+  hs.timer.usleep(50000) -- 50ms
+
+  -- Send keystrokes to adjust font size
+  local keystroke = delta > 0 and "=" or "-"
+  local absoluteDelta = math.abs(delta)
+
+  log.d(string.format("Adjusting window %d font: %d -> %d (delta: %+d, keystrokes: %d×%s)",
+    window:id(), currentSize, targetSize, delta, absoluteDelta, keystroke))
+
+  for i = 1, absoluteDelta do
+    hs.eventtap.keyStroke({"cmd"}, keystroke, 0)
+    hs.timer.usleep(20000) -- 20ms between keystrokes
+  end
+
+  -- Restore original focus
+  if originalWindow and originalWindow ~= window then
+    pcall(function() originalWindow:focus() end)
+  end
+
+  return true
+end
+
+--- Update font size for a single Ghostty window based on its current screen
+-- Checks if window has moved to a different screen type (built-in vs external)
+-- and adjusts font size accordingly using keystroke simulation
+-- @param window hs.window object to update
+-- @return boolean true if font was adjusted, false if skipped
+local function updateGhosttyWindowFont(window)
+  if not window or not window:isStandard() then
+    log.d("updateGhosttyWindowFont called with invalid window")
+    return false
+  end
+
+  local windowId = window:id()
+  local screen = window:screen()
+  if not screen then
+    log.w(string.format("Window %d has no screen, skipping font update", windowId))
+    return false
+  end
+
+  local screenName = screen:name()
+  local isBuiltin = isBuiltinScreen(screen)
+
+  -- Determine target font size based on screen type
+  local targetSize = isBuiltin and config.ghosttyFontSizeWithoutMonitor or config.ghosttyFontSizeWithMonitor
+
+  -- Get current window state
+  local state = ghosttyWindowStates[windowId]
+  if not state then
+    -- Initialize state for new window
+    log.d(string.format("Initializing state for window %d on screen '%s' (builtin=%s, targetSize=%d)",
+      windowId, screenName, tostring(isBuiltin), targetSize))
+    ghosttyWindowStates[windowId] = {
+      fontSize = targetSize,
+      screenName = screenName,
+      isBuiltin = isBuiltin,
+      lastUpdate = os.time()
+    }
+    return false -- Don't adjust on initialization, assume config.local is correct
+  end
+
+  -- Check if screen TYPE changed (built-in <-> external)
+  if state.isBuiltin == isBuiltin then
+    log.d(string.format("Window %d screen type unchanged (builtin=%s), skipping adjustment", windowId, tostring(isBuiltin)))
+    return false
+  end
+
+  -- Debounce: skip if updated less than 1 second ago
+  local currentTime = os.time()
+  local timeSinceLastUpdate = currentTime - (state.lastUpdate or 0)
+  if timeSinceLastUpdate < 1 then
+    log.d(string.format("Window %d updated %ds ago, debouncing", windowId, timeSinceLastUpdate))
+    return false
+  end
+
+  -- Adjust font size
+  log.i(string.format("Window %d moved to %s screen '%s', adjusting font: %d -> %d",
+    windowId, isBuiltin and "built-in" or "external", screenName, state.fontSize, targetSize))
+
+  local adjusted = adjustGhosttyWindowFontSize(window, targetSize, state.fontSize)
+
+  if adjusted then
+    -- Update state
+    ghosttyWindowStates[windowId] = {
+      fontSize = targetSize,
+      screenName = screenName,
+      isBuiltin = isBuiltin,
+      lastUpdate = currentTime
+    }
+  end
+
+  return adjusted
+end
+
 --- Update font size in a single other.xml file (creates if doesn't exist)
 -- @param xmlPath The full path to the other.xml file
 -- @param fontSize The font size to set (must be positive integer)
