@@ -292,6 +292,9 @@ end
 --- Detect if an external monitor is connected
 -- Checks all screens to see if any external monitor is present
 -- When multiple displays are active, we want to use the larger font
+-- Special case: If only one screen exists and it's external, this likely means
+-- we're in a transition state (unplugging external while built-in is waking up)
+-- In this case, return false to prepare for built-in-only mode
 -- @return boolean true if any external monitor is connected
 local function isExternalMonitorActive()
   local allScreens = hs.screen.allScreens()
@@ -301,7 +304,10 @@ local function isExternalMonitorActive()
     return false
   end
 
-  -- Check if any screen is an external monitor
+  local externalCount = 0
+  local builtinCount = 0
+
+  -- Count built-in and external monitors
   for _, screen in ipairs(allScreens) do
     local screenName = screen:name()
     local isBuiltIn = false
@@ -320,17 +326,34 @@ local function isExternalMonitorActive()
       end
     end
 
-    if not isBuiltIn then
-      -- Found an external monitor
-      log.d(string.format(
-        "External monitor detected: %s",
-        screenName
-      ))
-      return true
+    if isBuiltIn then
+      builtinCount = builtinCount + 1
+      log.d(string.format("Built-in display detected: %s", screenName))
+    else
+      externalCount = externalCount + 1
+      log.d(string.format("External monitor detected: %s", screenName))
     end
   end
 
-  -- No external monitors found, only built-in display
+  -- Special case: If we have ONLY an external monitor (no built-in detected),
+  -- this is likely a transition state when unplugging the external monitor
+  -- while the built-in display is waking up. Treat as built-in-only to prepare
+  -- for the imminent transition.
+  if externalCount > 0 and builtinCount == 0 then
+    log.w(string.format(
+      "Detected external-only state (%d external, %d built-in) - treating as transition to built-in",
+      externalCount, builtinCount
+    ))
+    return false
+  end
+
+  -- Standard case: external monitor connected alongside built-in
+  if externalCount > 0 then
+    log.d(string.format("External monitor(s) active: %d external, %d built-in", externalCount, builtinCount))
+    return true
+  end
+
+  -- Only built-in display
   log.d("Only built-in display detected")
   return false
 end
