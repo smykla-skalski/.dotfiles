@@ -9,6 +9,9 @@
 
   # Disable nix-darwin's Nix management (using Determinate Nix)
   nix.enable = false;
+  # Required by sops-nix even when nix.enable = false
+  # See: https://github.com/Mic92/sops-nix/issues/531
+  nix.package = pkgs.nix;
 
   nixpkgs.config.allowUnfree = true;
 
