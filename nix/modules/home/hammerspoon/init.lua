@@ -150,6 +150,10 @@ local pollTimer = nil
 local lastScreenCount = 0
 local lastScreenSignature = ""
 
+-- Ghostty per-window font sizing state
+local ghosttyWindowStates = {}  -- Map of windowId -> {fontSize, screenName, isBuiltin, lastUpdate}
+local ghosttyWindowFilter = nil
+
 -------------------------------------------------------------------------------
 -- Utility Functions
 -------------------------------------------------------------------------------
@@ -357,6 +361,68 @@ local function isExternalMonitorActive()
   -- Only built-in display
   log.d("Only built-in display detected")
   return false
+end
+
+--- Check if a single screen is a built-in display
+-- @param screen hs.screen object to check
+-- @return boolean true if the screen is built-in, false otherwise
+local function isBuiltinScreen(screen)
+  if not screen then
+    log.w("isBuiltinScreen called with nil screen")
+    return false
+  end
+
+  local screenName = screen:name()
+
+  -- First try getInfo() if available (most reliable method)
+  local screenInfo = screen:getInfo()
+  if screenInfo and screenInfo.builtin ~= nil then
+    log.d(string.format("Screen '%s' builtin status from getInfo(): %s", screenName, tostring(screenInfo.builtin)))
+    return screenInfo.builtin
+  end
+
+  -- Fallback: check screen name against known built-in patterns
+  for _, pattern in ipairs(BUILTIN_DISPLAY_PATTERNS) do
+    if screenName:match(pattern) then
+      log.d(string.format("Screen '%s' matched built-in pattern: %s", screenName, pattern))
+      return true
+    end
+  end
+
+  log.d(string.format("Screen '%s' identified as external", screenName))
+  return false
+end
+
+--- Clean up ghosttyWindowStates table by removing entries for closed windows
+-- This prevents memory leaks from accumulating state for windows that no longer exist
+local function cleanupGhosttyWindowStates()
+  if not ghosttyWindowStates or type(ghosttyWindowStates) ~= "table" then
+    log.w("cleanupGhosttyWindowStates called but ghosttyWindowStates is not a table")
+    return
+  end
+
+  -- Get all current Ghostty window IDs
+  local ghosttyFilter = hs.window.filter.new(false):setAppFilter('Ghostty')
+  local currentWindows = ghosttyFilter:getWindows()
+  local currentWindowIds = {}
+
+  for _, window in ipairs(currentWindows) do
+    currentWindowIds[window:id()] = true
+  end
+
+  -- Remove state entries for windows that no longer exist
+  local removedCount = 0
+  for windowId, _ in pairs(ghosttyWindowStates) do
+    if not currentWindowIds[windowId] then
+      ghosttyWindowStates[windowId] = nil
+      removedCount = removedCount + 1
+      log.d(string.format("Removed state for closed window ID: %d", windowId))
+    end
+  end
+
+  if removedCount > 0 then
+    log.i(string.format("Cleaned up %d closed window state(s)", removedCount))
+  end
 end
 
 --- Update font size in a single other.xml file (creates if doesn't exist)
