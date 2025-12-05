@@ -898,14 +898,30 @@ local function screenChanged()
     -- External monitor connected (use larger font for external or dual display)
     log.i(string.format("Using larger font size %d for external monitor", config.fontSizeWithMonitor))
     updateJetBrainsIDEFontSize(config.fontSizeWithMonitor)
-    log.i(string.format("Using larger Ghostty font size %d for external monitor", config.ghosttyFontSizeWithMonitor))
-    updateGhosttyFontSize(config.ghosttyFontSizeWithMonitor)
+
+    -- Handle Ghostty font sizing based on per-window mode
+    if config.ghosttyPerWindowFontSizing then
+      log.i("Per-window Ghostty font sizing enabled - updating all windows individually")
+      cleanupGhosttyWindowStates()
+      updateAllGhosttyWindows()
+    else
+      log.i(string.format("Using larger Ghostty font size %d for external monitor (global mode)", config.ghosttyFontSizeWithMonitor))
+      updateGhosttyFontSize(config.ghosttyFontSizeWithMonitor)
+    end
   else
     -- Only built-in display
     log.i(string.format("Using smaller font size %d for built-in display", config.fontSizeWithoutMonitor))
     updateJetBrainsIDEFontSize(config.fontSizeWithoutMonitor)
-    log.i(string.format("Using smaller Ghostty font size %d for built-in display", config.ghosttyFontSizeWithoutMonitor))
-    updateGhosttyFontSize(config.ghosttyFontSizeWithoutMonitor)
+
+    -- Handle Ghostty font sizing based on per-window mode
+    if config.ghosttyPerWindowFontSizing then
+      log.i("Per-window Ghostty font sizing enabled - updating all windows individually")
+      cleanupGhosttyWindowStates()
+      updateAllGhosttyWindows()
+    else
+      log.i(string.format("Using smaller Ghostty font size %d for built-in display (global mode)", config.ghosttyFontSizeWithoutMonitor))
+      updateGhosttyFontSize(config.ghosttyFontSizeWithoutMonitor)
+    end
   end
 end
 
