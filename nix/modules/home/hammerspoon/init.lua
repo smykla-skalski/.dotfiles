@@ -62,6 +62,7 @@ local function loadConfig()
     fontSizeWithoutMonitor = 12,
     ghosttyFontSizeWithMonitor = 20,
     ghosttyFontSizeWithoutMonitor = 15,
+    ghosttyPerWindowFontSizing = true,  -- Per-window font sizing enabled by default
     ghosttyConfigOverlayPath = os.getenv("HOME") .. "/.config/ghostty/config.local",
     idePatterns = {
       "GoLand*",
