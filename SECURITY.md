@@ -2,72 +2,54 @@
 
 ## Supported Versions
 
-This repository contains personal dotfiles that are actively maintained. Security updates are applied to the latest version on the `main` branch.
+We release patches for security vulnerabilities for the following versions:
 
 | Version | Supported          |
-| ------- | ------------------ |
-| main    | :white_check_mark: |
+|---------|--------------------|
+| latest  | :white_check_mark: |
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability in this dotfiles repository, please report it privately.
+If you discover a security vulnerability, please report it by emailing the maintainers directly rather than opening a public issue.
 
-### What Constitutes a Security Issue
+**Please do not report security vulnerabilities through public GitHub issues.**
 
-For this dotfiles repository, security issues include:
+### Contact Information
 
-- **Exposed secrets or credentials**: Unencrypted sensitive data in the repository
-- **Encryption vulnerabilities**: Issues with age encryption implementation or key management
-- **Command injection**: Vulnerabilities in shell scripts or functions
-- **Privilege escalation**: Scripts that could be exploited for unauthorized access
-- **Dependency vulnerabilities**: Security issues in tools managed via mise or Homebrew
+- **Email**: [bartek@smykla.com](mailto:bartek@smykla.com)
+- **GitHub Security Advisories**: Use the "Security" tab in the relevant repository
 
-### How to Report
+### What to Include
 
-**Please do not** open a public issue for security vulnerabilities.
+Please provide as much information as possible about the vulnerability:
 
-Instead, report security issues via:
-
-1. **GitHub Security Advisories**: Use the [Security tab](https://github.com/smykla-labs/.dotfiles/security/advisories/new) to create a private security advisory
-2. **Email**: Contact the repository owner directly via GitHub
+- Description of the vulnerability
+- Steps to reproduce
+- Potential impact
+- Suggested fix (if available)
 
 ### Response Timeline
 
-- **Initial response**: Within 48 hours
-- **Status update**: Within 7 days
-- **Fix timeline**: Depends on severity and complexity
+- **Acknowledgment**: We will acknowledge receipt of your vulnerability report within 48 hours
+- **Investigation**: We will investigate and validate the reported vulnerability
+- **Fix**: We will develop and test a fix
+- **Release**: We will release a security update
+- **Disclosure**: We will publicly disclose the vulnerability after the fix is released
 
-### Security Best Practices
+### Coordinated Disclosure
 
-This repository follows these security practices:
+Please allow time for the vulnerability to be fixed before public disclosure.
 
-- **Encryption**: Sensitive files encrypted using age (replacing git-crypt)
-- **Linting**: Automated shellcheck, markdownlint, and other linters via CI
-- **Testing**: Automated tests for all shell scripts and configurations
-- **Tool management**: Versioned tools via mise for reproducibility
-- **Code review**: Changes validated through automated testing (CI/CD)
+## Security Best Practices
 
-## Security Features
+When contributing to Smykla Labs projects:
 
-### Age Encryption
+- Keep dependencies up to date
+- Never commit secrets, credentials, or API keys
+- Use environment variables for sensitive configuration
+- Follow the principle of least privilege
+- Review code changes for security implications
 
-- Private key stored at `~/.config/age/key.txt` (never committed)
-- Encrypted files: `secrets/**`, `todos/**`, `CLAUDE.md`, `**/**.secret.*`
-- Transparent encryption via git clean/smudge filters
+## Acknowledgments
 
-### Automated Security Checks
-
-CI pipeline includes:
-
-- Shell script validation (shellcheck)
-- Markdown linting (markdownlint)
-- Syntax validation for Fish shell configs
-- Taskfile schema validation
-
-## Disclosure Policy
-
-After a vulnerability is fixed:
-
-1. A security advisory will be published on GitHub
-2. Affected users will be notified if applicable
-3. Credit will be given to the reporter (unless they prefer to remain anonymous)
+We appreciate the security research community's efforts to responsibly disclose vulnerabilities.
