@@ -340,19 +340,7 @@ local function isExternalMonitorActive()
     end
   end
 
-  -- Special case: If we have ONLY an external monitor (no built-in detected),
-  -- this is likely a transition state when unplugging the external monitor
-  -- while the built-in display is waking up. Treat as built-in-only to prepare
-  -- for the imminent transition.
-  if externalCount > 0 and builtinCount == 0 then
-    log.w(string.format(
-      "Detected external-only state (%d external, %d built-in) - treating as transition to built-in",
-      externalCount, builtinCount
-    ))
-    return false
-  end
-
-  -- Standard case: external monitor connected alongside built-in
+  -- External monitor detected (with or without built-in)
   if externalCount > 0 then
     log.d(string.format("External monitor(s) active: %d external, %d built-in", externalCount, builtinCount))
     return true
@@ -454,6 +442,61 @@ local function findAXElement(element, targetRole)
     if found then return found end
   end
   return nil
+end
+
+--- Collect all elements with a specific role in the accessibility tree
+-- @param element AXUIElement to search
+-- @param targetRole Role to collect
+-- @param results Table to accumulate results (optional, created if nil)
+-- @return table Array of matching AXUIElements
+local function collectAXElements(element, targetRole, results)
+  results = results or {}
+  if not element then return results end
+  local role = element:attributeValue("AXRole")
+  if role == targetRole then
+    table.insert(results, element)
+  end
+  local children = element:attributeValue("AXChildren") or {}
+  for _, child in ipairs(children) do
+    collectAXElements(child, targetRole, results)
+  end
+  return results
+end
+
+--- Get the index of the currently focused split in a Ghostty window
+-- Uses macOS accessibility APIs to find which AXTextArea has focus
+-- @param window hs.window object
+-- @return number Index of focused split (1-based), or 1 if not determinable
+local function getGhosttyFocusedSplitIndex(window)
+  if not window then return 1 end
+
+  local ax = hs.axuielement.windowElement(window)
+  if not ax then return 1 end
+
+  -- Collect all AXTextArea elements (each split has one)
+  local textAreas = collectAXElements(ax, "AXTextArea")
+  if #textAreas == 0 then return 1 end
+
+  -- Find which one has focus
+  for i, textArea in ipairs(textAreas) do
+    local focused = textArea:attributeValue("AXFocused")
+    if focused then
+      return i
+    end
+  end
+
+  -- Fallback: check if any child has focus
+  for i, textArea in ipairs(textAreas) do
+    local children = textArea:attributeValue("AXChildren") or {}
+    for _, child in ipairs(children) do
+      local focused = child:attributeValue("AXFocused")
+      if focused then
+        return i
+      end
+    end
+  end
+
+  return 1
 end
 
 --- Get the number of tabs and splits in a Ghostty window
@@ -867,25 +910,20 @@ local function updateGhosttyFontSize(fontSize)
       hs.eventtap.keyStroke({"cmd", "shift"}, ",", 0)
       hs.timer.usleep(200000)  -- 200ms for config reload
 
-      -- Cycle through all tabs and splits, resetting font on each
+      -- Cycle through all splits, resetting font on each
       -- cmd+0 = reset_font_size (resets to config default)
-      -- cmd+] = goto_split:next (cycle splits within tab)
-      -- cmd+shift+] = next_tab (cycle tabs)
+      -- cmd+] = goto_split:next (cycles through ALL splits globally)
+      -- After totalSplits iterations, we return to the original position
       local totalResets = 0
 
-      for tab = 1, tabCount do
-        for split = 1, splitsPerTab do
-          -- Reset font size on current split
-          hs.eventtap.keyStroke({"cmd"}, "0", 0)
-          hs.timer.usleep(30000)  -- 30ms
-          totalResets = totalResets + 1
+      for _ = 1, totalSplits do
+        -- Reset font size on current split
+        hs.eventtap.keyStroke({"cmd"}, "0", 0)
+        hs.timer.usleep(30000)  -- 30ms
+        totalResets = totalResets + 1
 
-          -- Move to next split within this tab
-          hs.eventtap.keyStroke({"cmd"}, "]", 0)
-          hs.timer.usleep(30000)  -- 30ms
-        end
-        -- Move to next tab
-        hs.eventtap.keyStroke({"cmd", "shift"}, "]", 0)
+        -- Move to next split (cycles globally through all splits)
+        hs.eventtap.keyStroke({"cmd"}, "]", 0)
         hs.timer.usleep(30000)  -- 30ms
       end
 
@@ -1286,6 +1324,10 @@ function showConfigUI()
     .settings-row .config-item {
       flex: 1;
       min-width: 200px;
+    }
+    .settings-row .config-item.quarter-width {
+      flex: 0 0 calc(25%% - 22.5px);
+      max-width: calc(25%% - 22.5px);
     }
     h2 {
       margin-top: 0;
@@ -1698,7 +1740,9 @@ function showConfigUI()
         </div>
         <div class="description">Shows verbose logging and startup alerts (requires reload)</div>
       </div>
-      <div class="config-item">
+    </div>
+    <div class="settings-row">
+      <div class="config-item quarter-width">
         <label>Window Position Aware (Ghostty)</label>
         <div class="checkbox-wrapper">
           <input type="checkbox" id="ghosttyPerWindowFontSizing" %s>
