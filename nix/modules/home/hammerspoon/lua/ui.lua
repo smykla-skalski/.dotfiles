@@ -166,13 +166,18 @@ local function generateHtml(config)
     }
     input[type="number"], input[type="text"] {
       width: 100%%;
-      height: 44px;
+      height: 50px;
       padding: 0 14px;
       border: 1px solid #ddd;
       border-radius: 6px;
       font-size: 18px;
-      text-align: center;
       font-family: 'Menlo', 'Consolas', 'Courier New', monospace;
+    }
+    input[type="number"] {
+      text-align: center;
+    }
+    input[type="text"] {
+      text-align: left;
     }
     input:focus {
       outline: none;
@@ -182,7 +187,8 @@ local function generateHtml(config)
       display: flex;
       align-items: center;
       gap: 12px;
-      padding: 12px 14px;
+      height: 50px;
+      padding: 0 14px;
       border: 1px solid #ddd;
       border-radius: 6px;
       background: white;
@@ -414,6 +420,10 @@ local function generateHtml(config)
     .save-btn {
       background: #1ABC9C;
       position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
     }
     .save-btn:hover {
       background: #16A085;
@@ -430,24 +440,37 @@ local function generateHtml(config)
     .save-btn.reload-btn:active {
       background: #004499;
     }
-    .save-btn.saving {
+    .save-btn.loading {
       pointer-events: none;
       opacity: 0.8;
-      color: transparent;
     }
-    .save-btn.saving::after {
+    .save-btn.loading .btn-text,
+    .save-btn.loading .btn-icon {
+      visibility: hidden;
+    }
+    .save-btn.loading::after {
       content: "";
       position: absolute;
-      width: 16px;
-      height: 16px;
+      width: 20px;
+      height: 20px;
       top: 50%%;
       left: 50%%;
-      margin-left: -8px;
-      margin-top: -8px;
-      border: 2px solid white;
+      margin-left: -10px;
+      margin-top: -10px;
+      border: 2.5px solid white;
       border-top-color: transparent;
       border-radius: 50%%;
       animation: spin 0.8s linear infinite;
+    }
+    .btn-icon {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+    }
+    .btn-icon svg {
+      width: 100%%;
+      height: 100%%;
+      fill: currentColor;
     }
     @keyframes spin {
       to { transform: rotate(360deg); }
@@ -547,21 +570,17 @@ local function generateHtml(config)
         <div class="description">Shows verbose logging and startup alerts (requires reload)</div>
       </div>
     </div>
-    <div class="settings-row">
-      <div class="config-item quarter-width">
-        <label>Window Position Aware (Ghostty)</label>
-        <div class="checkbox-wrapper">
-          <input type="checkbox" id="ghosttyPerWindowFontSizing" %s>
-          <span class="custom-checkbox"></span>
-          <label for="ghosttyPerWindowFontSizing">Enable Window Position Tracking</label>
-        </div>
-        <div class="description">Use smaller font if any Ghostty window is on built-in display; larger font only when all windows are on external</div>
-      </div>
-    </div>
 
     <div class="buttons">
       <button class="cancel-btn" onclick="cancel()">Cancel</button>
-      <button class="save-btn" id="saveBtn" onclick="saveConfig()">Save</button>
+      <button class="save-btn" id="saveBtn" onclick="saveConfig()">
+        <span class="btn-icon" id="saveBtnIcon">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/>
+          </svg>
+        </span>
+        <span class="btn-text" id="saveBtnText">Save</span>
+      </button>
     </div>
   </div>
 
@@ -606,7 +625,6 @@ local function generateHtml(config)
 
       return {
         debugMode: document.getElementById('debugMode').checked,
-        ghosttyPerWindowFontSizing: document.getElementById('ghosttyPerWindowFontSizing').checked,
         fontSizeWithMonitor: parseInt(document.getElementById('fontSizeWithMonitor').value),
         fontSizeWithoutMonitor: parseInt(document.getElementById('fontSizeWithoutMonitor').value),
         ghosttyFontSizeWithMonitor: parseInt(document.getElementById('ghosttyFontSizeWithMonitor').value),
@@ -622,7 +640,6 @@ local function generateHtml(config)
 
       // Compare simple values
       if (a.debugMode !== b.debugMode) return false;
-      if (a.ghosttyPerWindowFontSizing !== b.ghosttyPerWindowFontSizing) return false;
       if (a.fontSizeWithMonitor !== b.fontSizeWithMonitor) return false;
       if (a.fontSizeWithoutMonitor !== b.fontSizeWithoutMonitor) return false;
       if (a.ghosttyFontSizeWithMonitor !== b.ghosttyFontSizeWithMonitor) return false;
@@ -638,17 +655,46 @@ local function generateHtml(config)
       return true;
     }
 
+    // Create SVG icon element safely using DOM methods
+    function createSaveIcon() {
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.setAttribute('viewBox', '0 0 24 24');
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      path.setAttribute('d', 'M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z');
+      svg.appendChild(path);
+      return svg;
+    }
+
+    function createReloadIcon() {
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.setAttribute('viewBox', '0 0 24 24');
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      path.setAttribute('d', 'M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z');
+      svg.appendChild(path);
+      return svg;
+    }
+
     // Check if form has changes and update button accordingly
     function checkForChanges() {
       const currentConfig = getFormState();
       isDirty = !configsEqual(currentConfig, originalConfig);
 
       const saveBtn = document.getElementById('saveBtn');
+      const btnIcon = document.getElementById('saveBtnIcon');
+      const btnText = document.getElementById('saveBtnText');
+
+      // Clear existing icon
+      while (btnIcon.firstChild) {
+        btnIcon.removeChild(btnIcon.firstChild);
+      }
+
       if (isDirty) {
-        saveBtn.textContent = 'Save';
+        btnText.textContent = 'Save';
+        btnIcon.appendChild(createSaveIcon());
         saveBtn.classList.remove('reload-btn');
       } else {
-        saveBtn.textContent = 'Reload';
+        btnText.textContent = 'Reload';
+        btnIcon.appendChild(createReloadIcon());
         saveBtn.classList.add('reload-btn');
       }
     }
@@ -811,7 +857,7 @@ local function generateHtml(config)
 
     function saveConfig() {
       const saveBtn = document.getElementById('saveBtn');
-      saveBtn.classList.add('saving');
+      saveBtn.classList.add('loading');
 
       // Get current form state using shared function
       const config = getFormState();
@@ -872,7 +918,6 @@ local function generateHtml(config)
     customPatternsHtml,
     config.ghosttyConfigOverlayPath,
     config.debugMode and 'checked="checked"' or '',
-    config.ghosttyPerWindowFontSizing and 'checked="checked"' or '',
     os.getenv("HOME")
   )
 end

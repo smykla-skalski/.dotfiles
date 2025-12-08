@@ -142,17 +142,9 @@ function applyFontSettings()
     _G._ghosttyTimer = nil  -- Allow GC after firing
     log.d("Starting Ghostty update (async)")
     local success, err = pcall(function()
-      if config.ghosttyPerWindowFontSizing then
-        log.i("Per-window Ghostty font sizing enabled - updating all windows individually")
-        ghostty.cleanupWindowStates(log)
-        ghostty.updateAllWindows(config, display, log)
-        -- Restore focus after per-window updates complete
-        restoreOriginalFocus()
-      else
-        log.i(string.format("Updating Ghostty font size to %d (global mode)", ghosttyFontSize))
-        -- Pass callback to restore focus only AFTER all keystrokes complete
-        ghostty.updateFontSize(ghosttyFontSize, config, log, restoreOriginalFocus)
-      end
+      log.i(string.format("Updating Ghostty font size to %d", ghosttyFontSize))
+      -- Pass callback to restore focus only AFTER all keystrokes complete
+      ghostty.updateFontSize(ghosttyFontSize, config, log, restoreOriginalFocus)
     end)
     if not success then
       log.e(string.format("Ghostty update failed: %s", tostring(err)))
@@ -170,11 +162,14 @@ function showConfigUI()
 
   -- Define callbacks for UI actions
   local callbacks = {
-    onSave = function(newConfig)
+    onSave = function(newConfig, originalWindow)
       log.i("Save action from UI")
       log.d(string.format("New config: fontWithMonitor=%d, fontWithout=%d, ghosttyWithMonitor=%d, ghosttyWithout=%d",
         newConfig.fontSizeWithMonitor, newConfig.fontSizeWithoutMonitor,
         newConfig.ghosttyFontSizeWithMonitor, newConfig.ghosttyFontSizeWithoutMonitor))
+
+      -- Capture the original window passed from UI (captured before UI opened)
+      local windowToRestore = originalWindow
 
       -- Track which settings actually changed
       local debugModeChanged = config.debugMode ~= newConfig.debugMode
@@ -195,8 +190,7 @@ function showConfigUI()
 
       local ghosttyChanged = config.ghosttyFontSizeWithMonitor ~= newConfig.ghosttyFontSizeWithMonitor or
                              config.ghosttyFontSizeWithoutMonitor ~= newConfig.ghosttyFontSizeWithoutMonitor or
-                             config.ghosttyConfigOverlayPath ~= newConfig.ghosttyConfigOverlayPath or
-                             config.ghosttyPerWindowFontSizing ~= newConfig.ghosttyPerWindowFontSizing
+                             config.ghosttyConfigOverlayPath ~= newConfig.ghosttyConfigOverlayPath
 
       -- Update config with new values
       for key, value in pairs(newConfig) do
@@ -214,6 +208,16 @@ function showConfigUI()
       -- Apply font settings based on what changed
       local hasExternalMonitor = display.isExternalMonitorActive(log)
 
+      -- Helper to restore original focus
+      local function restoreOriginalFocus()
+        hs.timer.doAfter(0.1, function()
+          if windowToRestore and windowToRestore:isVisible() then
+            pcall(function() windowToRestore:focus() end)
+            log.d("Restored focus to original window")
+          end
+        end)
+      end
+
       if jetbrainsChanged then
         local fontSize = hasExternalMonitor and config.fontSizeWithMonitor or config.fontSizeWithoutMonitor
         log.i(string.format("Applying JetBrains font size %d", fontSize))
@@ -221,24 +225,63 @@ function showConfigUI()
       end
 
       if ghosttyChanged then
-        if config.ghosttyPerWindowFontSizing then
-          log.i("Applying per-window Ghostty font sizing")
-          ghostty.updateAllWindows(config, display, log)
-        else
-          local fontSize = hasExternalMonitor and config.ghosttyFontSizeWithMonitor or config.ghosttyFontSizeWithoutMonitor
-          log.i(string.format("Applying global Ghostty font size %d", fontSize))
-          ghostty.updateFontSize(fontSize, config, log)
-        end
+        local fontSize = hasExternalMonitor and config.ghosttyFontSizeWithMonitor or config.ghosttyFontSizeWithoutMonitor
+        log.i(string.format("Applying Ghostty font size %d", fontSize))
+        ghostty.updateFontSize(fontSize, config, log, restoreOriginalFocus)
+      elseif jetbrainsChanged then
+        -- If only JetBrains changed, restore focus after a delay
+        restoreOriginalFocus()
+      else
+        -- No font changes, restore focus immediately
+        restoreOriginalFocus()
       end
     end,
 
-    onReload = function()
+    onReload = function(originalWindow)
       log.i("Reload action from UI (apply settings without saving)")
-      applyFontSettings()
+
+      -- Capture the original window passed from UI (captured before UI opened)
+      local windowToRestore = originalWindow
+
+      local hasExternalMonitor = display.isExternalMonitorActive(log)
+      local jetbrainsFontSize = hasExternalMonitor and config.fontSizeWithMonitor or config.fontSizeWithoutMonitor
+      local ghosttyFontSize = hasExternalMonitor and config.ghosttyFontSizeWithMonitor or config.ghosttyFontSizeWithoutMonitor
+
+      log.i(string.format("Using font sizes: JetBrains=%d, Ghostty=%d", jetbrainsFontSize, ghosttyFontSize))
+
+      -- Helper to restore original focus
+      local function restoreOriginalFocus()
+        hs.timer.doAfter(0.1, function()
+          if windowToRestore and windowToRestore:isVisible() then
+            pcall(function() windowToRestore:focus() end)
+            log.d("Restored focus to original window")
+          end
+        end)
+      end
+
+      -- Start JetBrains update
+      hs.timer.doAfter(0, function()
+        log.d("Starting JetBrains update (async)")
+        jetbrains.updateFontSize(jetbrainsFontSize, config, log)
+      end)
+
+      -- Start Ghostty update after delay, then restore focus
+      hs.timer.doAfter(0.2, function()
+        log.d("Starting Ghostty update (async)")
+        ghostty.updateFontSize(ghosttyFontSize, config, log, restoreOriginalFocus)
+      end)
     end,
 
-    onClose = function()
+    onClose = function(originalWindow)
       log.i("Configuration UI closed")
+
+      -- Restore focus to original window
+      if originalWindow and originalWindow:isVisible() then
+        hs.timer.doAfter(0.1, function()
+          pcall(function() originalWindow:focus() end)
+          log.d("Restored focus to original window")
+        end)
+      end
     end
   }
 

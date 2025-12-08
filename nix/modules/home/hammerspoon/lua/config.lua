@@ -18,7 +18,6 @@ M.defaults = {
   fontSizeWithoutMonitor = 12,
   ghosttyFontSizeWithMonitor = 20,
   ghosttyFontSizeWithoutMonitor = 15,
-  ghosttyPerWindowFontSizing = true,
   ghosttyConfigOverlayPath = os.getenv("HOME") .. "/.config/ghostty/config.local",
   idePatterns = {
     "GoLand*",
