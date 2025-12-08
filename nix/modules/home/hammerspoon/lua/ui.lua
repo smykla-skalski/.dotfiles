@@ -533,16 +533,6 @@ local function generateHtml(config)
     <h3>Advanced Settings</h3>
     <div class="settings-row">
       <div class="config-item">
-        <label>Wake Delay (seconds)</label>
-        <input type="number" id="wakeDelaySeconds" min="0.1" max="10" step="0.1" value="%.1f">
-        <div class="description">Delay before checking display after system wakes</div>
-      </div>
-      <div class="config-item">
-        <label>Poll Interval (seconds)</label>
-        <input type="number" id="pollIntervalSeconds" min="1" max="60" step="1" value="%.1f">
-        <div class="description">How often to check for display changes (fallback)</div>
-      </div>
-      <div class="config-item">
         <label>Ghostty Config Overlay Path</label>
         <input type="text" id="ghosttyConfigOverlayPath" value="%s">
         <div class="description">Path to Ghostty config overlay file (writable)</div>
@@ -622,9 +612,7 @@ local function generateHtml(config)
         ghosttyFontSizeWithMonitor: parseInt(document.getElementById('ghosttyFontSizeWithMonitor').value),
         ghosttyFontSizeWithoutMonitor: parseInt(document.getElementById('ghosttyFontSizeWithoutMonitor').value),
         ghosttyConfigOverlayPath: expandTildeToHome(document.getElementById('ghosttyConfigOverlayPath').value),
-        idePatterns: idePatterns.sort(),
-        wakeDelaySeconds: parseFloat(document.getElementById('wakeDelaySeconds').value),
-        pollIntervalSeconds: parseFloat(document.getElementById('pollIntervalSeconds').value)
+        idePatterns: idePatterns.sort()
       };
     }
 
@@ -640,8 +628,6 @@ local function generateHtml(config)
       if (a.ghosttyFontSizeWithMonitor !== b.ghosttyFontSizeWithMonitor) return false;
       if (a.ghosttyFontSizeWithoutMonitor !== b.ghosttyFontSizeWithoutMonitor) return false;
       if (a.ghosttyConfigOverlayPath !== b.ghosttyConfigOverlayPath) return false;
-      if (a.wakeDelaySeconds !== b.wakeDelaySeconds) return false;
-      if (a.pollIntervalSeconds !== b.pollIntervalSeconds) return false;
 
       // Compare IDE patterns arrays
       if (a.idePatterns.length !== b.idePatterns.length) return false;
@@ -884,8 +870,6 @@ local function generateHtml(config)
     defaultHeadersHtml,
     defaultCheckboxesHtml,
     customPatternsHtml,
-    config.wakeDelaySeconds,
-    config.pollIntervalSeconds,
     config.ghosttyConfigOverlayPath,
     config.debugMode and 'checked="checked"' or '',
     config.ghosttyPerWindowFontSizing and 'checked="checked"' or '',

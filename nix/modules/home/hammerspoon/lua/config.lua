@@ -30,8 +30,6 @@ M.defaults = {
     "DataGrip*",
   },
   jetbrainsBasePath = "/Library/Application Support/JetBrains",
-  wakeDelaySeconds = 1.0,
-  pollIntervalSeconds = 5.0,
 }
 
 -------------------------------------------------------------------------------
