@@ -4,10 +4,13 @@
  * JetBrains IDE Font Size Adjuster
  *
  * Dynamically updates font sizes in a running JetBrains IDE without restart.
- * Updates three font settings:
+ * Updates two font settings:
  * - Application-level editor font (Editor > Font)
- * - All color scheme fonts (synced to match default)
  * - UI/menu fonts
+ *
+ * Note: Color scheme fonts are intentionally NOT modified to preserve custom
+ * file status colors (like FILESTATUS_UNKNOWN). The application-level editor
+ * font setting is sufficient for consistent font sizing across displays.
  *
  * Font size is read from temp file: $TMPDIR/jetbrains-font-size.txt
  * Fallback: FONT_SIZE environment variable (default: 15)
@@ -15,15 +18,13 @@
  * Debug mode: Set DEBUG_MODE=true environment variable for verbose output
  *
  * @author Hammerspoon Display Font Adjuster
- * @version 2.0
+ * @version 2.1
  */
 
 import com.intellij.ide.ui.LafManager
 import com.intellij.ide.ui.UISettings
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.EditorFactory
-import com.intellij.openapi.editor.colors.EditorColorsManager
-import com.intellij.openapi.editor.colors.EditorColorsScheme
 import com.intellij.openapi.editor.colors.impl.AppEditorFontOptions
 
 import groovy.transform.Field
@@ -133,59 +134,6 @@ static void updateEditorFontOptions(int fontSize) {
 }
 
 /**
- * Update color scheme font sizes to match the target font size
- * This allows "Use color scheme font instead of the default" to work
- * while keeping font sizes consistent across display changes
- * @param fontSize the font size to set
- */
-static void updateColorSchemeFonts(int fontSize) {
-    logDebug("Updating color scheme fonts to size: ${fontSize}")
-
-    def editorColorsManager = EditorColorsManager.getInstance()
-    if (!editorColorsManager) {
-        logError("Could not get EditorColorsManager instance")
-        return
-    }
-
-    int updatedCount = 0
-
-    // Update font size for all color schemes
-    editorColorsManager.allSchemes?.each { EditorColorsScheme scheme ->
-        if (scheme && !scheme.readOnly) {
-            try {
-                def fontPrefs = scheme.fontPreferences
-                if (fontPrefs) {
-                    def fontFamily = fontPrefs.fontFamily
-                    fontPrefs.setSize(fontFamily, fontSize as float)
-                    updatedCount++
-                    logDebug("Updated font size for scheme: ${scheme.name}")
-                }
-            } catch (Exception ex) {
-                logError("Could not update color scheme font for ${scheme.name}: ${ex.message}")
-            }
-        }
-    }
-
-    // Also for global scheme
-    def globalScheme = editorColorsManager.globalScheme
-    if (globalScheme && !globalScheme.readOnly) {
-        try {
-            def fontPrefs = globalScheme.fontPreferences
-            if (fontPrefs) {
-                def fontFamily = fontPrefs.fontFamily
-                fontPrefs.setSize(fontFamily, fontSize as float)
-                updatedCount++
-                logDebug("Updated font size for global scheme")
-            }
-        } catch (Exception ex) {
-            logError("Could not update color scheme font for global scheme: ${ex.message}")
-        }
-    }
-
-    logDebug("Updated font size for ${updatedCount} color scheme(s)")
-}
-
-/**
  * Update UI font settings
  * @param fontSize the font size to set
  */
@@ -231,20 +179,9 @@ static void refreshUIAndEditors() {
         logError("Could not get EditorFactory instance")
     }
 
-    // Notify that color scheme changed
-    def editorColorsManager = EditorColorsManager.getInstance()
-    if (editorColorsManager) {
-        try {
-            ApplicationManager.application.messageBus
-                .syncPublisher(EditorColorsManager.TOPIC)
-                .globalSchemeChange(editorColorsManager.globalScheme)
-            logDebug("Color scheme change notification sent")
-        } catch (Exception ex) {
-            logError("Could not notify scheme change: ${ex.message}")
-        }
-    } else {
-        logError("Could not get EditorColorsManager instance")
-    }
+    // NOTE: globalSchemeChange() notification removed - this triggers a full
+    // color scheme reload which resets custom colors like FILESTATUS_UNKNOWN.
+    // The UI and editor refresh above is sufficient to apply font changes.
 }
 
 /**
@@ -257,7 +194,8 @@ static void updateFontSizes() {
 
     try {
         updateEditorFontOptions(fontSize)
-        updateColorSchemeFonts(fontSize)
+        // NOTE: updateColorSchemeFonts() removed - modifying color scheme fonts
+        // triggers scheme reload which resets FILESTATUS_UNKNOWN color
         updateUIFontSettings(fontSize)
         refreshUIAndEditors()
 
