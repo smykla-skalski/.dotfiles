@@ -237,7 +237,7 @@ function showConfigUI()
       end
     end,
 
-    onReload = function(originalWindow)
+    onReload = function(originalWindow, closeUI)
       log.i("Reload action from UI (apply settings without saving)")
 
       -- Capture the original window passed from UI (captured before UI opened)
@@ -249,9 +249,15 @@ function showConfigUI()
 
       log.i(string.format("Using font sizes: JetBrains=%d, Ghostty=%d", jetbrainsFontSize, ghosttyFontSize))
 
-      -- Helper to restore original focus
-      local function restoreOriginalFocus()
+      -- Helper to restore original focus and close UI when done
+      local function onComplete()
         hs.timer.doAfter(0.1, function()
+          -- Close UI first
+          if closeUI then
+            closeUI()
+          end
+
+          -- Then restore focus
           if windowToRestore and windowToRestore:isVisible() then
             pcall(function() windowToRestore:focus() end)
             log.d("Restored focus to original window")
@@ -259,16 +265,21 @@ function showConfigUI()
         end)
       end
 
+      -- Store timers in global variables to prevent garbage collection
+      -- See: https://github.com/Hammerspoon/hammerspoon/issues/3102
+
       -- Start JetBrains update
-      hs.timer.doAfter(0, function()
+      _G._reloadJetbrainsTimer = hs.timer.doAfter(0, function()
+        _G._reloadJetbrainsTimer = nil
         log.d("Starting JetBrains update (async)")
         jetbrains.updateFontSize(jetbrainsFontSize, config, log)
       end)
 
-      -- Start Ghostty update after delay, then restore focus
-      hs.timer.doAfter(0.2, function()
+      -- Start Ghostty update after delay, then close UI when done
+      _G._reloadGhosttyTimer = hs.timer.doAfter(0.2, function()
+        _G._reloadGhosttyTimer = nil
         log.d("Starting Ghostty update (async)")
-        ghostty.updateFontSize(ghosttyFontSize, config, log, restoreOriginalFocus)
+        ghostty.updateFontSize(ghosttyFontSize, config, log, onComplete)
       end)
     end,
 
