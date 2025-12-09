@@ -249,8 +249,123 @@ function M.updateOtherXmlFile(xmlPath, fontSize, log)
   return false
 end
 
+--- Update font size in a single terminal-font.xml file (creates if doesn't exist)
+-- @param xmlPath The full path to the terminal-font.xml file
+-- @param fontSize The font size to set (must be positive integer)
+-- @param log Logger instance (optional)
+-- @return boolean true if file was modified and saved, false otherwise
+function M.updateTerminalFontXmlFile(xmlPath, fontSize, log)
+  -- Validate fontSize
+  if type(fontSize) ~= "number" or fontSize <= 0 then
+    if log then
+      log.e(string.format("Invalid fontSize: %s", tostring(fontSize)))
+    end
+
+    return false
+  end
+
+  local content, _ = M.safeReadFile(xmlPath, log)
+  local newContent
+  local modified = false
+
+  if not content then
+    -- File doesn't exist, create it with TerminalFontOptions
+    if log then
+      log.i(string.format("Creating new terminal-font.xml: %s", xmlPath))
+    end
+
+    -- Ensure the options directory exists
+    local optionsDir = xmlPath:match("(.*/)")
+    if optionsDir then
+      local dirAttrs = hs.fs.attributes(optionsDir)
+      if not dirAttrs then
+        -- Create options directory if it doesn't exist
+        local success = hs.execute(string.format('mkdir -p "%s"', optionsDir))
+        if not success then
+          if log then
+            log.e(string.format("Failed to create directory: %s", optionsDir))
+          end
+
+          return false
+        end
+      end
+    end
+
+    newContent = string.format([[<application>
+  <component name="TerminalFontOptions">
+    <option name="VERSION" value="1" />
+    <option name="FONT_SIZE" value="%d" />
+    <option name="FONT_SIZE_2D" value="%d.0" />
+  </component>
+</application>
+]], fontSize, fontSize)
+    modified = true
+  else
+    newContent = content
+
+    -- Update FONT_SIZE (integer value)
+    local count1
+    newContent, count1 = string.gsub(
+      newContent,
+      '(<option name="FONT_SIZE" value=")%d+(")',
+      '%1' .. fontSize .. '%2'
+    )
+
+    -- Update FONT_SIZE_2D (float value)
+    local count2
+    newContent, count2 = string.gsub(
+      newContent,
+      '(<option name="FONT_SIZE_2D" value=")%d+%.?%d*(")',
+      '%1' .. fontSize .. '.0%2'
+    )
+
+    if count1 > 0 or count2 > 0 then
+      modified = true
+    else
+      -- Font size options don't exist, check if TerminalFontOptions component exists
+      if newContent:match('<component name="TerminalFontOptions">') then
+        -- Component exists, add font size options to it
+        newContent, count1 = string.gsub(
+          newContent,
+          '(<component name="TerminalFontOptions">)',
+          '%1\n    <option name="FONT_SIZE" value="' .. fontSize .. '" />\n    <option name="FONT_SIZE_2D" value="' .. fontSize .. '.0" />'
+        )
+        modified = count1 > 0
+      else
+        -- Component doesn't exist, add it before </application>
+        newContent, count1 = string.gsub(
+          newContent,
+          '(</application>)',
+          '  <component name="TerminalFontOptions">\n    <option name="VERSION" value="1" />\n    <option name="FONT_SIZE" value="' .. fontSize .. '" />\n    <option name="FONT_SIZE_2D" value="' .. fontSize .. '.0" />\n  </component>\n%1'
+        )
+        modified = count1 > 0
+      end
+    end
+  end
+
+  -- Write if modified or newly created
+  if modified then
+    local success, writeErr = M.safeWriteFile(xmlPath, newContent, log)
+    if success then
+      if log then
+        log.i(string.format("Updated terminal font in: %s", xmlPath))
+      end
+
+      return true
+    else
+      if log then
+        log.e(string.format("Failed to write %s: %s", xmlPath, writeErr))
+      end
+
+      return false
+    end
+  end
+
+  return false
+end
+
 --- Update font size in all JetBrains IDE configuration files
--- Updates UI fonts (other.xml) only
+-- Updates UI fonts (other.xml) and terminal fonts (terminal-font.xml)
 -- Editor fonts are handled by ideScript
 -- @param fontSize The font size to apply to all IDEs
 -- @param config Configuration table with jetbrainsBasePath and idePatterns
@@ -270,6 +385,7 @@ function M.updateFontSize(fontSize, config, log)
   end
 
   local uiUpdateCount = 0
+  local terminalUpdateCount = 0
 
   -- Find all JetBrains IDE directories
   for _, pattern in ipairs(config.idePatterns) do
@@ -277,18 +393,27 @@ function M.updateFontSize(fontSize, config, log)
 
     for _, ideDir in ipairs(ideDirs) do
       -- Update UI font in other.xml (both local and settingsSync locations)
-      local locations = {"/options/other.xml", "/settingsSync/options/other.xml"}
-      for _, location in ipairs(locations) do
+      local uiLocations = {"/options/other.xml", "/settingsSync/options/other.xml"}
+      for _, location in ipairs(uiLocations) do
         local otherXmlPath = ideDir .. location
         if M.updateOtherXmlFile(otherXmlPath, fontSize, log) then
           uiUpdateCount = uiUpdateCount + 1
+        end
+      end
+
+      -- Update terminal font in terminal-font.xml (both local and settingsSync locations)
+      local terminalLocations = {"/options/terminal-font.xml", "/settingsSync/options/terminal-font.xml"}
+      for _, location in ipairs(terminalLocations) do
+        local terminalXmlPath = ideDir .. location
+        if M.updateTerminalFontXmlFile(terminalXmlPath, fontSize, log) then
+          terminalUpdateCount = terminalUpdateCount + 1
         end
       end
     end
   end
 
   -- Apply font changes to running IDEs without restart (async to avoid blocking)
-  if uiUpdateCount > 0 then
+  if uiUpdateCount > 0 or terminalUpdateCount > 0 then
     local runningApps = hs.application.runningApplications()
     local scriptPath = os.getenv("HOME") .. "/.hammerspoon/change-jetbrains-fonts.groovy"
     local home = os.getenv("HOME")
@@ -346,7 +471,7 @@ function M.updateFontSize(fontSize, config, log)
     end
 
     if log then
-      log.i(string.format("Updated %d UI font(s) to size %d", uiUpdateCount, fontSize))
+      log.i(string.format("Updated %d UI font(s) and %d terminal font(s) to size %d", uiUpdateCount, terminalUpdateCount, fontSize))
     end
   else
     if log then
