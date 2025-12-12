@@ -2,6 +2,10 @@
 #
 # Migrated from chezmoi to home-manager programs.bash.
 # Configures .bashrc and .profile for non-interactive and login shell scenarios.
+#
+# Note: macOS ships with bash 3.2. Home-manager defaults enable bash 4+ features
+# (globstar, checkjobs, -v test operator). We disable these defaults and add
+# version guards to support both system bash and nix-managed bash 5.x.
 { config, lib, pkgs, ... }:
 
 {
@@ -18,11 +22,6 @@
       # Add ~/.local/bin to PATH for mise executable
       export PATH="$HOME/.local/bin:$PATH"
 
-      # Activate mise for full functionality (directory-aware tools, shims, etc.)
-      if command -v mise >/dev/null 2>&1; then
-          eval "$(mise activate bash)"
-      fi
-
       # Source shared shell functions (from Fish functions)
       [ -f "$HOME/.config/shell/functions.sh" ] && source "$HOME/.config/shell/functions.sh"
 
@@ -35,8 +34,27 @@
   programs.bash = {
     enable = true;
 
+    # Disable home-manager defaults that require bash 4+
+    # We'll add version-guarded equivalents in initExtra
+    enableCompletion = false;
+    shellOptions = [ "histappend" "extglob" ];  # Only bash 3.2-compatible options
+
     # .bashrc content (interactive shells)
     initExtra = ''
+      # Enable bash 4+ features only when available
+      if [[ ''${BASH_VERSINFO[0]} -ge 4 ]]; then
+        shopt -s globstar checkjobs
+
+        # Bash completion (requires bash 4.2+ -v operator)
+        if [[ ''${BASH_VERSINFO[0]} -gt 4 || (''${BASH_VERSINFO[0]} -eq 4 && ''${BASH_VERSINFO[1]} -ge 2) ]]; then
+          if [[ -z "''${BASH_COMPLETION_VERSINFO+set}" ]]; then
+            if [[ -f "${pkgs.bash-completion}/etc/profile.d/bash_completion.sh" ]]; then
+              . "${pkgs.bash-completion}/etc/profile.d/bash_completion.sh"
+            fi
+          fi
+        fi
+      fi
+
       # Add ~/.local/bin to PATH for mise and other tools
       export PATH="$HOME/.local/bin:$PATH"
 
@@ -52,19 +70,11 @@
       # Cargo environment
       [ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
 
-      # mise - tool version manager
-      if command -v mise &> /dev/null; then
-        eval "$(mise activate bash)"
-      fi
-
       # fzf integration
       [ -f ~/.fzf.bash ] && source ~/.fzf.bash
 
       # broot integration
       [ -f "$HOME/.config/broot/launcher/bash/br" ] && source "$HOME/.config/broot/launcher/bash/br"
-
-      # Rancher Desktop
-      [ -d "$HOME/.rd/bin" ] && export PATH="$HOME/.rd/bin:$PATH"
     '';
 
     # .profile content (login shells)
@@ -83,9 +93,6 @@
 
       # Cargo environment
       [ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
-
-      # Rancher Desktop
-      [ -d "$HOME/.rd/bin" ] && export PATH="$HOME/.rd/bin:$PATH"
     '';
   };
 }
