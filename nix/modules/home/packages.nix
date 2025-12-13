@@ -148,6 +148,7 @@
     # ============================================================================
     # aqua - not in nixpkgs, keep using mise
     pre-commit    # Git pre-commit hooks framework
+    uv            # Extremely fast Python package installer and resolver
 
     # ============================================================================
     # Network Tools
