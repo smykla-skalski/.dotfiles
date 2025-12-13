@@ -25,6 +25,7 @@
       "helm/tap"                              # Helm charts
       "grafana/grafana"                       # Monitoring
       "pamburus/tap"                          # Log viewer
+      "stacklok/tap"                          # Stacklok tools (thv)
       "homebrew/services"                     # Service management
     ];
 
@@ -34,6 +35,7 @@
       "derailed/popeye/popeye"                # Kubernetes cluster linter
       "mutagen-io/mutagen/mutagen"            # File sync
       "pamburus/tap/hl"                       # JSON log viewer
+      "stacklok/tap/thv"                      # ToolHive MCP server manager
       "lnav"                                  # Log viewer
       "kumactl"                               # Kuma service mesh CLI
       "swiftlint"                             # Swift linter

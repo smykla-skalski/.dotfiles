@@ -65,6 +65,7 @@
         ./modules/home/syft.nix
         ./modules/home/tmux.nix
         ./modules/home/tmuxp.nix
+        ./modules/home/toolhive-studio.nix
         ./modules/home/vim.nix
         ./modules/home/zsh.nix
       ];
