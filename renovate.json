@@ -1,25 +1,33 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "automergeStrategy": "squash",
   "extends": [
     "config:best-practices",
-    ":disableRateLimiting",
+    ":semanticCommits",
     ":gitSignOff",
+    ":dependencyDashboard",
     ":label(dependencies)",
-    ":maintainLockFilesWeekly",
     ":rebaseStalePrs",
-    ":enableVulnerabilityAlertsWithAdditionalLabel(area/security)",
+    ":enableVulnerabilityAlertsWithAdditionalLabel(kind/security)",
+    ":automergeMinor",
     ":automergeDigest",
     ":automergeLinters",
     ":automergeTesters",
-    ":automergeMinor",
+    ":prConcurrentLimit20",
+    "helpers:pinGitHubActionDigests",
+    "security:openssf-scorecard",
     "group:linters",
-    "security:openssf-scorecard"
+    ":disableRateLimiting",
+    ":maintainLockFilesWeekly"
   ],
+  "gitIgnoredAuthors": ["205507218+smyklot[bot]@users.noreply.github.com"],
   "ignorePaths": [
+    "**/tmp/**",
+    ".github/workflows/smyklot-pr-commands.yml",
+    ".github/workflows/smyklot-poll.yml",
     "**/knowledge/**",
     "**/secrets/**",
-    "**/todos/**",
-    "**/tmp/**"
+    "**/todos/**"
   ],
   "nix": {
     "enabled": true
@@ -27,11 +35,46 @@
   "osvVulnerabilityAlerts": true,
   "packageRules": [
     {
-      "addLabels": ["github-actions"],
+      "addLabels": ["area/ci"],
       "commitMessageTopic": "{{depName}} action",
       "description": "GitHub Actions dependencies",
       "matchManagers": ["github-actions"],
       "semanticCommitType": "ci"
+    },
+    {
+      "description": "Group Go tool dependencies",
+      "groupName": "Go tooling",
+      "matchDepTypes": ["require"],
+      "matchManagers": ["gomod"],
+      "matchPackageNames": ["/^golang.org/x/tools/"]
+    },
+    {
+      "description": [
+        " Group dependency bumps from selected GitHub sources into a single PR across managers",
+        " (e.g., mise and gomod) to avoid separate PRs per manager"
+      ],
+      "groupName": "{{{replace 'https://github\\.com/[a-z-]+/' '' sourceUrl}}}",
+      "matchSourceUrls": [
+        "https://github.com/{onsi/ginkgo,golangci/golangci-lint}"
+      ]
+    },
+    {
+      "description": "Enable Go version updates in go.mod",
+      "matchDepNames": ["go"],
+      "matchManagers": ["gomod"],
+      "rangeStrategy": "bump"
+    },
+    {
+      "description": "Group Go version updates across mise and go.mod",
+      "groupName": "Go",
+      "matchDatasources": ["golang-version"],
+      "matchPackageNames": ["go"]
+    },
+    {
+      "description": "Smyklot action managed by sync-smyklot workflow",
+      "enabled": false,
+      "matchManagers": ["github-actions"],
+      "matchPackageNames": ["smykla-labs/smyklot"]
     },
     {
       "addLabels": ["mise"],
@@ -41,5 +84,8 @@
       "matchManagers": ["mise"],
       "matchUpdateTypes": ["minor", "patch"]
     }
-  ]
+  ],
+  "vulnerabilityAlerts": {
+    "automerge": true
+  }
 }
