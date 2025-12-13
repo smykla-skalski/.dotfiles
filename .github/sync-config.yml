@@ -38,7 +38,7 @@ sync:
               depNameTemplate: "stacklok/toolhive-studio"
               description: "Update ToolHive Studio version and hash in nix"
               extractVersionTemplate: "^v(?<version>.*)$"
-              fileMatch: ["^nix/modules/home/toolhive-studio\\.nix$"]
+              managerFilePatterns: ["/^nix/modules/home/toolhive-studio\\.nix$/"]
               matchStrings:
                 - "version = \"(?<currentValue>.*?)\";\\s+src = pkgs\\.fetchurl \\{\\s+url = \"https://github\\.com/stacklok/toolhive-studio/releases/download/v\\$\\{version\\}/ToolHive-arm64\\.dmg\";\\s+sha256 = \"(?<currentDigest>sha256-[A-Za-z0-9+/=]+|[a-f0-9]{52,64})\";"
 
