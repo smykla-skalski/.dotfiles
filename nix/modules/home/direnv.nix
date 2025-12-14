@@ -193,9 +193,8 @@ in
           uv venv --python "$python_bin" .venv --quiet
         fi
 
-        # Activate venv
-        export VIRTUAL_ENV="$PWD/.venv"
-        export PATH="$VIRTUAL_ENV/bin:$PATH"
+        # Activate venv (don't set VIRTUAL_ENV - let uv auto-detect .venv)
+        export PATH="$PWD/.venv/bin:$PATH"
 
         # Install packages from PyPI via uv
         if [[ -n "$packages_source" ]]; then
@@ -210,7 +209,7 @@ in
         # Output activation message
         if [[ "$quiet" != "true" ]]; then
           local python_version pkg_count
-          python_version="$("$VIRTUAL_ENV/bin/python" --version 2>&1 | awk '{print $2}')"
+          python_version="$(.venv/bin/python --version 2>&1 | awk '{print $2}')"
           pkg_count="$(uv pip list 2>/dev/null | tail -n +3 | wc -l | tr -d ' ')"
 
           if [[ "$use_mise_python" == "true" ]]; then
