@@ -48,15 +48,8 @@ pkgs.mkShell {
     PYTHONPATH=${python-with-packages}/${python-with-packages.sitePackages}
     export PYTHONPATH
 
-    # Create .venv symlink structure for IDE detection
-    # IDEs like VS Code, PyCharm look for .venv/bin/python
-    if [ ! -L .venv ] || [ "$(readlink .venv)" != "${python-with-packages}" ]; then
-      rm -rf .venv 2>/dev/null || true
-      ln -sf ${python-with-packages} .venv
-    fi
-
-    # Export VIRTUAL_ENV for tools that use it
-    export VIRTUAL_ENV="$PWD/.venv"
+    # Note: .venv symlink and VIRTUAL_ENV are created by use_python_env in direnv
+    # This ensures they're created on every direnv load, not just nix rebuild
 
     ${if !quiet then ''
     echo "🐍 Python environment activated"

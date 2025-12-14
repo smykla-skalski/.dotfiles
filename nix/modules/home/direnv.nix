@@ -196,6 +196,31 @@ in
 
         # Use nix-direnv's use nix function
         use nix .direnv/python-shell.nix
+
+        # Create .venv symlink for IDE detection (runs every load, very fast)
+        local python_path python_env
+        python_path="$(command -v python3 2>/dev/null)"
+        if [[ -n "$python_path" ]]; then
+          python_env="''${python_path%/bin/python3}"
+          if [[ ! -L .venv ]] || [[ "$(readlink .venv 2>/dev/null)" != "$python_env" ]]; then
+            rm -rf .venv 2>/dev/null || true
+            ln -sf "$python_env" .venv
+          fi
+          export VIRTUAL_ENV="$PWD/.venv"
+
+          # Add .venv to git exclude if in a git repo (idempotent, very fast)
+          if [[ -e .git ]]; then
+            local git_dir exclude_file
+            git_dir="$(git rev-parse --git-dir 2>/dev/null)"
+            if [[ -n "$git_dir" ]]; then
+              exclude_file="$git_dir/info/exclude"
+              mkdir -p "$git_dir/info"
+              for pattern in .envrc .direnv/ .venv; do
+                grep -qxF "$pattern" "$exclude_file" 2>/dev/null || echo "$pattern" >> "$exclude_file"
+              done
+            fi
+          fi
+        fi
       }
     '';
   };
