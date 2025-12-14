@@ -221,7 +221,21 @@ Most packages have identical pip and nixpkgs names - only add mappings when they
 1. `use_python_env` parses `pyproject.toml` or `requirements.txt`
 2. Package names are mapped via `pip-to-nix.json`
 3. A `.direnv/python-shell.nix` is generated with the resolved packages
-4. nix-direnv caches the environment for fast subsequent loads
+4. A `.venv` symlink is created pointing to the nix Python environment
+5. nix-direnv caches the environment for fast subsequent loads
+
+### IDE Integration
+
+A `.venv` symlink is automatically created pointing to the nix Python environment. IDEs (VS Code, PyCharm, etc.) auto-detect `.venv/bin/python`.
+
+**Environment variables set:**
+
+- `PYTHONPATH` - Points to nix site-packages
+- `VIRTUAL_ENV` - Points to `.venv` directory
+
+**IDE interpreter path:** `.venv/bin/python`
+
+No configuration needed - IDEs find it automatically.
 
 ### Why This Approach
 

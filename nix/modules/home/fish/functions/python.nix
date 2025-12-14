@@ -28,6 +28,7 @@
         if test -e .git
           __add_to_git_excludes .envrc
           __add_to_git_excludes .direnv/
+          __add_to_git_excludes .venv
         end
 
         # Allow direnv (suppress output)

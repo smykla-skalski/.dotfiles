@@ -48,10 +48,21 @@ pkgs.mkShell {
     PYTHONPATH=${python-with-packages}/${python-with-packages.sitePackages}
     export PYTHONPATH
 
+    # Create .venv symlink structure for IDE detection
+    # IDEs like VS Code, PyCharm look for .venv/bin/python
+    if [ ! -L .venv ] || [ "$(readlink .venv)" != "${python-with-packages}" ]; then
+      rm -rf .venv 2>/dev/null || true
+      ln -sf ${python-with-packages} .venv
+    fi
+
+    # Export VIRTUAL_ENV for tools that use it
+    export VIRTUAL_ENV="$PWD/.venv"
+
     ${if !quiet then ''
     echo "🐍 Python environment activated"
     echo "   Python: $(python3 --version)"
     ${if packageCount > 0 then ''echo "   Packages (${toString packageCount}): ${packageList}"'' else ''echo "   Packages: (none)"''}
+    echo "   IDE path: .venv/bin/python"
     '' else ""}
   '';
 }
