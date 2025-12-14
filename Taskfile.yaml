@@ -197,13 +197,13 @@ tasks:
       Falls back to full test suite if unable to detect changes.
     vars:
       DEFAULT_BRANCH:
-        sh: git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@' || echo "main"
+        sh: git symbolic-ref refs/remotes/upstream/HEAD 2>/dev/null | sed 's@^refs/remotes/upstream/@@' || echo "main"
       CAN_DETECT_CHANGES:
-        sh: git rev-parse --verify origin/{{.DEFAULT_BRANCH}} >/dev/null 2>&1 && echo "true" || echo "false"
+        sh: git rev-parse --verify upstream/{{.DEFAULT_BRANCH}} >/dev/null 2>&1 && echo "true" || echo "false"
     cmds:
       - |
         if [[ "{{.CAN_DETECT_CHANGES}}" == "false" ]]; then
-          echo "⚠️  Unable to detect remote branch origin/{{.DEFAULT_BRANCH}}, running full test suite"
+          echo "⚠️  Unable to detect remote branch upstream/{{.DEFAULT_BRANCH}}, running full test suite"
           task test
           exit $?
         fi
@@ -217,9 +217,9 @@ tasks:
     internal: true
     vars:
       DEFAULT_BRANCH:
-        sh: git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@' || echo "main"
+        sh: git symbolic-ref refs/remotes/upstream/HEAD 2>/dev/null | sed 's@^refs/remotes/upstream/@@' || echo "main"
     status:
-      - test -z "$(git diff --name-only origin/{{.DEFAULT_BRANCH}}...HEAD 2>/dev/null | grep '\.sh$')"
+      - test -z "$(git diff --name-only upstream/{{.DEFAULT_BRANCH}}...HEAD 2>/dev/null | grep '\.sh$')"
     cmds:
       - echo "▶ Shell scripts changed, running shellcheck"
       - task lint:shell
@@ -230,9 +230,9 @@ tasks:
     platforms: [darwin]
     vars:
       DEFAULT_BRANCH:
-        sh: git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@' || echo "main"
+        sh: git symbolic-ref refs/remotes/upstream/HEAD 2>/dev/null | sed 's@^refs/remotes/upstream/@@' || echo "main"
     status:
-      - test -z "$(git diff --name-only origin/{{.DEFAULT_BRANCH}}...HEAD 2>/dev/null | grep '^Brewfile$')"
+      - test -z "$(git diff --name-only upstream/{{.DEFAULT_BRANCH}}...HEAD 2>/dev/null | grep '^Brewfile$')"
     cmds:
       - echo "▶ Brewfile changed, validating"
       - task test:brewfile
@@ -242,9 +242,9 @@ tasks:
     internal: true
     vars:
       DEFAULT_BRANCH:
-        sh: git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@' || echo "main"
+        sh: git symbolic-ref refs/remotes/upstream/HEAD 2>/dev/null | sed 's@^refs/remotes/upstream/@@' || echo "main"
     status:
-      - test -z "$(git diff --name-only origin/{{.DEFAULT_BRANCH}}...HEAD 2>/dev/null | grep '^spec/')"
+      - test -z "$(git diff --name-only upstream/{{.DEFAULT_BRANCH}}...HEAD 2>/dev/null | grep '^spec/')"
     cmds:
       - echo "▶ Test specs changed, running ShellSpec"
       - task test:shellspec

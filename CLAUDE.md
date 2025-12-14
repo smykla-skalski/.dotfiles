@@ -155,70 +155,96 @@ mise install                 # Install tools
 
 ## Python Development Environment
 
-Python packages are managed via **shared `shell.nix`** with **direnv** per-project activation:
+Dynamic Python environments with **direnv** per-project activation. Packages are read from `requirements.txt` or `pyproject.toml`.
 
-### Setup
+### Quick Start
 
-**Location**: `$DOTFILES_PATH/nix/python-env/shell.nix`
+**Automatic**: Just `cd` into any directory with `requirements.txt` or `pyproject.toml`. Fish shell automatically:
 
-**Environment variable**: `$PYTHON_SHELL_NIX` (available in all shells: bash, fish, zsh)
+1. Creates `.envrc` with `use_python_env`
+2. Adds `.envrc` to `.git/info/exclude` (including all worktrees)
+3. Runs `direnv allow`
 
-Projects opt-in to the Python environment by creating `.envrc`:
+**Manual**: If auto-detection doesn't trigger, create `.envrc` yourself:
 
 ```bash
-use nix $PYTHON_SHELL_NIX
+echo 'use_python_env' > .envrc        # With activation message
+echo 'use_python_env --quiet' > .envrc # Silent mode
+direnv allow
 ```
 
-Then `direnv allow` to activate. The environment auto-loads when you `cd` into that project.
+The environment auto-loads when you `cd` into the project, reading packages from:
+
+1. `pyproject.toml` (`[project.dependencies]` section) - checked first
+2. `requirements.txt` - fallback if no pyproject.toml
+
+If neither file exists, a bare Python environment (stdlib only) is provided.
 
 ### Files
 
-**`$DOTFILES_PATH/nix/python-env/shell.nix`**:
+**Project files**:
 
-```nix
-let
-  python-with-packages = pkgs.python3.withPackages (ps: with ps; [
-    pillow
-    pyyaml
-  ]);
-in
-pkgs.mkShell {
-  buildInputs = [ python-with-packages ];
-  shellHook = ''
-    # Fix for nixpkgs#61144
-    PYTHONPATH=${python-with-packages}/${python-with-packages.sitePackages}
-    export PYTHONPATH
-  '';
+```text
+your-project/
+├── .envrc              # Auto-created, contains: use_python_env
+├── requirements.txt    # pip format: requests>=2.28.0
+└── pyproject.toml      # [project.dependencies] section
+```
+
+**Central infrastructure** (`$DOTFILES_PATH/nix/python-env/`):
+
+- `shell.nix` - Parameterized nix shell that accepts package list
+- `pip-to-nix.json` - Mapping from pip package names to nixpkgs names
+
+### Package Name Mapping
+
+Some pip packages have different names in nixpkgs. The `pip-to-nix.json` file handles translations:
+
+```json
+{
+  "scikit-learn": "scikitlearn",
+  "opencv-python": "opencv4",
+  "beautifulsoup4": "beautifulsoup4"
 }
 ```
 
-**Per-project `.envrc`**: `use nix $PYTHON_SHELL_NIX`
-
-### Why This Approach
-
-- **Centralized**: Single shell.nix shared across all projects
-- **Opt-in**: Projects choose to activate Python environment
-- **Performance**: nix-direnv caches the environment (~750ms faster after first load)
-- **Flexible**: Projects can override with their own shell.nix if needed
-- **Workaround**: Fixes [nixpkgs#61144](https://github.com/NixOS/nixpkgs/issues/61144) where `python.withPackages` doesn't set PYTHONPATH
-
-### Adding Packages
-
-Edit `$DOTFILES_PATH/nix/python-env/shell.nix` and add packages to the `withPackages` list:
-
-```nix
-python-with-packages = pkgs.python3.withPackages (ps: with ps; [
-  pillow
-  pyyaml
-  requests  # Add new packages here
-]);
-```
-
-Then rebuild home-manager and direnv will auto-reload next time you `cd` into a project:
+**Adding new mappings**: Edit `$DOTFILES_PATH/nix/python-env/pip-to-nix.json`, then rebuild:
 
 ```bash
 home-manager switch --flake $DOTFILES_PATH/nix#home-bart
 ```
+
+Most packages have identical pip and nixpkgs names - only add mappings when they differ.
+
+### How It Works
+
+1. `use_python_env` parses `pyproject.toml` or `requirements.txt`
+2. Package names are mapped via `pip-to-nix.json`
+3. A `.direnv/python-shell.nix` is generated with the resolved packages
+4. A `.venv` symlink is created pointing to the nix Python environment
+5. nix-direnv caches the environment for fast subsequent loads
+
+### IDE Integration
+
+A `.venv` symlink is automatically created pointing to the nix Python environment. IDEs (VS Code, PyCharm, etc.) auto-detect `.venv/bin/python`.
+
+**Environment variables set:**
+
+- `PYTHONPATH` - Points to nix site-packages
+- `VIRTUAL_ENV` - Points to `.venv` directory
+
+**IDE interpreter path:** `.venv/bin/python`
+
+No configuration needed - IDEs find it automatically.
+
+### Why This Approach
+
+- **Per-project packages**: Each project gets exactly the dependencies it declares
+- **Standard formats**: Uses familiar `requirements.txt` and `pyproject.toml`
+- **Opt-in**: Projects choose to activate Python environment
+- **Performance**: nix-direnv caches environments (~750ms faster after first load)
+- **No version conflicts**: Each project is isolated
+- **Workaround**: Fixes [nixpkgs#61144](https://github.com/NixOS/nixpkgs/issues/61144) where `python.withPackages` doesn't set PYTHONPATH
 
 ### Version Management
 
@@ -226,28 +252,29 @@ home-manager switch --flake $DOTFILES_PATH/nix#home-bart
 
 - Python package versions come from the nixpkgs snapshot (defined in `nix/flake.lock`)
 - Renovate automatically updates `flake.lock` weekly (via `:maintainLockFilesWeekly`)
-- When nixpkgs updates, all Python packages update to the latest versions in that snapshot
+- Version specifiers in `requirements.txt` (e.g., `>=2.28.0`) are ignored - nixpkgs determines versions
 
-**Check current versions**:
+**Check available packages**:
 
 ```bash
-nix-shell $PYTHON_SHELL_NIX --run "python3 -c 'import yaml, PIL; print(f\"PyYAML: {yaml.__version__}\"); print(f\"Pillow: {PIL.__version__}\")'"
+nix-env -qaP -A nixpkgs.python3Packages | grep -i <package-name>
 ```
 
-**Pin specific versions** (not recommended):
+### Troubleshooting
 
-If you need a specific version, use `overridePythonAttrs`, but this breaks Renovate auto-updates:
+**Package not found**: Add mapping to `pip-to-nix.json` or check if package exists in nixpkgs
 
-```nix
-python-with-packages = pkgs.python3.withPackages (ps: with ps; [
-  (ps.pillow.overridePythonAttrs (old: rec {
-    version = "10.0.0";
-    # ... additional override attributes
-  }))
-]);
+**Old environment cached**: Remove `.direnv/` and re-allow:
+
+```bash
+rm -rf .direnv && direnv allow
 ```
 
-**Recommended**: Let Renovate manage versions via nixpkgs updates.
+**Check generated nix file**:
+
+```bash
+cat .direnv/python-shell.nix
+```
 
 ### Resources
 

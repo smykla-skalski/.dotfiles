@@ -6,6 +6,7 @@
   imports = [
     ./git.nix
     ./kubernetes.nix
+    ./python.nix
     ./utilities.nix
   ];
 }
