@@ -27,6 +27,7 @@
         # Add to git exclude if this is a git repo
         if test -e .git
           __add_to_git_excludes .envrc
+          __add_to_git_excludes .direnv/
         end
 
         # Allow direnv (suppress output)
