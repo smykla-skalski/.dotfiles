@@ -320,6 +320,7 @@ mise config --local         # Show local mise config
 
 ### Resources
 
+- [PYTHON-ENV.md](PYTHON-ENV.md) - Architecture and implementation details
 - [Fixing Python Import Resolution in Nix with Direnv](https://cyberchris.xyz/posts/nix-python-pyright/)
 - [nix-direnv Performance](https://ianthehenry.com/posts/how-to-learn-nix/nix-direnv/)
 - [Simple Python devshells](https://sgt.hootr.club/blog/python-nix-shells/)
@@ -516,6 +517,7 @@ Core tools (from `Brewfile`, migrating to nix):
 ## Documentation
 
 - **[README.md](README.md)**: Project overview and quick start
+- **[PYTHON-ENV.md](PYTHON-ENV.md)**: Python environment architecture and internals
 - **[TESTING.md](TESTING.md)**: Testing approach and commands
 - **[CONTRIBUTING.md](CONTRIBUTING.md)**: Contribution guidelines
 - **[TROUBLESHOOTING.md](TROUBLESHOOTING.md)**: Debugging and troubleshooting guide
