@@ -9,6 +9,7 @@
 let
   # Path to the python environment files (relative to dotfiles)
   pythonEnvPath = "${config.home.homeDirectory}/Projects/github.com/smykla-labs/.dotfiles/nix/python-env";
+  nixpkgsPythonVersionsPath = "${pythonEnvPath}/nixpkgs-python-versions.json";
 in
 {
   programs.direnv = {
@@ -43,14 +44,20 @@ in
     # Custom stdlib functions for direnv
     # This is written to ~/.config/direnv/direnvrc
     stdlib = ''
-      # use_python_env - Dynamic Python environment from requirements.txt or pyproject.toml
+      # use_python_env - Dynamic Python environment with uv package management
       #
-      # Parses Python package requirements, maps pip names to nixpkgs names,
-      # and creates a nix shell environment with the resolved packages.
+      # Architecture:
+      #   - Nix provides Python interpreter (version from mise config or default)
+      #   - uv always installs packages from PyPI (respects version specifiers)
       #
-      # Supported formats:
-      #   - requirements.txt (pip format)
-      #   - pyproject.toml ([project.dependencies] section)
+      # Python version selection:
+      #   - Reads from .mise.toml or .tool-versions
+      #   - For versions in nixpkgs (3.10-3.13): uses nix Python
+      #   - For versions not in nixpkgs (3.14+): uses mise Python
+      #
+      # Supported package formats:
+      #   - pyproject.toml (dependencies, optional-dependencies, dependency-groups)
+      #   - requirements.txt
       #
       # Usage in .envrc:
       #   use_python_env           # Normal mode with activation message
@@ -58,10 +65,12 @@ in
       #
       use_python_env() {
         local python_shell_nix="''${PYTHON_SHELL_NIX:-${pythonEnvPath}/shell.nix}"
-        local pip_to_nix_json="''${PYTHON_PIP_TO_NIX:-${pythonEnvPath}/pip-to-nix.json}"
-        local packages=()
+        local nixpkgs_versions_json="''${NIXPKGS_PYTHON_VERSIONS:-${nixpkgsPythonVersionsPath}}"
         local packages_source=""
         local quiet=false
+        local mise_python_version=""
+        local nixpkgs_python_version=""
+        local use_mise_python=false
 
         # Parse arguments
         while [[ $# -gt 0 ]]; do
@@ -76,149 +85,131 @@ in
           esac
         done
 
-        # Function to normalize package names (lowercase, underscores to hyphens)
-        _normalize_pkg_name() {
-          echo "$1" | tr '[:upper:]' '[:lower:]' | tr '_' '-'
-        }
-
-        # Function to extract package name from requirement line
-        # Handles: package, package==1.0, package>=1.0, package[extra], etc.
-        _extract_pkg_name() {
-          local line="$1"
-          # Remove leading/trailing whitespace
-          line="$(echo "$line" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
-          # Skip empty lines and comments
-          [[ -z "$line" || "$line" =~ ^# ]] && return
-          # Skip -r, -e, -i, --index-url, etc.
-          [[ "$line" =~ ^- ]] && return
-          # Extract package name (before version specifiers, extras, etc.)
-          local pkg
-          pkg="$(echo "$line" | sed -E 's/^([a-zA-Z0-9_-]+).*/\1/')"
-          _normalize_pkg_name "$pkg"
-        }
-
-        # Parse pyproject.toml [project.dependencies]
-        _parse_pyproject_toml() {
-          local in_dependencies=false
-          local line pkg
-
-          while IFS= read -r line; do
-            # Check for [project.dependencies] or dependencies = [
-            if [[ "$line" =~ ^\[project\]$ ]]; then
-              in_dependencies=false
-            elif [[ "$line" =~ ^dependencies[[:space:]]*=[[:space:]]*\[ ]]; then
-              in_dependencies=true
-              # Handle inline array on same line
-              if [[ "$line" =~ \] ]]; then
-                # Single-line array: dependencies = ["pkg1", "pkg2"]
-                line="$(echo "$line" | sed -E 's/.*\[([^]]*)\].*/\1/')"
-                for item in $(echo "$line" | tr ',' '\n'); do
-                  item="$(echo "$item" | tr -d '"'"'"' ')"
-                  pkg="$(_extract_pkg_name "$item")"
-                  [[ -n "$pkg" ]] && packages+=("$pkg")
-                done
-                in_dependencies=false
-              fi
-              continue
-            elif [[ "$line" =~ ^\[ ]] && [[ ! "$line" =~ ^\[project\] ]]; then
-              in_dependencies=false
-            fi
-
-            if $in_dependencies; then
-              # End of array
-              if [[ "$line" =~ ^\] ]]; then
-                in_dependencies=false
-                continue
-              fi
-              # Extract package from quoted string
-              line="$(echo "$line" | tr -d '"'"'"',' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
-              pkg="$(_extract_pkg_name "$line")"
-              [[ -n "$pkg" ]] && packages+=("$pkg")
-            fi
-          done < pyproject.toml
-        }
-
-        # Parse requirements.txt
-        _parse_requirements_txt() {
-          local line pkg
-          while IFS= read -r line || [[ -n "$line" ]]; do
-            pkg="$(_extract_pkg_name "$line")"
-            [[ -n "$pkg" ]] && packages+=("$pkg")
-          done < requirements.txt
-        }
-
-        # Determine which file to parse
-        if [[ -f pyproject.toml ]]; then
-          if grep -q '^\[project\]' pyproject.toml && grep -q 'dependencies' pyproject.toml; then
-            packages_source="pyproject.toml"
-            _parse_pyproject_toml
-          elif [[ -f requirements.txt ]]; then
-            packages_source="requirements.txt"
-            _parse_requirements_txt
+        # Parse Python version from mise config (.mise.toml or .tool-versions)
+        _get_mise_python_version() {
+          local version=""
+          if [[ -f .mise.toml ]]; then
+            version="$(grep -E '^python\s*=' .mise.toml 2>/dev/null | awk -F'"' '{print $2}' | head -1)"
           fi
+          if [[ -z "$version" && -f .tool-versions ]]; then
+            version="$(grep -E '^python\s+' .tool-versions 2>/dev/null | awk '{print $2}' | head -1)"
+          fi
+          echo "$version"
+        }
+
+        # Convert version like "3.11" to nixpkgs format "311"
+        _version_to_nixpkgs_format() {
+          echo "$1" | sed -E 's/^([0-9]+)\.([0-9]+).*/\1\2/'
+        }
+
+        # Check if nixpkgs has the given Python version
+        _nixpkgs_has_python_version() {
+          local version="$1"
+          if [[ -f "$nixpkgs_versions_json" ]] && command -v jq &> /dev/null; then
+            jq -e --arg v "$version" '.versions | index($v) != null' "$nixpkgs_versions_json" > /dev/null 2>&1
+            return $?
+          fi
+          [[ "$version" =~ ^31[0-3]$ ]]
+        }
+
+        # Determine Python source (nix or mise)
+        mise_python_version="$(_get_mise_python_version)"
+        if [[ -n "$mise_python_version" ]]; then
+          nixpkgs_python_version="$(_version_to_nixpkgs_format "$mise_python_version")"
+          if ! _nixpkgs_has_python_version "$nixpkgs_python_version"; then
+            use_mise_python=true
+          fi
+        fi
+
+        # Determine package source
+        if [[ -f pyproject.toml ]]; then
+          packages_source="pyproject.toml"
         elif [[ -f requirements.txt ]]; then
           packages_source="requirements.txt"
-          _parse_requirements_txt
         fi
 
-        # Map pip names to nix names using jq
-        local nix_packages=()
-        local nix_pkg pip_pkg
-
-        if [[ -f "$pip_to_nix_json" ]] && command -v jq &> /dev/null; then
-          for pip_pkg in "''${packages[@]}"; do
-            nix_pkg="$(jq -r --arg pip "$pip_pkg" '.[$pip] // $pip' "$pip_to_nix_json")"
-            nix_packages+=("$nix_pkg")
-          done
-        else
-          # Fallback: use pip names directly if jq or mapping not available
-          nix_packages=("''${packages[@]}")
-        fi
-
-        # Generate .direnv/python-shell.nix
+        # Setup Python interpreter
         mkdir -p .direnv
 
-        # Build nix package list string
-        local nix_pkg_list=""
-        for pkg in "''${nix_packages[@]}"; do
-          nix_pkg_list="$nix_pkg_list \"$pkg\""
-        done
-
-        cat > .direnv/python-shell.nix << NIXEOF
+        if [[ "$use_mise_python" == "true" ]]; then
+          # Use mise for Python (version not in nixpkgs)
+          if ! mise which python &> /dev/null; then
+            log_status "Installing Python $mise_python_version via mise..."
+            mise use "python@$mise_python_version"
+          fi
+          local python_path
+          python_path="$(mise which python 2>/dev/null)"
+          if [[ -z "$python_path" ]]; then
+            log_error "Failed to get Python path from mise"
+            return 1
+          fi
+          export PATH="$(dirname "$python_path"):$PATH"
+        else
+          # Use nix for Python
+          cat > .direnv/python-shell.nix << NIXEOF
       # Generated by use_python_env - do not edit manually
-      # Source: ''${packages_source:-none}
-      # Packages: ''${packages[*]:-none}
       import (/. + "${pythonEnvPath}/shell.nix") {
-        packages = [$nix_pkg_list ];
-        quiet = $quiet;
+        quiet = true;
+        pythonVersion = "$nixpkgs_python_version";
       }
       NIXEOF
+          use nix .direnv/python-shell.nix
+        fi
 
-        # Use nix-direnv's use nix function
-        use nix .direnv/python-shell.nix
+        # Create/update venv and install packages using uv
+        local python_bin
+        python_bin="$(command -v python3 2>/dev/null)"
 
-        # Create .venv symlink for IDE detection (runs every load, very fast)
-        local python_path python_env
-        python_path="$(command -v python3 2>/dev/null)"
-        if [[ -n "$python_path" ]]; then
-          python_env="''${python_path%/bin/python3}"
-          if [[ ! -L .venv ]] || [[ "$(readlink .venv 2>/dev/null)" != "$python_env" ]]; then
-            rm -rf .venv 2>/dev/null || true
-            ln -sf "$python_env" .venv
+        if [[ -z "$python_bin" ]]; then
+          log_error "Python not found in PATH"
+          return 1
+        fi
+
+        # Create venv if needed
+        if [[ ! -d .venv ]] || [[ ! -f .venv/pyvenv.cfg ]]; then
+          rm -rf .venv 2>/dev/null || true
+          uv venv --python "$python_bin" .venv --quiet
+        fi
+
+        # Activate venv
+        export VIRTUAL_ENV="$PWD/.venv"
+        export PATH="$VIRTUAL_ENV/bin:$PATH"
+
+        # Install packages from PyPI via uv
+        if [[ -n "$packages_source" ]]; then
+          if [[ "$packages_source" == "pyproject.toml" ]]; then
+            # Use uv sync for pyproject.toml - handles dependencies, optional-dependencies, and dependency-groups
+            uv sync --quiet --all-groups 2>/dev/null || uv sync --quiet 2>/dev/null || true
+          elif [[ "$packages_source" == "requirements.txt" ]]; then
+            uv pip install --quiet -r requirements.txt
           fi
-          export VIRTUAL_ENV="$PWD/.venv"
+        fi
 
-          # Add .venv to git exclude if in a git repo (idempotent, very fast)
-          if [[ -e .git ]]; then
-            local git_dir exclude_file
-            git_dir="$(git rev-parse --git-dir 2>/dev/null)"
-            if [[ -n "$git_dir" ]]; then
-              exclude_file="$git_dir/info/exclude"
-              mkdir -p "$git_dir/info"
-              for pattern in .envrc .direnv/ .venv; do
-                grep -qxF "$pattern" "$exclude_file" 2>/dev/null || echo "$pattern" >> "$exclude_file"
-              done
-            fi
+        # Output activation message
+        if [[ "$quiet" != "true" ]]; then
+          local python_version pkg_count
+          python_version="$("$VIRTUAL_ENV/bin/python" --version 2>&1 | awk '{print $2}')"
+          pkg_count="$(uv pip list 2>/dev/null | tail -n +3 | wc -l | tr -d ' ')"
+
+          if [[ "$use_mise_python" == "true" ]]; then
+            echo "🐍 Python $python_version (mise) + uv"
+          else
+            echo "🐍 Python $python_version (nix) + uv"
+          fi
+          echo "   Packages: $pkg_count from $packages_source"
+          echo "   IDE path: .venv/bin/python"
+        fi
+
+        # Add .venv to git exclude
+        if [[ -e .git ]]; then
+          local git_dir exclude_file
+          git_dir="$(git rev-parse --git-dir 2>/dev/null)"
+          if [[ -n "$git_dir" ]]; then
+            exclude_file="$git_dir/info/exclude"
+            mkdir -p "$git_dir/info"
+            for pattern in .envrc .direnv/ .venv; do
+              grep -qxF "$pattern" "$exclude_file" 2>/dev/null || echo "$pattern" >> "$exclude_file"
+            done
           fi
         fi
       }

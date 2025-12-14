@@ -39,6 +39,10 @@
     # ============================================================================
     jq            # JSON processor
     yq-go         # YAML/JSON/XML processor (mikefarah's yq)
+    # tomlq from kislyuk's yq (wrapped to avoid conflict with yq-go)
+    (writeShellScriptBin "tomlq" ''
+      exec ${pkgs.python3Packages.yq}/bin/tomlq "$@"
+    '')
     fx            # Terminal JSON viewer (interactive)
     # lnav - not easily available, keep in Homebrew for HEAD build
 

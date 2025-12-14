@@ -155,7 +155,7 @@ mise install                 # Install tools
 
 ## Python Development Environment
 
-Dynamic Python environments with **direnv** per-project activation. Packages are read from `requirements.txt` or `pyproject.toml`.
+Dynamic Python environments with **direnv** per-project activation. Packages are read from `requirements.txt` or `pyproject.toml`. Python version can be specified via **mise** (`.mise.toml` or `.tool-versions`).
 
 ### Quick Start
 
@@ -175,8 +175,8 @@ direnv allow
 
 The environment auto-loads when you `cd` into the project, reading packages from:
 
-1. `pyproject.toml` (`[project.dependencies]` section) - checked first
-2. `requirements.txt` - fallback if no pyproject.toml
+1. `pyproject.toml` (via `uv sync --all-groups`) - handles `[project].dependencies`, `[project.optional-dependencies]`, and `[dependency-groups]`
+2. `requirements.txt` (via `uv pip install -r`) - fallback if no pyproject.toml
 
 If neither file exists, a bare Python environment (stdlib only) is provided.
 
@@ -187,55 +187,41 @@ If neither file exists, a bare Python environment (stdlib only) is provided.
 ```text
 your-project/
 ├── .envrc              # Auto-created, contains: use_python_env
+├── .mise.toml          # Optional: python = "3.11" or python = "3.14"
+├── .tool-versions      # Alternative to .mise.toml: python 3.11
 ├── requirements.txt    # pip format: requests>=2.28.0
-└── pyproject.toml      # [project.dependencies] section
+└── pyproject.toml      # [project.dependencies], [project.optional-dependencies], [dependency-groups]
 ```
 
 **Central infrastructure** (`$DOTFILES_PATH/nix/python-env/`):
 
-- `shell.nix` - Parameterized nix shell that accepts package list
-- `pip-to-nix.json` - Mapping from pip package names to nixpkgs names
-
-### Package Name Mapping
-
-Some pip packages have different names in nixpkgs. The `pip-to-nix.json` file handles translations:
-
-```json
-{
-  "scikit-learn": "scikitlearn",
-  "opencv-python": "opencv4",
-  "beautifulsoup4": "beautifulsoup4"
-}
-```
-
-**Adding new mappings**: Edit `$DOTFILES_PATH/nix/python-env/pip-to-nix.json`, then rebuild:
-
-```bash
-home-manager switch --flake $DOTFILES_PATH/nix#home-bart
-```
-
-Most packages have identical pip and nixpkgs names - only add mappings when they differ.
+- `shell.nix` - Parameterized nix shell that provides Python interpreter
+- `nixpkgs-python-versions.json` - List of Python versions available in nixpkgs
 
 ### How It Works
 
-1. `use_python_env` parses `pyproject.toml` or `requirements.txt`
-2. Package names are mapped via `pip-to-nix.json`
-3. A `.direnv/python-shell.nix` is generated with the resolved packages
-4. A `.venv` symlink is created pointing to the nix Python environment
-5. nix-direnv caches the environment for fast subsequent loads
+1. `use_python_env` reads Python version from `.mise.toml` or `.tool-versions`
+2. Mode selection based on Python version:
+   - **Nix mode** (3.10-3.13): Uses nixpkgs Python interpreter
+   - **mise mode** (3.14+): Uses mise to install Python
+3. Creates `.venv` using `uv venv`
+4. Installs packages via uv:
+   - `pyproject.toml`: `uv sync --all-groups` (handles all dependency types)
+   - `requirements.txt`: `uv pip install -r requirements.txt`
+5. nix-direnv caches environments for fast subsequent loads
 
 ### IDE Integration
 
-A `.venv` symlink is automatically created pointing to the nix Python environment. IDEs (VS Code, PyCharm, etc.) auto-detect `.venv/bin/python`.
+A `.venv` directory is automatically created. IDEs (VS Code, PyCharm, etc.) auto-detect `.venv/bin/python`.
 
 **Environment variables set:**
 
-- `PYTHONPATH` - Points to nix site-packages
+- `PYTHONPATH` - Points to site-packages
 - `VIRTUAL_ENV` - Points to `.venv` directory
 
 **IDE interpreter path:** `.venv/bin/python`
 
-No configuration needed - IDEs find it automatically.
+No configuration needed - IDEs find it automatically in both modes.
 
 ### Why This Approach
 
@@ -246,34 +232,81 @@ No configuration needed - IDEs find it automatically.
 - **No version conflicts**: Each project is isolated
 - **Workaround**: Fixes [nixpkgs#61144](https://github.com/NixOS/nixpkgs/issues/61144) where `python.withPackages` doesn't set PYTHONPATH
 
-### Version Management
+### Python Version Selection
 
-**How it works**:
+Specify Python version per-project using mise:
 
-- Python package versions come from the nixpkgs snapshot (defined in `nix/flake.lock`)
-- Renovate automatically updates `flake.lock` weekly (via `:maintainLockFilesWeekly`)
-- Version specifiers in `requirements.txt` (e.g., `>=2.28.0`) are ignored - nixpkgs determines versions
+```toml
+# .mise.toml
+[tools]
+python = "3.11"    # Uses nixpkgs python311
+# python = "3.14"  # Falls back to mise + uv (not in nixpkgs)
+```
 
-**Check available packages**:
+Or using `.tool-versions`:
 
-```bash
-nix-env -qaP -A nixpkgs.python3Packages | grep -i <package-name>
+```text
+python 3.12
+```
+
+**Mode selection**:
+
+| Version   | Python Source | Package Source |
+|-----------|---------------|----------------|
+| 3.10-3.13 | nixpkgs       | PyPI (via uv)  |
+| 3.14+     | mise          | PyPI (via uv)  |
+
+**Activation messages**:
+
+```text
+🐍 Python 3.11.14 (nix) + uv
+   Packages: 6 from requirements.txt
+   IDE path: .venv/bin/python
+
+🐍 Python 3.14.2 (mise) + uv
+   Packages: 10 from pyproject.toml
+   IDE path: .venv/bin/python
+```
+
+### Package Version Management
+
+All packages are installed from PyPI via uv, which respects version specifiers in `requirements.txt` and `pyproject.toml`.
+
+**Example**:
+
+```text
+# requirements.txt
+requests>=2.28.0  # Will install latest compatible version
 ```
 
 ### Troubleshooting
 
-**Package not found**: Add mapping to `pip-to-nix.json` or check if package exists in nixpkgs
+**Package not found**: Check the package name on PyPI - uv installs directly from there
 
-**Old environment cached**: Remove `.direnv/` and re-allow:
+**Old environment cached**: Remove `.direnv/` and `.venv`, then re-allow:
 
 ```bash
-rm -rf .direnv && direnv allow
+rm -rf .direnv .venv && direnv allow
 ```
 
-**Check generated nix file**:
+**Check generated nix file (nix mode)**:
 
 ```bash
 cat .direnv/python-shell.nix
+```
+
+**mise+uv mode not installing packages**: Ensure `uv` is available and check the venv:
+
+```bash
+which uv
+ls -la .venv/bin/
+```
+
+**Wrong Python version**: Check mise config is being read:
+
+```bash
+cat .mise.toml    # or .tool-versions
+mise which python
 ```
 
 ### Resources
