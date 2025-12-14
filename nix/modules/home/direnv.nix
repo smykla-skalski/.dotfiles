@@ -6,6 +6,10 @@
 # Fish integration is automatic when programs.fish.enable = true.
 { config, lib, pkgs, ... }:
 
+let
+  # Path to the python environment files (relative to dotfiles)
+  pythonEnvPath = "${config.home.homeDirectory}/Projects/github.com/smykla-labs/.dotfiles/nix/python-env";
+in
 {
   programs.direnv = {
     enable = true;
@@ -35,5 +39,148 @@
         hide_env_diff = true;
       };
     };
+
+    # Custom stdlib functions for direnv
+    # This is written to ~/.config/direnv/direnvrc
+    stdlib = ''
+      # use_python_env - Dynamic Python environment from requirements.txt or pyproject.toml
+      #
+      # Parses Python package requirements, maps pip names to nixpkgs names,
+      # and creates a nix shell environment with the resolved packages.
+      #
+      # Supported formats:
+      #   - requirements.txt (pip format)
+      #   - pyproject.toml ([project.dependencies] section)
+      #
+      # Usage in .envrc:
+      #   use_python_env
+      #
+      use_python_env() {
+        local python_shell_nix="''${PYTHON_SHELL_NIX:-${pythonEnvPath}/shell.nix}"
+        local pip_to_nix_json="''${PYTHON_PIP_TO_NIX:-${pythonEnvPath}/pip-to-nix.json}"
+        local packages=()
+        local packages_source=""
+
+        # Function to normalize package names (lowercase, underscores to hyphens)
+        _normalize_pkg_name() {
+          echo "$1" | tr '[:upper:]' '[:lower:]' | tr '_' '-'
+        }
+
+        # Function to extract package name from requirement line
+        # Handles: package, package==1.0, package>=1.0, package[extra], etc.
+        _extract_pkg_name() {
+          local line="$1"
+          # Remove leading/trailing whitespace
+          line="$(echo "$line" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+          # Skip empty lines and comments
+          [[ -z "$line" || "$line" =~ ^# ]] && return
+          # Skip -r, -e, -i, --index-url, etc.
+          [[ "$line" =~ ^- ]] && return
+          # Extract package name (before version specifiers, extras, etc.)
+          local pkg
+          pkg="$(echo "$line" | sed -E 's/^([a-zA-Z0-9_-]+).*/\1/')"
+          _normalize_pkg_name "$pkg"
+        }
+
+        # Parse pyproject.toml [project.dependencies]
+        _parse_pyproject_toml() {
+          local in_dependencies=false
+          local line pkg
+
+          while IFS= read -r line; do
+            # Check for [project.dependencies] or dependencies = [
+            if [[ "$line" =~ ^\[project\]$ ]]; then
+              in_dependencies=false
+            elif [[ "$line" =~ ^dependencies[[:space:]]*=[[:space:]]*\[ ]]; then
+              in_dependencies=true
+              # Handle inline array on same line
+              if [[ "$line" =~ \] ]]; then
+                # Single-line array: dependencies = ["pkg1", "pkg2"]
+                line="$(echo "$line" | sed -E 's/.*\[([^]]*)\].*/\1/')"
+                for item in $(echo "$line" | tr ',' '\n'); do
+                  item="$(echo "$item" | tr -d '"'"'"' ')"
+                  pkg="$(_extract_pkg_name "$item")"
+                  [[ -n "$pkg" ]] && packages+=("$pkg")
+                done
+                in_dependencies=false
+              fi
+              continue
+            elif [[ "$line" =~ ^\[ ]] && [[ ! "$line" =~ ^\[project\] ]]; then
+              in_dependencies=false
+            fi
+
+            if $in_dependencies; then
+              # End of array
+              if [[ "$line" =~ ^\] ]]; then
+                in_dependencies=false
+                continue
+              fi
+              # Extract package from quoted string
+              line="$(echo "$line" | tr -d '"'"'"',' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+              pkg="$(_extract_pkg_name "$line")"
+              [[ -n "$pkg" ]] && packages+=("$pkg")
+            fi
+          done < pyproject.toml
+        }
+
+        # Parse requirements.txt
+        _parse_requirements_txt() {
+          local line pkg
+          while IFS= read -r line || [[ -n "$line" ]]; do
+            pkg="$(_extract_pkg_name "$line")"
+            [[ -n "$pkg" ]] && packages+=("$pkg")
+          done < requirements.txt
+        }
+
+        # Determine which file to parse
+        if [[ -f pyproject.toml ]]; then
+          if grep -q '^\[project\]' pyproject.toml && grep -q 'dependencies' pyproject.toml; then
+            packages_source="pyproject.toml"
+            _parse_pyproject_toml
+          elif [[ -f requirements.txt ]]; then
+            packages_source="requirements.txt"
+            _parse_requirements_txt
+          fi
+        elif [[ -f requirements.txt ]]; then
+          packages_source="requirements.txt"
+          _parse_requirements_txt
+        fi
+
+        # Map pip names to nix names using jq
+        local nix_packages=()
+        local nix_pkg pip_pkg
+
+        if [[ -f "$pip_to_nix_json" ]] && command -v jq &> /dev/null; then
+          for pip_pkg in "''${packages[@]}"; do
+            nix_pkg="$(jq -r --arg pip "$pip_pkg" '.[$pip] // $pip' "$pip_to_nix_json")"
+            nix_packages+=("$nix_pkg")
+          done
+        else
+          # Fallback: use pip names directly if jq or mapping not available
+          nix_packages=("''${packages[@]}")
+        fi
+
+        # Generate .direnv/python-shell.nix
+        mkdir -p .direnv
+
+        # Build nix package list string
+        local nix_pkg_list=""
+        for pkg in "''${nix_packages[@]}"; do
+          nix_pkg_list="$nix_pkg_list \"$pkg\""
+        done
+
+        cat > .direnv/python-shell.nix << NIXEOF
+      # Generated by use_python_env - do not edit manually
+      # Source: ''${packages_source:-none}
+      # Packages: ''${packages[*]:-none}
+      import (/. + "${pythonEnvPath}/shell.nix") {
+        packages = [$nix_pkg_list ];
+      }
+      NIXEOF
+
+        # Use nix-direnv's use nix function
+        use nix .direnv/python-shell.nix
+      }
+    '';
   };
 }
