@@ -85,16 +85,38 @@ in
           esac
         done
 
-        # Parse Python version from mise config (.mise.toml or .tool-versions)
+        # Parse Python version from mise config files
+        # Checks all supported mise config locations in precedence order
         _get_mise_python_version() {
           local version=""
-          if [[ -f .mise.toml ]]; then
-            version="$(grep -E '^python\s*=' .mise.toml 2>/dev/null | awk -F'"' '{print $2}' | head -1)"
-          fi
-          if [[ -z "$version" && -f .tool-versions ]]; then
+          local toml_files=(
+            ".mise.local.toml"
+            ".mise.toml"
+            "mise.local.toml"
+            "mise.toml"
+            ".config/mise.toml"
+            ".config/mise/config.toml"
+          )
+
+          # Check TOML config files (format: python = "3.11")
+          for toml_file in "''${toml_files[@]}"; do
+            if [[ -f "$toml_file" ]]; then
+              version="$(grep -E '^python\s*=' "$toml_file" 2>/dev/null | awk -F'"' '{print $2}' | head -1)"
+              if [[ -n "$version" ]]; then
+                echo "$version"
+                return
+              fi
+            fi
+          done
+
+          # Check .tool-versions (legacy asdf format: python 3.11)
+          if [[ -f .tool-versions ]]; then
             version="$(grep -E '^python\s+' .tool-versions 2>/dev/null | awk '{print $2}' | head -1)"
+            if [[ -n "$version" ]]; then
+              echo "$version"
+              return
+            fi
           fi
-          echo "$version"
         }
 
         # Convert version like "3.11" to nixpkgs format "311"

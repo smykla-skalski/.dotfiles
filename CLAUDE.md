@@ -155,7 +155,7 @@ mise install                 # Install tools
 
 ## Python Development Environment
 
-Dynamic Python environments with **direnv** per-project activation. Packages are read from `requirements.txt` or `pyproject.toml`. Python version can be specified via **mise** (`.mise.toml` or `.tool-versions`).
+Dynamic Python environments with **direnv** per-project activation. Packages are read from `requirements.txt` or `pyproject.toml`. Python version can be specified via **mise** config files.
 
 ### Quick Start
 
@@ -187,11 +187,20 @@ If neither file exists, a bare Python environment (stdlib only) is provided.
 ```text
 your-project/
 ├── .envrc              # Auto-created, contains: use_python_env
-├── .mise.toml          # Optional: python = "3.11" or python = "3.14"
-├── .tool-versions      # Alternative to .mise.toml: python 3.11
+├── .mise.toml          # mise config: python = "3.11" (or any mise config file)
 ├── requirements.txt    # pip format: requests>=2.28.0
 └── pyproject.toml      # [project.dependencies], [project.optional-dependencies], [dependency-groups]
 ```
+
+**Supported mise config files** (checked in precedence order):
+
+1. `.mise.local.toml` - Local overrides (gitignored)
+2. `.mise.toml` - Project config (recommended)
+3. `mise.local.toml` - Local overrides without dot prefix
+4. `mise.toml` - Project config without dot prefix
+5. `.config/mise.toml` - XDG-style config
+6. `.config/mise/config.toml` - XDG-style nested config
+7. `.tool-versions` - Legacy asdf format
 
 **Central infrastructure** (`$DOTFILES_PATH/nix/python-env/`):
 
@@ -200,7 +209,7 @@ your-project/
 
 ### How It Works
 
-1. `use_python_env` reads Python version from `.mise.toml` or `.tool-versions`
+1. `use_python_env` reads Python version from mise config files (see supported files above)
 2. Mode selection based on Python version:
    - **Nix mode** (3.10-3.13): Uses nixpkgs Python interpreter
    - **mise mode** (3.14+): Uses mise to install Python
@@ -305,8 +314,8 @@ ls -la .venv/bin/
 **Wrong Python version**: Check mise config is being read:
 
 ```bash
-cat .mise.toml    # or .tool-versions
-mise which python
+mise which python           # Check which Python mise resolves
+mise config --local         # Show local mise config
 ```
 
 ### Resources
