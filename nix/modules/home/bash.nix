@@ -61,6 +61,10 @@
       # Set BASH_ENV for non-interactive subshells (needed by make)
       export BASH_ENV="$HOME/.bash_env"
 
+      # Python shell.nix location for direnv
+      export DOTFILES_PATH="$HOME/Projects/github.com/smykla-labs/.dotfiles"
+      export PYTHON_SHELL_NIX="$DOTFILES_PATH/nix/python-env/shell.nix"
+
       # Source shared shell functions (from Fish functions)
       [ -f "$HOME/.config/shell/functions.sh" ] && source "$HOME/.config/shell/functions.sh"
 

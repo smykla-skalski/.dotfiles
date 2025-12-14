@@ -153,6 +153,108 @@ mise use <tool>@<version>    # Pin specific version
 mise install                 # Install tools
 ```
 
+## Python Development Environment
+
+Python packages are managed via **shared `shell.nix`** with **direnv** per-project activation:
+
+### Setup
+
+**Location**: `$DOTFILES_PATH/nix/python-env/shell.nix`
+
+**Environment variable**: `$PYTHON_SHELL_NIX` (available in all shells: bash, fish, zsh)
+
+Projects opt-in to the Python environment by creating `.envrc`:
+
+```bash
+use nix $PYTHON_SHELL_NIX
+```
+
+Then `direnv allow` to activate. The environment auto-loads when you `cd` into that project.
+
+### Files
+
+**`$DOTFILES_PATH/nix/python-env/shell.nix`**:
+
+```nix
+let
+  python-with-packages = pkgs.python3.withPackages (ps: with ps; [
+    pillow
+    pyyaml
+  ]);
+in
+pkgs.mkShell {
+  buildInputs = [ python-with-packages ];
+  shellHook = ''
+    # Fix for nixpkgs#61144
+    PYTHONPATH=${python-with-packages}/${python-with-packages.sitePackages}
+    export PYTHONPATH
+  '';
+}
+```
+
+**Per-project `.envrc`**: `use nix $PYTHON_SHELL_NIX`
+
+### Why This Approach
+
+- **Centralized**: Single shell.nix shared across all projects
+- **Opt-in**: Projects choose to activate Python environment
+- **Performance**: nix-direnv caches the environment (~750ms faster after first load)
+- **Flexible**: Projects can override with their own shell.nix if needed
+- **Workaround**: Fixes [nixpkgs#61144](https://github.com/NixOS/nixpkgs/issues/61144) where `python.withPackages` doesn't set PYTHONPATH
+
+### Adding Packages
+
+Edit `$DOTFILES_PATH/nix/python-env/shell.nix` and add packages to the `withPackages` list:
+
+```nix
+python-with-packages = pkgs.python3.withPackages (ps: with ps; [
+  pillow
+  pyyaml
+  requests  # Add new packages here
+]);
+```
+
+Then rebuild home-manager and direnv will auto-reload next time you `cd` into a project:
+
+```bash
+home-manager switch --flake $DOTFILES_PATH/nix#home-bart
+```
+
+### Version Management
+
+**How it works**:
+
+- Python package versions come from the nixpkgs snapshot (defined in `nix/flake.lock`)
+- Renovate automatically updates `flake.lock` weekly (via `:maintainLockFilesWeekly`)
+- When nixpkgs updates, all Python packages update to the latest versions in that snapshot
+
+**Check current versions**:
+
+```bash
+nix-shell $PYTHON_SHELL_NIX --run "python3 -c 'import yaml, PIL; print(f\"PyYAML: {yaml.__version__}\"); print(f\"Pillow: {PIL.__version__}\")'"
+```
+
+**Pin specific versions** (not recommended):
+
+If you need a specific version, use `overridePythonAttrs`, but this breaks Renovate auto-updates:
+
+```nix
+python-with-packages = pkgs.python3.withPackages (ps: with ps; [
+  (ps.pillow.overridePythonAttrs (old: rec {
+    version = "10.0.0";
+    # ... additional override attributes
+  }))
+]);
+```
+
+**Recommended**: Let Renovate manage versions via nixpkgs updates.
+
+### Resources
+
+- [Fixing Python Import Resolution in Nix with Direnv](https://cyberchris.xyz/posts/nix-python-pyright/)
+- [nix-direnv Performance](https://ianthehenry.com/posts/how-to-learn-nix/nix-direnv/)
+- [Simple Python devshells](https://sgt.hootr.club/blog/python-nix-shells/)
+
 ## Fish Functions
 
 Custom Fish functions (managed via nix home-manager):

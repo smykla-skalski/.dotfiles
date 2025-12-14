@@ -153,10 +153,8 @@
     # ============================================================================
     # Python
     # ============================================================================
-    (python3.withPackages (ps: with ps; [
-      pillow      # Python Imaging Library (PIL fork)
-      pyyaml      # YAML parser and emitter
-    ]))
+    # Python packages managed via project-level shell.nix + direnv
+    # See: $PROJECTS_PATH/shell.nix and $PROJECTS_PATH/.envrc
 
     # ============================================================================
     # Network Tools

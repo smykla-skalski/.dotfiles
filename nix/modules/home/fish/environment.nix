@@ -13,6 +13,7 @@
     set --export DOTFILES_PATH $PROJECTS_PATH/smykla-labs/.dotfiles
     set --export FORTRESS_PATH /Volumes/fortress-carima
     set --export SECRETS_PATH $DOTFILES_PATH/secrets
+    set --export PYTHON_SHELL_NIX $DOTFILES_PATH/nix/python-env/shell.nix
     set --export EDITOR vim
     set --export LC_ALL en_US.UTF-8
     set --export LANG en_US.UTF-8

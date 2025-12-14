@@ -14,6 +14,10 @@
       # Add ~/.local/bin to PATH for mise executable
       export PATH="$HOME/.local/bin:$PATH"
 
+      # Python shell.nix location for direnv
+      export DOTFILES_PATH="$HOME/Projects/github.com/smykla-labs/.dotfiles"
+      export PYTHON_SHELL_NIX="$DOTFILES_PATH/nix/python-env/shell.nix"
+
       # Cargo environment
       [ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
 
