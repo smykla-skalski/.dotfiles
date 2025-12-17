@@ -74,6 +74,7 @@
     fish_add_path --global --move "$HOMEBREW_PREFIX/opt/coreutils/libexec/gnubin"
     fish_add_path --global --append "$HOME/.krew/bin"
     fish_add_path --global --append "$HOME/.opencode/bin"
+    fish_add_path --global --append "$PROJECTS_PATH/smykla-labs/research/claude-code/skills/_bin"
 
     # mise tool completions (auto-generated)
     if test -f "$DOTFILES_PATH/tmp/mise-completions.fish"

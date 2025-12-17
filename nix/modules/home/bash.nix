@@ -22,6 +22,9 @@
       # Add ~/.local/bin to PATH for mise executable
       export PATH="$HOME/.local/bin:$PATH"
 
+      # Claude Code skills CLI wrapper
+      export PATH="$HOME/Projects/github.com/smykla-labs/research/claude-code/skills/_bin:$PATH"
+
       # Source shared shell functions (from Fish functions)
       [ -f "$HOME/.config/shell/functions.sh" ] && source "$HOME/.config/shell/functions.sh"
 
@@ -57,6 +60,9 @@
 
       # Add ~/.local/bin to PATH for mise and other tools
       export PATH="$HOME/.local/bin:$PATH"
+
+      # Claude Code skills CLI wrapper
+      export PATH="$HOME/Projects/github.com/smykla-labs/research/claude-code/skills/_bin:$PATH"
 
       # Set BASH_ENV for non-interactive subshells (needed by make)
       export BASH_ENV="$HOME/.bash_env"
