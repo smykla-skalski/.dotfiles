@@ -79,8 +79,7 @@ in
       # Hammerspoon can modify this file to override settings without touching Nix config
       config-file = "?~/.config/ghostty/config.local";
 
-      # Keybindings (list format required for duplicate keys)
-      # Using Ctrl+a as prefix (tmux-like)
+      # Keybindings - Using standard terminal shortcuts (iTerm2/Terminal.app style)
       keybind = [
         # Shift+Enter sends newline (for Claude Code)
         "shift+enter=text:\\n"
@@ -91,44 +90,43 @@ in
         # Inspector for debugging keybindings
         "super+i=inspector:toggle"
 
-        # Splits (tmux-like: Ctrl+a then | or -)
-        # Try shift+backslash explicitly (should produce |)
-        "ctrl+a>shift+backslash=new_split:right"
-        # Also keep v/s as fallback
-        "ctrl+a>v=new_split:right"
-        "ctrl+a>s=new_split:down"
-        # Horizontal split with -
-        "ctrl+a>-=new_split:down"
-        "ctrl+a>z=toggle_split_zoom"
+        # === Splits (standard shortcuts) ===
+        # Create splits
+        "cmd+d=new_split:right"                    # Vertical split (like iTerm2)
+        "cmd+shift+d=new_split:down"               # Horizontal split (like iTerm2)
+        "cmd+alt+z=toggle_split_zoom"              # Toggle zoom current split
 
-        # Navigate splits (tmux-like: Ctrl+a then h/j/k/l)
-        "ctrl+a>h=goto_split:left"
-        "ctrl+a>l=goto_split:right"
-        "ctrl+a>j=goto_split:down"
-        "ctrl+a>k=goto_split:up"
-
-        # Navigate splits with Cmd+Alt+arrows (quick navigation)
+        # Navigate splits
         "cmd+alt+left=goto_split:left"
         "cmd+alt+right=goto_split:right"
         "cmd+alt+up=goto_split:up"
         "cmd+alt+down=goto_split:down"
+        "cmd+bracket_left=goto_split:previous"     # Cmd+[
+        "cmd+bracket_right=goto_split:next"        # Cmd+]
 
-        # Resize splits (Ctrl+a then H/J/K/L)
-        "ctrl+a>shift+h=resize_split:left,50"
-        "ctrl+a>shift+l=resize_split:right,50"
-        "ctrl+a>shift+j=resize_split:down,50"
-        "ctrl+a>shift+k=resize_split:up,50"
+        # Resize splits
+        "cmd+ctrl+left=resize_split:left,50"
+        "cmd+ctrl+right=resize_split:right,50"
+        "cmd+ctrl+up=resize_split:up,50"
+        "cmd+ctrl+down=resize_split:down,50"
+        "cmd+shift+equal=equalize_splits"          # Cmd+Shift+= (like Cmd++)
 
-        # Tabs (tmux-like)
-        "ctrl+a>c=new_tab"
-        "ctrl+a>n=next_tab"
-        "ctrl+a>p=previous_tab"
-        "ctrl+a>w=close_surface"
+        # === Tabs (standard shortcuts) ===
+        "cmd+t=new_tab"                            # New tab (universal)
+        "cmd+w=close_surface"                      # Close tab/split (universal)
 
-        # Reload config (tmux-like)
-        "ctrl+a>r=reload_config"
+        # Navigate tabs with Cmd+number
+        "cmd+one=goto_tab:1"
+        "cmd+two=goto_tab:2"
+        "cmd+three=goto_tab:3"
+        "cmd+four=goto_tab:4"
+        "cmd+five=goto_tab:5"
+        "cmd+six=goto_tab:6"
+        "cmd+seven=goto_tab:7"
+        "cmd+eight=goto_tab:8"
+        "cmd+nine=goto_tab:9"
 
-        # Jump to tab by number (Alt+1-9 like current tmux)
+        # Also support Alt+number for tab navigation (alternative)
         "alt+one=goto_tab:1"
         "alt+two=goto_tab:2"
         "alt+three=goto_tab:3"
@@ -139,25 +137,20 @@ in
         "alt+eight=goto_tab:8"
         "alt+nine=goto_tab:9"
 
-        # Tab navigation with ~ (grave accent)
-        "cmd+grave_accent=next_tab"
-        "cmd+shift+grave_accent=previous_tab"
+        # Tab navigation with arrows
+        "cmd+shift+bracket_left=previous_tab"      # Cmd+Shift+[
+        "cmd+shift+bracket_right=next_tab"         # Cmd+Shift+]
+        "cmd+grave_accent=next_tab"                # Cmd+~ (backtick)
+        "cmd+shift+grave_accent=previous_tab"      # Cmd+Shift+~
+
+        # === Utility shortcuts ===
+        "cmd+k=clear_screen"                       # Clear screen (Terminal.app standard)
+        "cmd+shift+k=clear_screen"                 # Alternative clear
+        "cmd+r=reload_config"                      # Reload config
 
         # Shell integration - jump between prompts
         "ctrl+shift+up=jump_to_prompt:-1"
         "ctrl+shift+down=jump_to_prompt:1"
-
-        # Clear screen and scrollback (ctrl+a then ctrl+d, matching tmux)
-        "ctrl+a>ctrl+d=clear_screen"
-
-        # Clear screen (ctrl+a then x)
-        "ctrl+a>x=clear_screen"
-
-        # Kill split/pane (ctrl+a then shift+x, matching tmux)
-        "ctrl+a>shift+x=close_surface"
-
-        # Equalize splits (ctrl+a then e)
-        "ctrl+a>e=equalize_splits"
       ];
     };
   };

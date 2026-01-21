@@ -6,7 +6,7 @@
     functions.fish_user_key_bindings = {
       body = ''
         bind \cx\ce edit_command_buffer
-        bind --key nul accept-autosuggestion
+        bind nul accept-autosuggestion
         bind --erase --preset \cd
       '';
     };

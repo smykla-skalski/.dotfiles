@@ -8,33 +8,33 @@
     set --global fish_greeting
 
     # Fish color theme (syntax highlighting)
-    set --universal fish_color_autosuggestion brblack
-    set --universal fish_color_cancel -r
-    set --universal fish_color_command normal
-    set --universal fish_color_comment red
-    set --universal fish_color_cwd green
-    set --universal fish_color_cwd_root red
-    set --universal fish_color_end green
-    set --universal fish_color_error brred
-    set --universal fish_color_escape brcyan
-    set --universal fish_color_history_current --bold
-    set --universal fish_color_host normal
-    set --universal fish_color_host_remote yellow
-    set --universal fish_color_normal normal
-    set --universal fish_color_operator brcyan
-    set --universal fish_color_param cyan
-    set --universal fish_color_quote yellow
-    set --universal fish_color_redirection cyan --bold
-    set --universal fish_color_search_match white --background=brblack
-    set --universal fish_color_selection white --bold --background=brblack
-    set --universal fish_color_status red
-    set --universal fish_color_user brgreen
-    set --universal fish_color_valid_path --underline
-    set --universal fish_pager_color_completion normal
-    set --universal fish_pager_color_description yellow -i
-    set --universal fish_pager_color_prefix normal --bold --underline
-    set --universal fish_pager_color_progress brwhite --background=cyan
-    set --universal fish_pager_color_selected_background -r
+    set --global fish_color_autosuggestion brblack
+    set --global fish_color_cancel -r
+    set --global fish_color_command normal
+    set --global fish_color_comment red
+    set --global fish_color_cwd green
+    set --global fish_color_cwd_root red
+    set --global fish_color_end green
+    set --global fish_color_error brred
+    set --global fish_color_escape brcyan
+    set --global fish_color_history_current --bold
+    set --global fish_color_host normal
+    set --global fish_color_host_remote yellow
+    set --global fish_color_normal normal
+    set --global fish_color_operator brcyan
+    set --global fish_color_param cyan
+    set --global fish_color_quote yellow
+    set --global fish_color_redirection cyan --bold
+    set --global fish_color_search_match white --background=brblack
+    set --global fish_color_selection white --bold --background=brblack
+    set --global fish_color_status red
+    set --global fish_color_user brgreen
+    set --global fish_color_valid_path --underline
+    set --global fish_pager_color_completion normal
+    set --global fish_pager_color_description yellow -i
+    set --global fish_pager_color_prefix normal --bold --underline
+    set --global fish_pager_color_progress brwhite --background=cyan
+    set --global fish_pager_color_selected_background -r
 
     # Environment variables
     set --export PROJECTS_PATH $HOME/Projects/github.com
@@ -92,7 +92,7 @@
 
     # Homebrew (skip if already initialized to speed up subshells)
     if not set -q HOMEBREW_PREFIX
-      /opt/homebrew/bin/brew shellenv | source
+      /opt/homebrew/bin/brew shellenv fish | source
     end
 
     # PATH additions

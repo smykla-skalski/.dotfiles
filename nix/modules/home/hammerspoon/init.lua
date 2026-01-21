@@ -47,9 +47,6 @@ local ui = require("ui")
 -- Alert duration in seconds
 local ALERT_DURATION = 2
 
--- Hotkey code for 'H' key
-local HOTKEY_H = 4
-
 -------------------------------------------------------------------------------
 -- Configuration
 -------------------------------------------------------------------------------
@@ -329,38 +326,14 @@ if not hs.accessibilityState() then
   log.w("Hammerspoon does not have accessibility permissions. Hotkey may not work in all apps.")
 end
 
+-- Register hotkey using hs.hotkey.bind (more efficient than eventtap)
 -- Global for IPC debugging
-configHotkeyTap = hs.eventtap.new({hs.eventtap.event.types.keyDown}, function(event)
-  local success, result = pcall(function()
-    local flags = event:getFlags()
-    local keyCode = event:getKeyCode()
-
-    -- Check for Cmd+Alt+Ctrl+H
-    -- Must have exactly cmd, alt, and ctrl (no shift or fn)
-    if keyCode == HOTKEY_H and
-       flags.cmd and
-       flags.alt and
-       flags.ctrl and
-       not flags.shift and
-       not flags.fn then
-      log.i("Hotkey detected: Cmd+Alt+Ctrl+H")
-      showConfigUI()
-      return true  -- Consume the event so apps don't see it
-    end
-
-    return false  -- Let other events pass through
-  end)
-
-  if not success then
-    log.e(string.format("Error in eventtap callback: %s", result))
-    return false
-  end
-
-  return result
+configHotkey = hs.hotkey.bind({"cmd", "alt", "ctrl"}, "H", function()
+  log.i("Hotkey detected: Cmd+Alt+Ctrl+H")
+  showConfigUI()
 end)
 
-configHotkeyTap:start()
-log.i(string.format("Eventtap started: %s", configHotkeyTap:isEnabled()))
+log.i("Hotkey registered: Cmd+Alt+Ctrl+H")
 
 -------------------------------------------------------------------------------
 -- Initialization
