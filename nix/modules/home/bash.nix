@@ -28,8 +28,8 @@
       # Claude Code skills CLI wrapper
       export PATH="$HOME/Projects/github.com/smykla-skalski/research/claude-code/skills/_bin:$PATH"
 
-      # Kathara lab tools (klab)
-      export PATH="$HOME/Projects/github.com/Automaat/microsoft-recruitment/learn/linux/networking/.bin:$PATH"
+      # klab - Kubernetes networking labs
+      export PATH="$HOME/Projects/github.com/smykla-skalski/klab/.bin:$PATH"
 
       # Source shared shell functions (from Fish functions)
       [ -f "$HOME/.config/shell/functions.sh" ] && source "$HOME/.config/shell/functions.sh"
@@ -73,8 +73,8 @@
       # Claude Code skills CLI wrapper
       export PATH="$HOME/Projects/github.com/smykla-skalski/research/claude-code/skills/_bin:$PATH"
 
-      # Kathara lab tools (klab)
-      export PATH="$HOME/Projects/github.com/Automaat/microsoft-recruitment/learn/linux/networking/.bin:$PATH"
+      # klab - Kubernetes networking labs
+      export PATH="$HOME/Projects/github.com/smykla-skalski/klab/.bin:$PATH"
 
       # Set BASH_ENV for non-interactive subshells (needed by make)
       export BASH_ENV="$HOME/.bash_env"
@@ -101,8 +101,9 @@
 
     # .profile content (login shells)
     profileExtra = ''
-      # mise tool version manager - add shims to PATH
-      export PATH="$HOME/.local/share/mise/shims:$PATH"
+      # NOTE: mise integration handled by programs.mise.enableBashIntegration
+      # which uses 'mise activate' in .bashrc for proper tool PATH management.
+      # Shims are NOT used - mise activation adds actual tool directories to PATH.
 
       # Set BASH_ENV so non-interactive bash shells (like make) can find mise
       export BASH_ENV="$HOME/.bash_env"

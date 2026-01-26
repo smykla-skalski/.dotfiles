@@ -105,7 +105,7 @@
     fish_add_path --global --append "$HOME/.krew/bin"
     fish_add_path --global --append "$HOME/.opencode/bin"
     fish_add_path --global --append "$PROJECTS_PATH/smykla-skalski/research/claude-code/skills/_bin"
-    fish_add_path --global --append "$PROJECTS_PATH/Automaat/microsoft-recruitment/learn/linux/networking/.bin"
+    fish_add_path --global --append "$PROJECTS_PATH/smykla-skalski/klab/.bin"
 
     # mise tool completions (auto-generated)
     if test -f "$DOTFILES_PATH/tmp/mise-completions.fish"

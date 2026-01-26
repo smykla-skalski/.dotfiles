@@ -20,8 +20,8 @@
       # Claude Code skills CLI wrapper
       export PATH="$HOME/Projects/github.com/smykla-skalski/research/claude-code/skills/_bin:$PATH"
 
-      # Kathara lab tools (klab)
-      export PATH="$HOME/Projects/github.com/Automaat/microsoft-recruitment/learn/linux/networking/.bin:$PATH"
+      # klab - Kubernetes networking labs
+      export PATH="$HOME/Projects/github.com/smykla-skalski/klab/.bin:$PATH"
 
       # Python shell.nix location for direnv
       export DOTFILES_PATH="$HOME/Projects/github.com/smykla-skalski/.dotfiles"
