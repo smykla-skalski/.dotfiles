@@ -51,6 +51,11 @@ in
     "fish/completions/hcloud.fish".source =
       mkCachedCompletion "hcloud" "${pkgs.hcloud}/bin/hcloud";
 
+    # klab - Python tool installed in venv
+    "fish/completions/klab.fish".text = ''
+      complete --command klab --no-files --arguments "(env _KLAB_COMPLETE=complete_fish _TYPER_COMPLETE_FISH_ACTION=get-args _TYPER_COMPLETE_ARGS=(commandline -cp) klab)" --condition "env _KLAB_COMPLETE=complete_fish _TYPER_COMPLETE_FISH_ACTION=is-args _TYPER_COMPLETE_ARGS=(commandline -cp) klab"
+    '';
+
     # Note: mise completions are handled by programs.mise.enableFishIntegration
     # Note: broot integration (br.fish) is handled by programs.broot in broot.nix
     # with enableFishIntegration = true
