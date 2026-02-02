@@ -10,7 +10,7 @@
     bi = "brew install";
     bic = "brew install --cask";
     msync = "set name (basename (pwd)); mutagen sync create --name=$name (pwd) bart@smyk.la:~/$name";
-    "b." = "cd $HOME/Projects/github.com/bartsmykla/.dotfiles/";
+    "b." = "cd $HOME/Projects/github.com/smykla-skalski/.dotfiles/";
     binf = "brew info";
     bs = "brew search";
     cdl = "cd $__LAST_CLONED_REPO_PATH";
@@ -19,7 +19,13 @@
     km = "kumactl";
     mux = "tmuxinator";
     td = "tmuxp load dev";
-    b = "cd $HOME/Projects/github.com/bartsmykla/";
+    b = "cd $HOME/Projects/github.com/smykla-skalski/";
+
+    # Claude Code
+    c = "claude";
+    cs = "claude --model Sonnet";
+    ch = "claude --model Haiku";
+    co = "claude --model Opus";
 
     # Home Manager
     hmn = "home-manager news --flake $DOTFILES_PATH/nix#home-bart";

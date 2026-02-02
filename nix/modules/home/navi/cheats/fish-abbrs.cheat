@@ -29,12 +29,28 @@ brew search
 # Abbr: bs
 
 # Change to dotfiles directory
-cd $HOME/Projects/github.com/bartsmykla/.dotfiles/
+cd $HOME/Projects/github.com/smykla-skalski/.dotfiles/
 # Abbr: b.
 
-# Change to bartsmykla directory
-cd $HOME/Projects/github.com/bartsmykla/
+# Change to smykla-skalski directory
+cd $HOME/Projects/github.com/smykla-skalski/
 # Abbr: b
+
+# Claude Code
+claude
+# Abbr: c
+
+# Claude Code with Sonnet model
+claude --model Sonnet
+# Abbr: cs
+
+# Claude Code with Haiku model
+claude --model Haiku
+# Abbr: ch
+
+# Claude Code with Opus model
+claude --model Opus
+# Abbr: co
 
 # CD to last cloned repo
 cd $__LAST_CLONED_REPO_PATH
