@@ -35,11 +35,20 @@ mid=$(echo "$input" | jq -r '.model.id')
 mname=$(echo "$input" | jq -r '.model.display_name')
 
 # Detect and format 1M context display
+has_1m_badge=false
 if [[ "$mname" =~ \(1M[[:space:]]*(context|Context|CONTEXT)?\) ]]; then
+    has_1m_badge=true
     # Extract base model name (everything before the parenthesis)
     base_name=$(echo "$mname" | sed -E 's/[[:space:]]*\(1M[[:space:]]*(context|Context|CONTEXT)?\).*$//')
-    # Format as "Model / 1M" with inverted red badge
-    mname="${base_name} / \e[7m\e[1m\e[31m 1M \e[0m"
+    # Format as "Model 1M" with colored badge
+    # Add trailing space inside model name badge, spaces around 1M
+    if [[ "$mid" == *"opus"* ]]; then
+        # Bright orange badge for Opus (use 256-color orange)
+        mname="${base_name} \e[0m\e[97m\e[48;5;208m\e[1m 1M \e[0m"
+    else
+        # Red badge for non-Opus
+        mname="${base_name} \e[0m\e[97m\e[41m\e[1m 1M \e[0m"
+    fi
 fi
 
 # Extract context usage percentage (default to 0 if missing)
@@ -55,7 +64,12 @@ fi
 if [[ "$is_opus" == true ]]; then
     # Use reverse video with red foreground to get red background with terminal bg as fg
     model_color="\e[7m\e[1m\e[31m"  # reverse + bold + red = red bg with terminal bg as text
-    model_separator=" \e[90m│\e[0m"  # extra space before separator for Opus
+    # No extra space when 1M badge present (already has spacing)
+    if [[ "$has_1m_badge" == true ]]; then
+        model_separator="\e[90m│\e[0m"
+    else
+        model_separator=" \e[90m│\e[0m"  # extra space before separator for Opus
+    fi
 elif [[ "$mid" == *"haiku"* ]]; then
     model_color="\e[92m"  # bright green for Haiku (not bold)
     model_separator="\e[90m│\e[0m"  # normal separator
