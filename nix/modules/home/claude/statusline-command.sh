@@ -57,10 +57,10 @@ if [[ "$is_opus" == true ]]; then
     model_color="\e[7m\e[1m\e[31m"  # reverse + bold + red = red bg with terminal bg as text
     model_separator=" \e[90m│\e[0m"  # extra space before separator for Opus
 elif [[ "$mid" == *"haiku"* ]]; then
-    model_color="\e[1m\e[92m"  # bold bright green for Haiku (fast/cheap)
+    model_color="\e[92m"  # bright green for Haiku (not bold)
     model_separator="\e[90m│\e[0m"  # normal separator
 else
-    model_color="\e[1;36m"  # bold cyan for Sonnet
+    model_color="\e[2;36m"  # dim cyan for Sonnet (not bold)
     model_separator="\e[90m│\e[0m"  # normal separator for other models
 fi
 
@@ -115,17 +115,17 @@ else
     ctx_base_color="\e[90m"  # grey for invalid
 fi
 
-# Determine token colors (grey if 0, otherwise colored and dimmed)
+# Determine token colors (grey if 0, otherwise colored)
 if (( tin == 0 )); then
     tin_color="\e[90m"  # grey for 0
 else
-    tin_color="\e[2;32m"  # dim green for input tokens
+    tin_color="\e[93m"  # bright yellow for input tokens (same as branch)
 fi
 
 if (( tout == 0 )); then
     tout_color="\e[90m"  # grey for 0
 else
-    tout_color="\e[2;95m"  # dim bright magenta for output tokens
+    tout_color="\e[95m"  # bright magenta for output tokens (no bold, no dim)
 fi
 
 # Build context and cost sections based on Opus or not
@@ -140,12 +140,12 @@ if [[ "$is_opus" == true ]]; then
             ctx_color="\e[1m${ctx_base_color}"
             ctx_section="${ctx_color}${used}%\e[0m"
         fi
-        cost_section="\e[2;90m\$${cost}\e[0m"  # Always grey, no bold
+        cost_section="\e[90m\$${cost}\e[0m"  # Always grey, no bold
     else
         # 41%+: Inverted colors (warning/danger)
         ctx_color="\e[7;1;${ctx_base_color#\\e[}"  # Proper semicolon syntax for inverse+bold
         ctx_section="${ctx_color} ${used}% \e[0m"
-        cost_section="\e[2;90m\$${cost}\e[0m"  # Always grey, no bold
+        cost_section="\e[90m\$${cost}\e[0m"  # Always grey, no bold
     fi
 else
     # For non-Opus: normal colors, bold when 61-80%, inverted when 81%+
@@ -166,7 +166,7 @@ else
         ctx_section="${ctx_color}${used}%\e[0m"
     fi
     # Cost always grey, no bold (for all ranges)
-    cost_section="\e[2;90m\$${cost}\e[0m"
+    cost_section="\e[90m\$${cost}\e[0m"
 fi
 
 # Build and print the status line
