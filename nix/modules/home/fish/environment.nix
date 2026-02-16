@@ -4,6 +4,10 @@
 
 {
   programs.fish.interactiveShellInit = ''
+    # Prevent "unbound variable" errors in strict mode (set -u) for bash compatibility
+    # PROMPT_COMMAND is typically set by interactive shells but not in non-interactive mode
+    set --export --global PROMPT_COMMAND ""
+
     # Disable initial welcome message
     set --global fish_greeting
 
@@ -53,39 +57,64 @@
     # fzf configuration (fzf 0.67.0+)
     # These are set here instead of _fzf_wrapper.fish for more control
     # See: https://github.com/junegunn/fzf#environment-variables
+    # Note: --layout is NOT set here because it's set per-command (e.g., in fzf_history_opts)
     set --export FZF_DEFAULT_OPTS "\
       --cycle \
-      --layout=reverse \
       --border=rounded \
       --height=90% \
+      --scroll-off=3 \
       --preview-window=wrap \
       --marker='*' \
       --highlight-line \
       --info=inline-right \
       --tmux=bottom,50% \
+      --no-mouse \
       --color=fg:#f8f8f2,bg:#272822,hl:#66d9ef \
       --color=fg+:#f8f8f2,bg+:#3e3d32,hl+:#66d9ef \
       --color=info:#a6e22e,prompt:#f92672,pointer:#ae81ff \
       --color=marker:#a6e22e,spinner:#ae81ff,header:#75715e \
       --color=bg+:-1,gutter:-1 \
-      --bind='ctrl-/:toggle-preview'"
+      --bind='ctrl-/:toggle-preview' \
+      --bind='ctrl-u:half-page-up' \
+      --bind='ctrl-d:half-page-down' \
+      --bind='ctrl-y:preview-up' \
+      --bind='ctrl-e:preview-down' \
+      --bind='ctrl-b:preview-page-up' \
+      --bind='ctrl-f:preview-page-down' \
+      --bind='alt-up:preview-up' \
+      --bind='alt-down:preview-down' \
+      --bind='shift-up:preview-page-up' \
+      --bind='shift-down:preview-page-down'"
 
     # fzf shell integration options
     # CTRL-T: File search with bat preview and syntax highlighting
     set --export FZF_CTRL_T_OPTS "\
-      --walker-skip .git,node_modules,target \
-      --preview 'bat --style=numbers --color=always --line-range :500 {}' \
-      --bind 'ctrl-/:change-preview-window(down|hidden|)'"
+      --walker-skip .git,node_modules,target,dist,build,.cache \
+      --preview 'bat --style=numbers --color=always --line-range :500 {} 2>/dev/null || cat {}' \
+      --bind 'ctrl-/:change-preview-window(down|hidden|)' \
+      --header 'CTRL-/: Toggle preview'"
 
     # ALT-C: Directory navigation with eza/tree preview
     set --export FZF_ALT_C_OPTS "\
-      --preview 'eza --all --long --icons always --tree --level=2 --color=always {} 2>/dev/null || tree -C -L 2 {} 2>/dev/null || ls -A -F {}'"
+      --preview 'eza --all --long --icons always --tree --level=2 --color=always {} 2>/dev/null || tree -C -L 2 {} 2>/dev/null || ls -A -F {}' \
+      --header 'ALT-C: Change directory'"
 
     # fzf.fish history-specific options
     # Better time format showing relative day if recent
     set --global fzf_history_time_format "%Y-%m-%d %H:%M"
-    # Additional history options (appended to defaults)
-    set --global fzf_history_opts "--no-sort"
+    # Additional history options (appended last, so they override hardcoded defaults)
+    # --layout=default: input at bottom, results above
+    # --preview-window=top:3:wrap: start with 3 lines (minimal for single-line commands)
+    # --tiebreak=begin,index: prioritizes matches starting with query (e.g., "k9s" ranks "k9s" higher than "grep k9s")
+    # --no-multi-line: show each command as single line in list (multiline commands get ellipsis)
+    # --ellipsis=…: use proper ellipsis character for truncated lines
+    # --sync: synchronous search to prevent flickering during initial load
+    # Dynamic preview resizing keybindings:
+    #   Alt-p: Toggle preview on/off
+    #   Alt-↑: Expand preview to 50%
+    #   Alt-↓: Shrink preview to 3 lines
+    #   Alt-=: Reset to default size
+    set --global fzf_history_opts "--layout=default" "--preview-window=top:3:wrap" "--tiebreak=begin,index" "--no-multi-line" "--ellipsis=…" "--sync" "--bind=alt-p:toggle-preview" "--bind=alt-up:change-preview-window(top:50%:wrap)" "--bind=alt-down:change-preview-window(top:3:wrap)" "--bind=alt-=:change-preview-window(top:3:wrap)"
 
     # fzf.fish directory preview customization
     # Use eza for better directory listings with icons and colors
