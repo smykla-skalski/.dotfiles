@@ -16,6 +16,10 @@
       # This file is sourced by non-interactive bash shells (like make, Claude Code, etc.)
       # via BASH_ENV environment variable
 
+      # Prevent "unbound variable" errors in strict mode (set -u)
+      # PROMPT_COMMAND is typically set by interactive shells but not in non-interactive mode
+      : "''${PROMPT_COMMAND:=}"
+
       # Enable alias expansion in non-interactive shells (required for aliases to work)
       shopt -s expand_aliases
 
@@ -30,6 +34,13 @@
 
       # klab - Kubernetes networking labs
       export PATH="$HOME/Projects/github.com/smykla-skalski/klab/.bin:$PATH"
+
+      # Activate mise for non-interactive shells (Claude Code, make, etc.)
+      # Without this, mise-managed tools (go, ginkgo, golangci-lint, etc.)
+      # won't be on PATH in non-interactive bash sessions
+      if command -v mise >/dev/null 2>&1; then
+        eval "$(mise activate bash)"
+      fi
 
       # Source shared shell functions (from Fish functions)
       [ -f "$HOME/.config/shell/functions.sh" ] && source "$HOME/.config/shell/functions.sh"

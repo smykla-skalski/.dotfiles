@@ -11,6 +11,10 @@
     # .zshenv is sourced for ALL zsh shells (interactive, non-interactive, login, etc.)
     # This is perfect for Claude Code's non-interactive shells
     envExtra = ''
+      # Prevent "unbound variable" errors in strict mode (set -u)
+      # PROMPT_COMMAND is typically set by interactive shells but not in non-interactive mode
+      : "''${PROMPT_COMMAND:=}"
+
       # Suppress pkg_resources deprecation warning from kathara_lab_checker
       export PYTHONWARNINGS="ignore::UserWarning"
 
