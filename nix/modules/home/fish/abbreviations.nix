@@ -22,28 +22,28 @@
     b = "cd $HOME/Projects/github.com/smykla-skalski/";
 
     # Claude Code
-    c = "claude";
-    cs = "claude --model Sonnet";
-    csm = "claude --model Sonnet[1m]";
-    ch = "claude --model Haiku";
-    co = "claude --model Opus";
-    com = "claude --model Opus[1m]";
+    c = "claude --teammate-mode tmux";
+    cs = "claude --teammate-mode tmux --model Sonnet";
+    csm = "claude --teammate-mode tmux --model Sonnet[1m]";
+    ch = "claude --teammate-mode tmux --model Haiku";
+    co = "claude --teammate-mode tmux --model Opus";
+    com = "claude --teammate-mode tmux --model Opus[1m]";
 
     # Claude Code - resume (interactive session picker)
-    cr = "claude --resume";
-    csr = "claude --model Sonnet --resume";
-    csmr = "claude --model Sonnet[1m] --resume";
-    chr = "claude --model Haiku --resume";
-    cor = "claude --model Opus --resume";
-    comr = "claude --model Opus[1m] --resume";
+    cr = "claude --teammate-mode tmux --resume";
+    csr = "claude --teammate-mode tmux --model Sonnet --resume";
+    csmr = "claude --teammate-mode tmux --model Sonnet[1m] --resume";
+    chr = "claude --teammate-mode tmux --model Haiku --resume";
+    cor = "claude --teammate-mode tmux --model Opus --resume";
+    comr = "claude --teammate-mode tmux --model Opus[1m] --resume";
 
     # Claude Code - resume last session for current project
-    cl = "claude --resume (jq -r --arg pwd (pwd) 'select(.project == $pwd) | .sessionId' ~/.claude/history.jsonl | tail -1)";
-    csl = "claude --model Sonnet --resume (jq -r --arg pwd (pwd) 'select(.project == $pwd) | .sessionId' ~/.claude/history.jsonl | tail -1)";
-    csml = "claude --model Sonnet[1m] --resume (jq -r --arg pwd (pwd) 'select(.project == $pwd) | .sessionId' ~/.claude/history.jsonl | tail -1)";
-    chl = "claude --model Haiku --resume (jq -r --arg pwd (pwd) 'select(.project == $pwd) | .sessionId' ~/.claude/history.jsonl | tail -1)";
-    col = "claude --model Opus --resume (jq -r --arg pwd (pwd) 'select(.project == $pwd) | .sessionId' ~/.claude/history.jsonl | tail -1)";
-    coml = "claude --model Opus[1m] --resume (jq -r --arg pwd (pwd) 'select(.project == $pwd) | .sessionId' ~/.claude/history.jsonl | tail -1)";
+    cl = "claude --teammate-mode tmux --resume (jq -r --arg pwd (pwd) 'select(.project == $pwd) | .sessionId' ~/.claude/history.jsonl | tail -1)";
+    csl = "claude --teammate-mode tmux --model Sonnet --resume (jq -r --arg pwd (pwd) 'select(.project == $pwd) | .sessionId' ~/.claude/history.jsonl | tail -1)";
+    csml = "claude --teammate-mode tmux --model Sonnet[1m] --resume (jq -r --arg pwd (pwd) 'select(.project == $pwd) | .sessionId' ~/.claude/history.jsonl | tail -1)";
+    chl = "claude --teammate-mode tmux --model Haiku --resume (jq -r --arg pwd (pwd) 'select(.project == $pwd) | .sessionId' ~/.claude/history.jsonl | tail -1)";
+    col = "claude --teammate-mode tmux --model Opus --resume (jq -r --arg pwd (pwd) 'select(.project == $pwd) | .sessionId' ~/.claude/history.jsonl | tail -1)";
+    coml = "claude --teammate-mode tmux --model Opus[1m] --resume (jq -r --arg pwd (pwd) 'select(.project == $pwd) | .sessionId' ~/.claude/history.jsonl | tail -1)";
 
     # Home Manager
     hmn = "home-manager news --flake $DOTFILES_PATH/nix#home-bart";
