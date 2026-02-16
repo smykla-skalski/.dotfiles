@@ -29,21 +29,21 @@
     co = "claude --model Opus";
     com = "claude --model Opus[1m]";
 
-    # Claude Code - restore (interactive session picker)
-    cr = "claude --restore";
-    csr = "claude --model Sonnet --restore";
-    csmr = "claude --model Sonnet[1m] --restore";
-    chr = "claude --model Haiku --restore";
-    cor = "claude --model Opus --restore";
-    comr = "claude --model Opus[1m] --restore";
+    # Claude Code - resume (interactive session picker)
+    cr = "claude --resume";
+    csr = "claude --model Sonnet --resume";
+    csmr = "claude --model Sonnet[1m] --resume";
+    chr = "claude --model Haiku --resume";
+    cor = "claude --model Opus --resume";
+    comr = "claude --model Opus[1m] --resume";
 
-    # Claude Code - restore last session for current project
-    cl = "claude --restore (jq -r --arg pwd (pwd) 'select(.project == $pwd) | .sessionId' ~/.claude/history.jsonl | tail -1)";
-    csl = "claude --model Sonnet --restore (jq -r --arg pwd (pwd) 'select(.project == $pwd) | .sessionId' ~/.claude/history.jsonl | tail -1)";
-    csml = "claude --model Sonnet[1m] --restore (jq -r --arg pwd (pwd) 'select(.project == $pwd) | .sessionId' ~/.claude/history.jsonl | tail -1)";
-    chl = "claude --model Haiku --restore (jq -r --arg pwd (pwd) 'select(.project == $pwd) | .sessionId' ~/.claude/history.jsonl | tail -1)";
-    col = "claude --model Opus --restore (jq -r --arg pwd (pwd) 'select(.project == $pwd) | .sessionId' ~/.claude/history.jsonl | tail -1)";
-    coml = "claude --model Opus[1m] --restore (jq -r --arg pwd (pwd) 'select(.project == $pwd) | .sessionId' ~/.claude/history.jsonl | tail -1)";
+    # Claude Code - resume last session for current project
+    cl = "claude --resume (jq -r --arg pwd (pwd) 'select(.project == $pwd) | .sessionId' ~/.claude/history.jsonl | tail -1)";
+    csl = "claude --model Sonnet --resume (jq -r --arg pwd (pwd) 'select(.project == $pwd) | .sessionId' ~/.claude/history.jsonl | tail -1)";
+    csml = "claude --model Sonnet[1m] --resume (jq -r --arg pwd (pwd) 'select(.project == $pwd) | .sessionId' ~/.claude/history.jsonl | tail -1)";
+    chl = "claude --model Haiku --resume (jq -r --arg pwd (pwd) 'select(.project == $pwd) | .sessionId' ~/.claude/history.jsonl | tail -1)";
+    col = "claude --model Opus --resume (jq -r --arg pwd (pwd) 'select(.project == $pwd) | .sessionId' ~/.claude/history.jsonl | tail -1)";
+    coml = "claude --model Opus[1m] --resume (jq -r --arg pwd (pwd) 'select(.project == $pwd) | .sessionId' ~/.claude/history.jsonl | tail -1)";
 
     # Home Manager
     hmn = "home-manager news --flake $DOTFILES_PATH/nix#home-bart";
