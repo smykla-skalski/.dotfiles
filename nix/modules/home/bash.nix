@@ -35,11 +35,12 @@
       # klab - Kubernetes networking labs
       export PATH="$HOME/Projects/github.com/smykla-skalski/klab/.bin:$PATH"
 
-      # Activate mise for non-interactive shells (Claude Code, make, etc.)
-      # Without this, mise-managed tools (go, ginkgo, golangci-lint, etc.)
-      # won't be on PATH in non-interactive bash sessions
+      # Activate mise for non-interactive shells using hook-env for better version resolution
+      # hook-env respects PWD and per-project .mise.toml files, ensuring correct tool versions
+      # This is used by Claude Code CLI, make, and other non-interactive bash invocations
+      # Uses hook-env instead of activate for consistent behavior with per-directory configs
       if command -v mise >/dev/null 2>&1; then
-        eval "$(mise activate bash)"
+        eval "$(mise hook-env -s bash)"
       fi
 
       # Source shared shell functions (from Fish functions)
@@ -112,9 +113,10 @@
 
     # .profile content (login shells)
     profileExtra = ''
-      # NOTE: mise integration handled by programs.mise.enableBashIntegration
-      # which uses 'mise activate' in .bashrc for proper tool PATH management.
-      # Shims are NOT used - mise activation adds actual tool directories to PATH.
+      # NOTE: mise integration manually configured in bash.nix (not using enableBashIntegration)
+      # Uses 'mise hook-env' in BASH_ENV for non-interactive shells (Claude Code, make, etc.)
+      # Uses 'mise activate' in .bashrc for interactive shells with prompt hooks
+      # Shims are NOT used - mise modifies PATH directly with tool directories
 
       # Set BASH_ENV so non-interactive bash shells (like make) can find mise
       export BASH_ENV="$HOME/.bash_env"
