@@ -46,6 +46,11 @@
       homeModules = [
         sops-nix.homeManagerModules.sops
         klaudiush.homeManagerModules.default
+
+        # Disable home-manager manual generation to suppress the
+        # 'options.json builtins.derivation without context' warning from
+        # Determinate Nix. See: https://github.com/nix-community/home-manager/issues/7935
+        { manual.manpages.enable = false; manual.html.enable = false; manual.json.enable = false; }
         ./modules/home/bash.nix
         ./modules/home/broot.nix
         ./modules/home/broot-tips.nix
