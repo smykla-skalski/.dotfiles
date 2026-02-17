@@ -29,46 +29,27 @@ cache_stale() {
 if cache_stale; then
     if git -C "$cwd" rev-parse --git-dir >/dev/null 2>&1; then
         branch=$(git -C "$cwd" rev-parse --abbrev-ref HEAD 2>/dev/null)
-        remote_url=$(git -C "$cwd" remote get-url upstream 2>/dev/null \
-            || git -C "$cwd" remote get-url origin 2>/dev/null \
-            || printf '')
-        # Convert SSH to HTTPS, strip .git suffix
-        gh_url=$(printf '%s' "$remote_url" \
-            | sed -E 's|^git@github\.com:|https://github.com/|; s|\.git$||')
-        # Only keep HTTPS URLs for clickable links
-        case "$gh_url" in
-            https://*) ;;
-            *) gh_url="" ;;
-        esac
-        printf '%s\t%s\n' "$branch" "$gh_url" > "$CACHE_FILE"
+        printf '%s\n' "$branch" > "$CACHE_FILE"
     else
-        printf '\t\n' > "$CACHE_FILE"
+        printf '\n' > "$CACHE_FILE"
     fi
 fi
 
 branch=""
-gh_url=""
-IFS=$'\t' read -r branch gh_url < "$CACHE_FILE"
+read -r branch < "$CACHE_FILE"
 
-# Derive project name from remote URL or cwd basename
-if [[ -n "$gh_url" ]]; then
-    project=$(printf '%s' "$gh_url" | sed -E 's|https://[^/]+/||')
+# Derive project name from cwd path (github.com/org/repo) or basename
+if [[ "$cwd" == */github.com/*/* ]]; then
+    project=$(printf '%s' "$cwd" | sed -E 's|.*/github\.com/([^/]+/[^/]+).*|\1|')
 else
     project=$(basename "$cwd")
 fi
 
-# Build project display with OSC 8 clickable link
-if [[ -n "$gh_url" ]]; then
-    project_link="\e]8;;${gh_url}\a\e[36m${project}\e[0m\e]8;;\a"
-else
-    project_link="\e[36m${project}\e[0m"
-fi
-
 # Add git branch if available
 if [[ -n "$branch" ]]; then
-    project_display="${project_link}:\e[93m${branch}\e[0m"
+    project_display="\e[36m${project}\e[0m:\e[93m${branch}\e[0m"
 else
-    project_display="${project_link}"
+    project_display="\e[36m${project}\e[0m"
 fi
 
 # Convert tokens to thousands (rounded)
