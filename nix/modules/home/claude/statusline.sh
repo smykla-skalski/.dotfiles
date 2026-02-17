@@ -29,18 +29,28 @@ cache_stale() {
 if cache_stale; then
     if git -C "$cwd" rev-parse --git-dir >/dev/null 2>&1; then
         branch=$(git -C "$cwd" rev-parse --abbrev-ref HEAD 2>/dev/null)
-        printf '%s\n' "$branch" > "$CACHE_FILE"
+        # git-common-dir resolves to the main repo's .git dir even from a worktree
+        git_common_rel=$(git -C "$cwd" rev-parse --git-common-dir 2>/dev/null)
+        if [[ "$git_common_rel" == /* ]]; then
+            repo_root=$(dirname "$git_common_rel")
+        else
+            repo_root=$(dirname "$cwd/$git_common_rel")
+        fi
+        printf '%s\t%s\n' "$branch" "$repo_root" > "$CACHE_FILE"
     else
-        printf '\n' > "$CACHE_FILE"
+        printf '\t\n' > "$CACHE_FILE"
     fi
 fi
 
 branch=""
-read -r branch < "$CACHE_FILE"
+repo_root=""
+IFS=$'\t' read -r branch repo_root < "$CACHE_FILE"
 
-# Derive project name from cwd path (github.com/org/repo) or basename
-if [[ "$cwd" == */github.com/*/* ]]; then
-    project=$(printf '%s' "$cwd" | sed -E 's|.*/github\.com/([^/]+/[^/]+).*|\1|')
+# Derive project name from main repo root (handles worktrees correctly)
+if [[ -n "$repo_root" && "$repo_root" == */github.com/*/* ]]; then
+    project=$(printf '%s' "$repo_root" | sed -E 's|.*/github\.com/([^/]+/[^/]+).*|\1|')
+elif [[ -n "$repo_root" ]]; then
+    project=$(basename "$repo_root")
 else
     project=$(basename "$cwd")
 fi
