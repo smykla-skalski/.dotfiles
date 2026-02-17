@@ -7,16 +7,19 @@ This file provides guidance to Claude Code when working with this repository.
 **System**: Nix-based macOS dotfiles with declarative configuration management
 
 **Config flow**: `nix/flake.nix` → nix modules → system/user environments
+
 - `nix/modules/darwin/` - System-level config (nix-darwin) → macOS system settings, requires `sudo`
 - `nix/modules/home/` - User-level config (home-manager) → dotfiles, shell, tools
 
 **Key patterns**:
+
 - Encryption: age + sops-nix (nix secrets), age + git filters (repo files)
 - Secrets: `nix/secrets/secrets.yaml` (sops-encrypted) + `secrets/`, `todos/` (git-filtered)
 - Python envs: direnv + nix/mise dual-mode, see `.claude/rules/python-env.md`
 - Validation: Claude Code hooks at `~/.claude/hooks/dispatcher.sh` route PreToolUse/PostToolUse to validators
 
 **Domain terms**:
+
 - **flake** - Nix's reproducible build system entry point at `nix/flake.nix`
 - **home-manager** - Declarative user environment manager
 - **nix-darwin** - macOS system configuration layer
@@ -82,6 +85,7 @@ SOPS_AGE_KEY_FILE=~/.config/age/key.txt sops nix/secrets/secrets.yaml
 **Shell**: Fish 3.x
 
 **Key variables**:
+
 - `$PROJECTS_PATH` = `$HOME/Projects/github.com`
 - `$DOTFILES_PATH` = `$PROJECTS_PATH/smykla-skalski/.dotfiles`
 - `$SECRETS_PATH` = `$DOTFILES_PATH/secrets`
