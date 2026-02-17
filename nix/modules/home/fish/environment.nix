@@ -102,10 +102,12 @@
     # fzf.fish history-specific options
     # Better time format showing relative day if recent
     set --global fzf_history_time_format "%Y-%m-%d %H:%M"
-    # Additional history options (appended last, so they override hardcoded defaults)
+    # Additional history options (appended AFTER --scheme=history in _fzf_search_history.fish)
+    # IMPORTANT: Do NOT set --tiebreak here — --scheme=history already sets --tiebreak=index
+    # (recency-first), and overriding it (e.g., with begin,index) makes position-in-line
+    # dominate over recency, pushing recent commands down in results.
     # --layout=default: input at bottom, results above
     # --preview-window=top:3:wrap: start with 3 lines (minimal for single-line commands)
-    # --tiebreak=begin,index: prioritizes matches starting with query (e.g., "k9s" ranks "k9s" higher than "grep k9s")
     # --no-multi-line: show each command as single line in list (multiline commands get ellipsis)
     # --ellipsis=…: use proper ellipsis character for truncated lines
     # --sync: synchronous search to prevent flickering during initial load
@@ -114,7 +116,7 @@
     #   Alt-↑: Expand preview to 50%
     #   Alt-↓: Shrink preview to 3 lines
     #   Alt-=: Reset to default size
-    set --global fzf_history_opts "--layout=default" "--preview-window=top:3:wrap" "--tiebreak=begin,index" "--no-multi-line" "--ellipsis=…" "--sync" "--bind=alt-p:toggle-preview" "--bind=alt-up:change-preview-window(top:50%:wrap)" "--bind=alt-down:change-preview-window(top:3:wrap)" "--bind=alt-=:change-preview-window(top:3:wrap)"
+    set --global fzf_history_opts "--layout=default" "--preview-window=top:3:wrap" "--no-multi-line" "--ellipsis=…" "--sync" "--bind=alt-p:toggle-preview" "--bind=alt-up:change-preview-window(top:50%:wrap)" "--bind=alt-down:change-preview-window(top:3:wrap)" "--bind=alt-=:change-preview-window(top:3:wrap)"
 
     # fzf.fish directory preview customization
     # Use eza for better directory listings with icons and colors
