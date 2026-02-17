@@ -38,11 +38,6 @@ in
     force = true;
   };
 
-  home.file.".claude/statusline-debug.sh" = {
-    executable = true;
-    source = ./claude/statusline-debug.sh;
-    force = true;
-  };
 
   # Symlink CLAUDE.md from sops secret
   home.activation.linkClaudeSecrets = lib.hm.dag.entryAfter [ "writeBoundary" "sops-nix" ] ''
