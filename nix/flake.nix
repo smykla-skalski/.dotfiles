@@ -28,9 +28,14 @@
       url = "github:smykla-skalski/klaudiush?dir=nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    mise-flake = {
+      url = "github:jdx/mise";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = inputs@{ self, nixpkgs, nix-darwin, home-manager, sops-nix, af, klaudiush, ... }:
+  outputs = inputs@{ self, nixpkgs, nix-darwin, home-manager, sops-nix, af, klaudiush, mise-flake, ... }:
     let
       system = "aarch64-darwin";
       hostname = "bartsmykla";
@@ -87,11 +92,12 @@
             users.users.${username}.uid = 501;
           }
 
-          # Overlay to add klaudiush to pkgs
+          # Overlays: add klaudiush and use mise-flake for latest mise
           ({ pkgs, ... }: {
             nixpkgs.overlays = [
               (final: prev: {
                 klaudiush = klaudiush.packages.${system}.default;
+                mise = mise-flake.packages.${system}.default;
               })
             ];
           })
@@ -142,6 +148,7 @@
               overlays = [
                 (final: prev: {
                   klaudiush = klaudiush.packages.${system}.default;
+                  mise = mise-flake.packages.${system}.default;
                 })
               ];
             };
