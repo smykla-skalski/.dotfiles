@@ -98,7 +98,7 @@
   },
   "statusLine": {
     "type": "command",
-    "command": "bash /Users/bart.smykla@konghq.com/.claude/statusline-command.sh"
+    "command": "~/.claude/statusline.sh"
   },
   "enabledPlugins": {
     "pr-review-toolkit@claude-code-plugins": true,

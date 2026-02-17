@@ -32,9 +32,9 @@ in
   home.file.".claude/settings.json.default".text = settingsJson;
 
   # Statusline scripts
-  home.file.".claude/statusline-command.sh" = {
+  home.file.".claude/statusline.sh" = {
     executable = true;
-    source = ./claude/statusline-command.sh;
+    source = ./claude/statusline.sh;
     force = true;
   };
 
