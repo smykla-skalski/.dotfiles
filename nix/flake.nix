@@ -51,6 +51,14 @@
         # 'options.json builtins.derivation without context' warning from
         # Determinate Nix. See: https://github.com/nix-community/home-manager/issues/7935
         { manual.manpages.enable = false; manual.html.enable = false; manual.json.enable = false; }
+
+        # Disable man-cache generation (mandb index for `man -k` / apropos).
+        # Building the cache requires running mandb locally because the
+        # man-paths derivation contains mise from mise-flake (not in
+        # cache.nixos.org), causing a full rebuild on every switch.
+        # With 108 packages including openssl (hundreds of 3ssl man pages)
+        # this makes every switch extremely slow.
+        { programs.man.generateCaches = false; }
         ./modules/home/bash.nix
         ./modules/home/broot.nix
         ./modules/home/broot-tips.nix
