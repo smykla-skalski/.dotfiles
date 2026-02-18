@@ -23,7 +23,7 @@
 
     # Claude Code
     c = "claude --teammate-mode tmux";
-    cs = "claude --teammate-mode tmux --model Sonnet";
+    cs = "claude --teammate-mode tmux --model Sonnet --effort medium";
     csm = "claude --teammate-mode tmux --model Sonnet[1m]";
     ch = "claude --teammate-mode tmux --model Haiku";
     co = "claude --teammate-mode tmux --model Opus";
@@ -31,7 +31,7 @@
 
     # Claude Code - resume (interactive session picker)
     cr = "claude --teammate-mode tmux --resume";
-    csr = "claude --teammate-mode tmux --model Sonnet --resume";
+    csr = "claude --teammate-mode tmux --model Sonnet --effort medium --resume";
     csmr = "claude --teammate-mode tmux --model Sonnet[1m] --resume";
     chr = "claude --teammate-mode tmux --model Haiku --resume";
     cor = "claude --teammate-mode tmux --model Opus --resume";
@@ -39,7 +39,7 @@
 
     # Claude Code - resume last session for current project
     cl = "claude --teammate-mode tmux --resume (jq -r --arg pwd (pwd) 'select(.project == $pwd) | .sessionId' ~/.claude/history.jsonl | tail -1)";
-    csl = "claude --teammate-mode tmux --model Sonnet --resume (jq -r --arg pwd (pwd) 'select(.project == $pwd) | .sessionId' ~/.claude/history.jsonl | tail -1)";
+    csl = "claude --teammate-mode tmux --model Sonnet --effort medium --resume (jq -r --arg pwd (pwd) 'select(.project == $pwd) | .sessionId' ~/.claude/history.jsonl | tail -1)";
     csml = "claude --teammate-mode tmux --model Sonnet[1m] --resume (jq -r --arg pwd (pwd) 'select(.project == $pwd) | .sessionId' ~/.claude/history.jsonl | tail -1)";
     chl = "claude --teammate-mode tmux --model Haiku --resume (jq -r --arg pwd (pwd) 'select(.project == $pwd) | .sessionId' ~/.claude/history.jsonl | tail -1)";
     col = "claude --teammate-mode tmux --model Opus --resume (jq -r --arg pwd (pwd) 'select(.project == $pwd) | .sessionId' ~/.claude/history.jsonl | tail -1)";

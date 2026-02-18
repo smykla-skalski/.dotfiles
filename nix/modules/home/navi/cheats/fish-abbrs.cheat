@@ -41,7 +41,7 @@ claude
 # Abbr: c
 
 # Claude Code with Sonnet model
-claude --model Sonnet
+claude --model Sonnet --effort medium
 # Abbr: cs
 
 # Claude Code with Haiku model

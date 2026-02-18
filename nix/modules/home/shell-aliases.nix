@@ -28,7 +28,7 @@ let
 
     # Claude Code
     c = "claude";
-    cs = "claude --model Sonnet";
+    cs = "claude --model Sonnet --effort medium";
     ch = "claude --model Haiku";
     co = "claude --model Opus";
 
