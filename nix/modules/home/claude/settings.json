@@ -45,7 +45,7 @@
       "Bash(make format:*)",
       "Bash(make lint:*)",
       "Bash(make test:*)",
-      "Bash(markdownlint:*)",
+      "Bash(markdownlint-cli2:*)",
       "Bash(mise:*)",
       "Bash(mkdir:*)",
       "Bash(printf:*)",

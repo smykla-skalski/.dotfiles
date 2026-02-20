@@ -50,7 +50,7 @@ jobs:
 
       # Install dependencies
       # age needed for git filters to decrypt age-encrypted files (secrets/, todos/)
-      # Tools installed later by mise: task, shellcheck, markdownlint, actionlint
+      # Tools installed later by mise: task, shellcheck, markdownlint-cli2, actionlint
       - name: Install dependencies
         run: |
           brew install fish check-jsonschema shellspec vim age
@@ -73,7 +73,7 @@ jobs:
       - name: Install mise tools
         uses: jdx/mise-action@6d1e696aa24c1aa1bcc1adea0212707c71ab78a8  # v3.6.1
         with:
-          install_args: actionlint age npm:markdownlint-cli shellcheck task
+          install_args: actionlint age npm:markdownlint-cli2 shellcheck task
 
       # Run all tests using Taskfile
       - name: Run tests

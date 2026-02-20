@@ -53,6 +53,11 @@
     initContent = ''
       # fzf integration
       [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+      # Activate mise for interactive shells (prompt hook re-evaluates on cd)
+      if command -v mise >/dev/null 2>&1; then
+        eval "$(mise activate zsh)"
+      fi
     '';
   };
 }

@@ -109,6 +109,11 @@
 
       # broot integration
       [ -f "$HOME/.config/broot/launcher/bash/br" ] && source "$HOME/.config/broot/launcher/bash/br"
+
+      # Activate mise for interactive shells (prompt hook re-evaluates on cd)
+      if command -v mise >/dev/null 2>&1; then
+        eval "$(mise activate bash)"
+      fi
     '';
 
     # .profile content (login shells)
