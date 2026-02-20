@@ -1,7 +1,5 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code when working with this repository.
-
 ## Architecture
 
 **System**: Nix-based macOS dotfiles with declarative configuration management
@@ -77,8 +75,11 @@ SOPS_AGE_KEY_FILE=~/.config/age/key.txt sops nix/secrets/secrets.yaml
 6. Push: `git push upstream <branch-name>` (only when explicitly instructed)
 7. Create PR and self-review before merging via GitHub UI
 
+**Remotes**: `upstream` (main repo), `origin` (fork)
 **Pre-commit hook**: Runs `task lint` (bypass with `--no-verify`)
 **Pre-push hook**: Runs `task test:changed` (bypass with `--no-verify`)
+
+See `CONTRIBUTING.md` for detailed commit guidelines.
 
 ## Shell Environment
 
@@ -100,16 +101,6 @@ SOPS_AGE_KEY_FILE=~/.config/age/key.txt sops nix/secrets/secrets.yaml
 
 **Strategy**: Syntax validation + linting. ShellSpec for behavior tests when present.
 
-## Git Workflow
-
-- **Branching**: All changes via PRs. Branch format: `<type>/<description>` (e.g., `feat/add-new-function`)
-- **Commits**: Conventional commits with `-sS` flags (sign-off + GPG). Format: `type(scope): description`
-- **Pushing**: Wait for explicit instruction. Use `git push upstream <branch>` (not `--force` unless explicitly requested)
-- **Remotes**: `upstream` (main repo), `origin` (fork)
-- **Merging**: Use GitHub UI after CI passes and self-review
-
-See `CONTRIBUTING.md` for detailed commit guidelines.
-
 ## Claude Code Hooks
 
 **Location**: `~/.claude/hooks/dispatcher.sh` (dispatcher pattern), **Logs**: `~/.claude/hooks/dispatcher.log`
@@ -122,7 +113,7 @@ See `CONTRIBUTING.md` for detailed commit guidelines.
 
 - **tmp/ directory**: Temporary files only. Git hooks block staging `tmp/` - use specific file paths instead
 - **Age key**: Store private key at `~/.config/age/key.txt` securely, excluded from git by default
-- **Encrypted files**: Git-filtered files (secrets/, todos/, **.secret.*) auto-encrypt on commit. Describe changes generically in commit messages (e.g., "update secrets")
+- **Encrypted files**: Git-filtered files (secrets/, todos/, **.secret.*) auto-encrypt on commit, multi-recipient (personal + CI). Describe changes generically in commit messages (e.g., "update secrets")
 - **Hammerspoon IPC**: Use `hs -q -t 2 -c "return 'value'"` format instead of `print()` - see `.claude/rules/hammerspoon.md` for details
 - **Home Manager plugins**: Vim (Vundle) and Tmux (TPM) require manual install after nix config: `vim +PluginInstall +qall` and `<prefix> + I` in tmux
 - **Python environments**: Auto-created per-project via direnv - see `.claude/rules/python-env.md`
@@ -132,13 +123,6 @@ See `CONTRIBUTING.md` for detailed commit guidelines.
 - **Linting**: Must pass shellcheck with no warnings (Claude Code hooks auto-validate on write)
 - **Style**: Long flags for readability (`--force`, not `-f`)
 - **Fish functions**: Must include `--description` flag
-
-## Security
-
-- **Age key**: Store private key at `~/.config/age/key.txt` securely (automatically gitignored)
-- **Encrypted files**: Use `git add` on plaintext files in `secrets/`, `todos/`, `**.secret.*` - git filters auto-encrypt on commit
-- **Commit messages**: Describe encrypted file changes generically (e.g., "update secrets") to avoid leaking plaintext
-- **Secrets**: Nix secrets via sops-nix (multi-recipient: personal + CI), repo files via age + git filters
 
 ## Resources
 
