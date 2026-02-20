@@ -24,9 +24,12 @@
     # Claude Code
     c = "claude --teammate-mode tmux";
     cs = "claude --teammate-mode tmux --model Sonnet --effort medium";
+    csh = "claude --teammate-mode tmux --model Sonnet --effort high";
     csm = "claude --teammate-mode tmux --model Sonnet[1m]";
     ch = "claude --teammate-mode tmux --model Haiku";
+    chh = "claude --teammate-mode tmux --model Haiku --effort high";
     co = "claude --teammate-mode tmux --model Opus";
+    coh = "claude --teammate-mode tmux --model Opus --effort high";
     com = "claude --teammate-mode tmux --model Opus[1m]";
 
     # Claude Code - resume (interactive session picker)
