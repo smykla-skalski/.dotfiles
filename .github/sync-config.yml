@@ -16,6 +16,13 @@ sync:
           "$.ignorePaths": "append"
           "$.packageRules": "append"
         overrides:
+          schedule:
+            - "on the first day of the month"
+          automerge: false
+          automergeStrategy: null
+          vulnerabilityAlerts:
+            automerge: false
+
           # Dotfiles-specific extends (appended to org defaults)
           extends:
             - ":disableRateLimiting"
@@ -45,8 +52,6 @@ sync:
           # Dotfiles-specific package rules (appended to org defaults)
           packageRules:
             - addLabels: ["mise"]
-              automerge: true
-              automergeType: "pr"
-              description: "Automerge non-major mise updates via PR"
+              description: "Non-major mise updates"
               matchManagers: ["mise"]
               matchUpdateTypes: ["minor", "patch"]
