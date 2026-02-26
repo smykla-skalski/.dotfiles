@@ -104,11 +104,11 @@
       },
       "locked": {
         "dir": "nix",
-        "lastModified": 1772045488,
-        "narHash": "sha256-OtIOSOJrCOYx6zbUvBkkPos8RiE9M7JFGNq3ssJEHCI=",
+        "lastModified": 1772098317,
+        "narHash": "sha256-DOpDMU5J1yuXupLLC55z8zQG9XWG9wQw3eGHPLEzdGo=",
         "owner": "smykla-skalski",
         "repo": "klaudiush",
-        "rev": "d7f47debadb449031c5f4795570fd6a36324e506",
+        "rev": "1f3bd645eebce2e5aab8286985e50217f42c65f3",
         "type": "github"
       },
       "original": {

@@ -111,6 +111,11 @@
               (final: prev: {
                 klaudiush = klaudiush.packages.${system}.default;
                 mise = mise-flake.packages.${system}.default;
+                # tmuxp 1.56.0 pins libtmux~=0.47.0 but nixpkgs has 0.53.x
+                tmuxp = prev.tmuxp.overridePythonAttrs (old: {
+                  nativeBuildInputs = (old.nativeBuildInputs or []) ++ [ prev.python3Packages.pythonRelaxDepsHook ];
+                  pythonRelaxDeps = [ "libtmux" ];
+                });
               })
             ];
           })
@@ -162,6 +167,11 @@
                 (final: prev: {
                   klaudiush = klaudiush.packages.${system}.default;
                   mise = mise-flake.packages.${system}.default;
+                  # tmuxp 1.56.0 pins libtmux~=0.47.0 but nixpkgs has 0.53.x
+                  tmuxp = prev.tmuxp.overridePythonAttrs (old: {
+                    nativeBuildInputs = (old.nativeBuildInputs or []) ++ [ prev.python3Packages.pythonRelaxDepsHook ];
+                    pythonRelaxDeps = [ "libtmux" ];
+                  });
                 })
               ];
             };
