@@ -22,31 +22,35 @@
     b = "cd $HOME/Projects/github.com/smykla-skalski/";
 
     # Claude Code
-    c = "claude --teammate-mode tmux";
-    cs = "claude --teammate-mode tmux --model Sonnet --effort medium";
-    csh = "claude --teammate-mode tmux --model Sonnet --effort high";
-    csm = "claude --teammate-mode tmux --model Sonnet[1m]";
-    ch = "claude --teammate-mode tmux --model Haiku";
-    chh = "claude --teammate-mode tmux --model Haiku --effort high";
-    co = "claude --teammate-mode tmux --model Opus";
-    coh = "claude --teammate-mode tmux --model Opus --effort high";
-    com = "claude --teammate-mode tmux --model Opus[1m]";
+    c = "claude";
+    ch = "claude --model Haiku";
+    chh = "claude --model Haiku --effort high";
+    csl = "claude --model Sonnet --effort low";
+    csm = "claude --model Sonnet --effort medium";
+    csh = "claude --model Sonnet --effort high";
+    col = "claude --model Opus --effort low";
+    com = "claude --model Opus --effort medium";
+    coh = "claude --model Opus --effort high";
 
     # Claude Code - resume (interactive session picker)
-    cr = "claude --teammate-mode tmux --resume";
-    csr = "claude --teammate-mode tmux --model Sonnet --effort medium --resume";
-    csmr = "claude --teammate-mode tmux --model Sonnet[1m] --resume";
-    chr = "claude --teammate-mode tmux --model Haiku --resume";
-    cor = "claude --teammate-mode tmux --model Opus --resume";
-    comr = "claude --teammate-mode tmux --model Opus[1m] --resume";
+    cr = "claude --resume";
+    chr = "claude --model Haiku --resume";
+    cslr = "claude --model Sonnet --effort low --resume";
+    csmr = "claude --model Sonnet --effort medium --resume";
+    cshr = "claude --model Sonnet --effort high --resume";
+    colr = "claude --model Opus --effort low --resume";
+    comr = "claude --model Opus --effort medium --resume";
+    cohr = "claude --model Opus --effort high --resume";
 
     # Claude Code - resume last session for current project
-    cl = "claude --teammate-mode tmux --resume (jq -r --arg pwd (pwd) 'select(.project == $pwd) | .sessionId' ~/.claude/history.jsonl | tail -1)";
-    csl = "claude --teammate-mode tmux --model Sonnet --effort medium --resume (jq -r --arg pwd (pwd) 'select(.project == $pwd) | .sessionId' ~/.claude/history.jsonl | tail -1)";
-    csml = "claude --teammate-mode tmux --model Sonnet[1m] --resume (jq -r --arg pwd (pwd) 'select(.project == $pwd) | .sessionId' ~/.claude/history.jsonl | tail -1)";
-    chl = "claude --teammate-mode tmux --model Haiku --resume (jq -r --arg pwd (pwd) 'select(.project == $pwd) | .sessionId' ~/.claude/history.jsonl | tail -1)";
-    col = "claude --teammate-mode tmux --model Opus --resume (jq -r --arg pwd (pwd) 'select(.project == $pwd) | .sessionId' ~/.claude/history.jsonl | tail -1)";
-    coml = "claude --teammate-mode tmux --model Opus[1m] --resume (jq -r --arg pwd (pwd) 'select(.project == $pwd) | .sessionId' ~/.claude/history.jsonl | tail -1)";
+    cl = "claude --resume (jq -r --arg pwd (pwd) 'select(.project == $pwd) | .sessionId' ~/.claude/history.jsonl | tail -1)";
+    chl = "claude --model Haiku --resume (jq -r --arg pwd (pwd) 'select(.project == $pwd) | .sessionId' ~/.claude/history.jsonl | tail -1)";
+    csll = "claude --model Sonnet --effort low --resume (jq -r --arg pwd (pwd) 'select(.project == $pwd) | .sessionId' ~/.claude/history.jsonl | tail -1)";
+    csml = "claude --model Sonnet --effort medium --resume (jq -r --arg pwd (pwd) 'select(.project == $pwd) | .sessionId' ~/.claude/history.jsonl | tail -1)";
+    cshl = "claude --model Sonnet --effort high --resume (jq -r --arg pwd (pwd) 'select(.project == $pwd) | .sessionId' ~/.claude/history.jsonl | tail -1)";
+    coll = "claude --model Opus --effort low --resume (jq -r --arg pwd (pwd) 'select(.project == $pwd) | .sessionId' ~/.claude/history.jsonl | tail -1)";
+    coml = "claude --model Opus --effort medium --resume (jq -r --arg pwd (pwd) 'select(.project == $pwd) | .sessionId' ~/.claude/history.jsonl | tail -1)";
+    cohl = "claude --model Opus --effort high --resume (jq -r --arg pwd (pwd) 'select(.project == $pwd) | .sessionId' ~/.claude/history.jsonl | tail -1)";
 
     # Home Manager
     hmn = "home-manager news --flake $DOTFILES_PATH/nix#home-bart";
