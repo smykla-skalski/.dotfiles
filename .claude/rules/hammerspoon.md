@@ -6,19 +6,35 @@ Config: `nix/modules/home/hammerspoon/init.lua` → `~/.hammerspoon/init.lua` (s
 
 ## IPC Command Best Practices
 
-**CRITICAL**: Always use `-q` (quiet mode) and `-t` timeout to prevent hanging:
+**CRITICAL**: Always use `-q` (quiet mode) and `-t` timeout on EVERY `hs` call to prevent hanging:
 
 ```bash
 hs -q -t 2 -c "return 'value'"           # CORRECT: return + quiet + timeout
-hs -c "print('value')"                   # WRONG: hangs, buffers in console
+hs -c "print('value')"                   # WRONG: hangs forever
+hs -c "hs.reload()"                      # WRONG: hangs forever (no -t)
 ```
 
 **Why commands hang**:
 
+- `hs -c` without `-t` blocks indefinitely waiting for a response
 - `print()` redirects to Hammerspoon console, can buffer/block IPC
 - Rapid command succession invalidates message port ([#2974](https://github.com/Hammerspoon/hammerspoon/issues/2974))
-- Missing timeout causes indefinite wait for Hammerspoon idle state
 - `hs.reload()` invalidates IPC port (exit code 69 is normal)
+- Expensive Lua code blocks the main thread and IPC response
+
+**Running expensive operations**: IPC executes Lua synchronously on the main thread. For slow operations, schedule via timer and retrieve results later:
+
+```bash
+# Schedule (returns immediately)
+hs -q -t 2 -c "_G._t = hs.timer.doAfter(0, function()
+  _G._t = nil; _G._result = expensiveWork()
+end); return 'scheduled'"
+
+# Retrieve later
+hs -q -t 2 -c "return _G._result or 'not ready'"
+```
+
+Anchor timers in `_G._varName` to prevent GC before firing ([#3102](https://github.com/Hammerspoon/hammerspoon/issues/3102)).
 
 **Flags**:
 
@@ -32,7 +48,7 @@ hs -c "print('value')"                   # WRONG: hangs, buffers in console
 hs -q -t 2 -c "return tostring(config ~= nil)"                    # Config loaded?
 hs -q -t 2 -c "return type(updateGhosttyFontSize)"               # Function exists?
 hs -q -t 2 -c "return tostring(config.ghosttyFontSizeWithMonitor)" # Check values
-hs -c "hs.reload()" 2>&1                                          # Reload (ignore port errors)
+hs -q -t 2 -c "hs.reload()" 2>&1                                  # Reload (exit 69 is normal)
 ```
 
 ## Debug Mode
@@ -59,7 +75,7 @@ hs -q -t 2 -c "log.printHistory()"              # Logger history
 1. Check Console (menubar → Console...) for Lua errors
 2. `ls -la ~/.hammerspoon/init.lua` (verify symlink)
 3. `home-manager switch --flake $DOTFILES_PATH/nix#home-bart` (rebuild)
-4. `hs -c "hs.reload()"`
+4. `hs -q -t 2 -c "hs.reload()" 2>&1`
 
 **"message port invalid"** → Normal during reload, ignore
 

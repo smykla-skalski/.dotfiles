@@ -114,7 +114,7 @@ See `CONTRIBUTING.md` for detailed commit guidelines.
 - **tmp/ directory**: Temporary files only. Git hooks block staging `tmp/` - use specific file paths instead
 - **Age key**: Store private key at `~/.config/age/key.txt` securely, excluded from git by default
 - **Encrypted files**: Git-filtered files (secrets/, todos/, **.secret.*) auto-encrypt on commit, multi-recipient (personal + CI). Describe changes generically in commit messages (e.g., "update secrets")
-- **Hammerspoon IPC**: Use `hs -q -t 2 -c "return 'value'"` format instead of `print()` - see `.claude/rules/hammerspoon.md` for details
+- **Hammerspoon IPC**: ALWAYS use `-q -t 2` on every `hs` call (`hs -q -t 2 -c "return 'value'"`). Without `-t`, `hs` hangs forever. For expensive operations, schedule via `hs.timer.doAfter(0, fn)` and retrieve results with a second call. See `.claude/rules/hammerspoon.md`
 - **Home Manager plugins**: Vim (Vundle) and Tmux (TPM) require manual install after nix config: `vim +PluginInstall +qall` and `<prefix> + I` in tmux
 - **Python environments**: Auto-created per-project via direnv - see `.claude/rules/python-env.md`
 

@@ -9,6 +9,16 @@ local M = {}
 -- Module state
 M.windowStates = {}  -- Map of windowId -> {fontSize, screenName, isBuiltin, lastUpdate}
 
+--- Get all Ghostty windows via direct app lookup
+-- Uses hs.application.get + allWindows instead of hs.window.filter
+-- (window.filter:getWindows takes ~9 seconds vs ~13ms for app:allWindows)
+-- @return table Array of hs.window objects (empty if Ghostty not running)
+local function getGhosttyWindows()
+  local app = hs.application.get('Ghostty')
+  if not app then return {} end
+  return app:allWindows() or {}
+end
+
 -------------------------------------------------------------------------------
 -- Accessibility Tree Utilities
 -------------------------------------------------------------------------------
@@ -222,8 +232,7 @@ function M.cleanupWindowStates(log)
   end
 
   -- Get all current Ghostty window IDs
-  local ghosttyFilter = hs.window.filter.new(false):setAppFilter('Ghostty')
-  local currentWindows = ghosttyFilter:getWindows()
+  local currentWindows = getGhosttyWindows()
   local currentWindowIds = {}
 
   for _, window in ipairs(currentWindows) do
@@ -347,8 +356,8 @@ function M.updateFontSize(fontSize, config, log, onComplete)
     log.i(string.format("Updated font-size in overlay: %s", overlayPath))
   end
 
-  -- Use window filter to find ALL Ghostty windows (more reliable across spaces)
-  local windows = hs.window.filter.new(false):setAppFilter('Ghostty'):getWindows()
+  -- Get all Ghostty windows via direct app lookup (fast path, ~13ms vs ~9s for window.filter)
+  local windows = getGhosttyWindows()
 
   if not windows or #windows == 0 then
     if log then
@@ -423,7 +432,7 @@ end
 -- @param log Logger instance (optional)
 -- @return boolean true if any window is on built-in, false if all on external (or no windows)
 function M.anyWindowOnBuiltin(display, log)
-  local allWindows = hs.window.filter.new(false):setAppFilter('Ghostty'):getWindows()
+  local allWindows = getGhosttyWindows()
 
   if not allWindows or #allWindows == 0 then
     if log then
