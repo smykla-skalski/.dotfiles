@@ -409,7 +409,8 @@ function M.updateFontSize(fontSize, config, log, onComplete)
     window:focus()
 
     -- Wait for focus to settle, then get split info and send keystrokes
-    hs.timer.doAfter(0.1, function()  -- 100ms for space switching and focus
+    -- 400ms needed when Ghostty is on a different macOS Space (animation takes ~300ms)
+    hs.timer.doAfter(0.4, function()
       -- Get actual tab and split counts via accessibility API
       local tabCount, totalSplits = M.getTabsAndSplits(window)
       local splitsPerTab = math.ceil(totalSplits / tabCount)
@@ -424,7 +425,7 @@ function M.updateFontSize(fontSize, config, log, onComplete)
   end
 
   -- Start processing first window after activation delay
-  hs.timer.doAfter(0.1, processNextWindow)
+  hs.timer.doAfter(0.4, processNextWindow)
 end
 
 --- Check if any Ghostty window is on a built-in display

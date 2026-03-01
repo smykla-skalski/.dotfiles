@@ -1168,7 +1168,14 @@ function M.show(config, callbacks, log)
           checkTimer = nil
         end
 
-        -- Create close callback for when work is done
+        -- Hide callback: hides window without destroying (unblocks Space switching)
+        local function hideUI()
+          if configWindow then
+            configWindow:hide()
+          end
+        end
+
+        -- Close callback: destroys window
         local function closeUI()
           if configWindow then
             configWindow:delete()
@@ -1178,11 +1185,10 @@ function M.show(config, callbacks, log)
           originalFocusedWindow = nil
         end
 
-        -- Call save callback with close function
+        -- Call save callback with both functions
         if callbacks and callbacks.onSave then
-          callbacks.onSave(action.data, originalFocusedWindow, closeUI)
+          callbacks.onSave(action.data, originalFocusedWindow, closeUI, hideUI)
         else
-          -- No callback, close immediately
           closeUI()
         end
       elseif action.type == "reload" then
@@ -1196,7 +1202,14 @@ function M.show(config, callbacks, log)
           checkTimer = nil
         end
 
-        -- Create close callback for when work is done
+        -- Hide callback: hides window without destroying (unblocks Space switching)
+        local function hideUI()
+          if configWindow then
+            configWindow:hide()
+          end
+        end
+
+        -- Close callback: destroys window
         local function closeUI()
           if configWindow then
             configWindow:delete()
@@ -1206,11 +1219,10 @@ function M.show(config, callbacks, log)
           originalFocusedWindow = nil
         end
 
-        -- Call reload callback with close function
+        -- Call reload callback with both functions
         if callbacks and callbacks.onReload then
-          callbacks.onReload(originalFocusedWindow, closeUI)
+          callbacks.onReload(originalFocusedWindow, closeUI, hideUI)
         else
-          -- No callback, close immediately
           closeUI()
         end
       elseif action.type == "close" then
