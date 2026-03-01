@@ -1028,6 +1028,20 @@ local function generateHtml(config)
       });
     }
 
+    document.addEventListener('keydown', function(e) {
+      if (e.key !== 'Escape') return;
+      const active = document.activeElement;
+      const isInputFocused = active && (
+        active.tagName === 'INPUT' ||
+        active.tagName === 'BUTTON' ||
+        active.tagName === 'TEXTAREA' ||
+        active.tagName === 'SELECT'
+      );
+      if (!isInputFocused) {
+        cancel();
+      }
+    });
+
     document.addEventListener('DOMContentLoaded', function() {
       // Setup custom number input arrows
       setupNumberInputArrows();
