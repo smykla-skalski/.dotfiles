@@ -5,7 +5,7 @@
 # Renovate automatically creates PRs to update these versions
 
 [tools]
-actionlint = "1.7.10"
+actionlint = "1.7.11"
 age = "1.2.1"
 cosign = "3.0.4"
 go = "1.26.0"
