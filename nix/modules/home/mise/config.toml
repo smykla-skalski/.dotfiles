@@ -7,7 +7,7 @@
 [tools]
 actionlint = "1.7.11"
 age = "1.2.1"
-cosign = "3.0.4"
+cosign = "3.0.5"
 go = "1.26.0"
 golangci-lint = "2.9.0"
 "go:mvdan.cc/gofumpt" = "0.9.2"
