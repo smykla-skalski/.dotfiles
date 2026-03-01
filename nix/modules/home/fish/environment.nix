@@ -4,6 +4,10 @@
 
 {
   programs.fish.interactiveShellInit = ''
+    # Prevent "unbound variable" errors in strict mode (set -u) for bash compatibility
+    # PROMPT_COMMAND is typically set by interactive shells but not in non-interactive mode
+    set --export --global PROMPT_COMMAND ""
+
     # Disable initial welcome message
     set --global fish_greeting
 
@@ -37,9 +41,10 @@
     set --global fish_pager_color_selected_background -r
 
     # Environment variables
+    set --export PYTHONWARNINGS "ignore::UserWarning"
     set --export PROJECTS_PATH $HOME/Projects/github.com
-    set --export MY_PROJECTS_PATH $PROJECTS_PATH/bartsmykla
-    set --export DOTFILES_PATH $PROJECTS_PATH/smykla-labs/.dotfiles
+    set --export MY_PROJECTS_PATH $PROJECTS_PATH/smykla-skalski
+    set --export DOTFILES_PATH $PROJECTS_PATH/smykla-skalski/.dotfiles
     set --export FORTRESS_PATH /Volumes/fortress-carima
     set --export SECRETS_PATH $DOTFILES_PATH/secrets
     set --export PYTHON_SHELL_NIX $DOTFILES_PATH/nix/python-env/shell.nix
@@ -52,39 +57,66 @@
     # fzf configuration (fzf 0.67.0+)
     # These are set here instead of _fzf_wrapper.fish for more control
     # See: https://github.com/junegunn/fzf#environment-variables
+    # Note: --layout is NOT set here because it's set per-command (e.g., in fzf_history_opts)
     set --export FZF_DEFAULT_OPTS "\
       --cycle \
-      --layout=reverse \
       --border=rounded \
       --height=90% \
+      --scroll-off=3 \
       --preview-window=wrap \
       --marker='*' \
       --highlight-line \
       --info=inline-right \
       --tmux=bottom,50% \
+      --no-mouse \
       --color=fg:#f8f8f2,bg:#272822,hl:#66d9ef \
       --color=fg+:#f8f8f2,bg+:#3e3d32,hl+:#66d9ef \
       --color=info:#a6e22e,prompt:#f92672,pointer:#ae81ff \
       --color=marker:#a6e22e,spinner:#ae81ff,header:#75715e \
       --color=bg+:-1,gutter:-1 \
-      --bind='ctrl-/:toggle-preview'"
+      --bind='ctrl-/:toggle-preview' \
+      --bind='ctrl-u:half-page-up' \
+      --bind='ctrl-d:half-page-down' \
+      --bind='ctrl-y:preview-up' \
+      --bind='ctrl-e:preview-down' \
+      --bind='ctrl-b:preview-page-up' \
+      --bind='ctrl-f:preview-page-down' \
+      --bind='alt-up:preview-up' \
+      --bind='alt-down:preview-down' \
+      --bind='shift-up:preview-page-up' \
+      --bind='shift-down:preview-page-down'"
 
     # fzf shell integration options
     # CTRL-T: File search with bat preview and syntax highlighting
     set --export FZF_CTRL_T_OPTS "\
-      --walker-skip .git,node_modules,target \
-      --preview 'bat --style=numbers --color=always --line-range :500 {}' \
-      --bind 'ctrl-/:change-preview-window(down|hidden|)'"
+      --walker-skip .git,node_modules,target,dist,build,.cache \
+      --preview 'bat --style=numbers --color=always --line-range :500 {} 2>/dev/null || cat {}' \
+      --bind 'ctrl-/:change-preview-window(down|hidden|)' \
+      --header 'CTRL-/: Toggle preview'"
 
     # ALT-C: Directory navigation with eza/tree preview
     set --export FZF_ALT_C_OPTS "\
-      --preview 'eza --all --long --icons always --tree --level=2 --color=always {} 2>/dev/null || tree -C -L 2 {} 2>/dev/null || ls -A -F {}'"
+      --preview 'eza --all --long --icons always --tree --level=2 --color=always {} 2>/dev/null || tree -C -L 2 {} 2>/dev/null || ls -A -F {}' \
+      --header 'ALT-C: Change directory'"
 
     # fzf.fish history-specific options
     # Better time format showing relative day if recent
     set --global fzf_history_time_format "%Y-%m-%d %H:%M"
-    # Additional history options (appended to defaults)
-    set --global fzf_history_opts "--no-sort"
+    # Additional history options (appended AFTER --scheme=history in _fzf_search_history.fish)
+    # IMPORTANT: Do NOT set --tiebreak here — --scheme=history already sets --tiebreak=index
+    # (recency-first), and overriding it (e.g., with begin,index) makes position-in-line
+    # dominate over recency, pushing recent commands down in results.
+    # --layout=default: input at bottom, results above
+    # --preview-window=top:3:wrap: start with 3 lines (minimal for single-line commands)
+    # --no-multi-line: show each command as single line in list (multiline commands get ellipsis)
+    # --ellipsis=…: use proper ellipsis character for truncated lines
+    # --sync: synchronous search to prevent flickering during initial load
+    # Dynamic preview resizing keybindings:
+    #   Alt-p: Toggle preview on/off
+    #   Alt-↑: Expand preview to 50%
+    #   Alt-↓: Shrink preview to 3 lines
+    #   Alt-=: Reset to default size
+    set --global fzf_history_opts "--layout=default" "--preview-window=top:3:wrap" "--no-multi-line" "--ellipsis=…" "--sync" "--bind=alt-p:toggle-preview" "--bind=alt-up:change-preview-window(top:50%:wrap)" "--bind=alt-down:change-preview-window(top:3:wrap)" "--bind=alt-=:change-preview-window(top:3:wrap)"
 
     # fzf.fish directory preview customization
     # Use eza for better directory listings with icons and colors
@@ -103,7 +135,8 @@
     fish_add_path --global --move "$HOMEBREW_PREFIX/opt/coreutils/libexec/gnubin"
     fish_add_path --global --append "$HOME/.krew/bin"
     fish_add_path --global --append "$HOME/.opencode/bin"
-    fish_add_path --global --append "$PROJECTS_PATH/smykla-labs/research/claude-code/skills/_bin"
+    fish_add_path --global --append "$PROJECTS_PATH/smykla-skalski/research/claude-code/skills/_bin"
+    fish_add_path --global --append "$PROJECTS_PATH/smykla-skalski/klab/.bin"
 
     # mise tool completions (auto-generated)
     if test -f "$DOTFILES_PATH/tmp/mise-completions.fish"

@@ -255,4 +255,4 @@ hs -c "applyFontSettings()"
 
 ## License
 
-Part of smykla-labs dotfiles configuration.
+Part of smykla-skalski dotfiles configuration.

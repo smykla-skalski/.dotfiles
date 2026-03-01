@@ -2,7 +2,7 @@
 # Smyklot Poll workflow
 # Polls PR reactions via smyklot bot for auto-merge
 #
-# This file is managed by smykla-labs/.github org sync.
+# This file is managed by smykla-skalski/.github org sync.
 # Do not edit manually - changes will be overwritten.
 
 name: Smyklot Poll
@@ -21,11 +21,11 @@ permissions:
 jobs:
   poll-reactions:
     name: Poll PR Reactions
-    runs-on: ubuntu-24.04
+    runs-on: ${{ fromJSON(vars.RUNNER_LABEL || '["ubuntu-24.04"]') }}
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Generate GitHub App token
         id: generate-token
@@ -35,7 +35,7 @@ jobs:
           private-key: ${{ secrets.SMYKLOT_APP_PRIVATE_KEY }}
 
       - name: Poll reactions on open PRs
-        uses: smykla-labs/smyklot@bd94bdf38abedfa964a60b3d69e299edf6d9d589 # v1.11.1
+        uses: smykla-skalski/smyklot@2059852fc4166dc6353887db42e13276506d7215 # v1.11.2
         with:
           args: poll
         env:

@@ -328,18 +328,13 @@ tasks:
       - echo "✓ Shell scripts pass shellcheck"
 
   lint:markdown:
-    desc: Lint Markdown files with markdownlint
+    desc: Lint Markdown files with markdownlint-cli2
     dir: '{{.G_DOTFILES}}'
     sources:
       - '**/*.md'
     cmds:
       - echo "▶ Linting Markdown files"
-      - |
-        find . -name "*.md" -type f \
-          -not -path "./tmp/*" \
-          -not -path "./knowledge/*" \
-          -not -path "./todos/*" \
-          -print0 | xargs -0 -r markdownlint
+      - markdownlint-cli2 "**/*.md"
       - echo "✓ Markdown files pass linting"
 
   lint:taskfile:

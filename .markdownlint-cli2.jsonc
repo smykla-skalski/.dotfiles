@@ -1,0 +1,33 @@
+// https://github.com/DavidAnson/markdownlint-cli2#configuration
+{
+  "config": {
+    "$schema": "https://raw.githubusercontent.com/DavidAnson/markdownlint/main/schema/markdownlint-config-schema.json",
+    "default": true,
+    "MD013": false,
+    "MD022": {
+      "lines_above": 1,
+      "lines_below": 1
+    },
+    "MD024": {
+      "siblings_only": true
+    },
+    "MD025": {
+      "front_matter_title": ""
+    },
+    "MD033": {
+      "allowed_elements": [
+        "br",
+        "details",
+        "summary"
+      ]
+    },
+    "MD041": false
+  },
+  "ignores": [
+    ".claude/sessions/",
+    "tmp/",
+    "knowledge/",
+    "todos/",
+    "result/"
+  ]
+}

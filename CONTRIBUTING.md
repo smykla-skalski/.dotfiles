@@ -1,6 +1,6 @@
-# Contributing to Smykla Labs Projects
+# Contributing to Smykla Skalski Projects
 
-Thank you for your interest in contributing! This document provides guidelines and instructions for contributing to Smykla Labs projects.
+Thank you for your interest in contributing! This document provides guidelines and instructions for contributing to Smykla Skalski projects.
 
 ## Code of Conduct
 
@@ -28,7 +28,7 @@ Check the project's README for specific prerequisites. Common requirements inclu
 3. Add upstream remote:
 
    ```bash
-   git remote add upstream https://github.com/smykla-labs/REPO_NAME.git
+   git remote add upstream https://github.com/smykla-skalski/REPO_NAME.git
    ```
 
 4. Install dependencies (if applicable):

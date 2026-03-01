@@ -1,5 +1,5 @@
 {
-  description = "Nix configuration for smykla-labs dotfiles";
+  description = "Nix configuration for smykla-skalski dotfiles";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
@@ -20,17 +20,22 @@
     };
 
     af = {
-      url = "github:smykla-labs/af";
+      url = "github:smykla-skalski/af";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
     klaudiush = {
-      url = "github:smykla-labs/klaudiush?dir=nix";
+      url = "github:smykla-skalski/klaudiush?dir=nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    mise-flake = {
+      url = "github:jdx/mise";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
-  outputs = inputs@{ self, nixpkgs, nix-darwin, home-manager, sops-nix, af, klaudiush, ... }:
+  outputs = inputs@{ self, nixpkgs, nix-darwin, home-manager, sops-nix, af, klaudiush, mise-flake, ... }:
     let
       system = "aarch64-darwin";
       hostname = "bartsmykla";
@@ -41,6 +46,19 @@
       homeModules = [
         sops-nix.homeManagerModules.sops
         klaudiush.homeManagerModules.default
+
+        # Disable home-manager manual generation to suppress the
+        # 'options.json builtins.derivation without context' warning from
+        # Determinate Nix. See: https://github.com/nix-community/home-manager/issues/7935
+        { manual.manpages.enable = false; manual.html.enable = false; manual.json.enable = false; }
+
+        # Disable man-cache generation (mandb index for `man -k` / apropos).
+        # Building the cache requires running mandb locally because the
+        # man-paths derivation contains mise from mise-flake (not in
+        # cache.nixos.org), causing a full rebuild on every switch.
+        # With 108 packages including openssl (hundreds of 3ssl man pages)
+        # this makes every switch extremely slow.
+        { programs.man.generateCaches = false; }
         ./modules/home/bash.nix
         ./modules/home/broot.nix
         ./modules/home/broot-tips.nix
@@ -87,11 +105,17 @@
             users.users.${username}.uid = 501;
           }
 
-          # Overlay to add klaudiush to pkgs
+          # Overlays: add klaudiush and use mise-flake for latest mise
           ({ pkgs, ... }: {
             nixpkgs.overlays = [
               (final: prev: {
                 klaudiush = klaudiush.packages.${system}.default;
+                mise = mise-flake.packages.${system}.default;
+                # tmuxp 1.56.0 pins libtmux~=0.47.0 but nixpkgs has 0.53.x
+                tmuxp = prev.tmuxp.overridePythonAttrs (old: {
+                  nativeBuildInputs = (old.nativeBuildInputs or []) ++ [ prev.python3Packages.pythonRelaxDepsHook ];
+                  pythonRelaxDeps = [ "libtmux" ];
+                });
               })
             ];
           })
@@ -142,6 +166,12 @@
               overlays = [
                 (final: prev: {
                   klaudiush = klaudiush.packages.${system}.default;
+                  mise = mise-flake.packages.${system}.default;
+                  # tmuxp 1.56.0 pins libtmux~=0.47.0 but nixpkgs has 0.53.x
+                  tmuxp = prev.tmuxp.overridePythonAttrs (old: {
+                    nativeBuildInputs = (old.nativeBuildInputs or []) ++ [ prev.python3Packages.pythonRelaxDepsHook ];
+                    pythonRelaxDeps = [ "libtmux" ];
+                  });
                 })
               ];
             };

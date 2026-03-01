@@ -11,8 +11,9 @@
   programs.mise = {
     enable = true;
 
-    # Disable bash integration - manually configured in bash.nix to avoid duplicate activation
-    enableBashIntegration = true;
+    # Disable home-manager's bash integration since we manually configure it in bash.nix
+    # This prevents duplicate activation and gives us full control over non-interactive shells
+    enableBashIntegration = false;
 
     # Enable fish shell integration (full activation with hook-env per prompt)
     enableFishIntegration = true;

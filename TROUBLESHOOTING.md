@@ -57,7 +57,7 @@ curl -fsSL https://smyk.la | bash
 The bootstrap script will detect existing repositories and offer to update them. If you want a fresh clone:
 
 ```bash
-mv ~/Projects/github.com/smykla-labs/.dotfiles ~/Projects/github.com/smykla-labs/.dotfiles.backup
+mv ~/Projects/github.com/smykla-skalski/.dotfiles ~/Projects/github.com/smykla-skalski/.dotfiles.backup
 curl -fsSL https://smyk.la | bash
 ```
 
@@ -66,13 +66,13 @@ curl -fsSL https://smyk.la | bash
 **Verify scripts exist:**
 
 ```bash
-ls -la ~/Projects/github.com/smykla-labs/.dotfiles/.git/age-*.sh
+ls -la ~/Projects/github.com/smykla-skalski/.dotfiles/.git/age-*.sh
 ```
 
 **Reconfigure manually:**
 
 ```bash
-cd ~/Projects/github.com/smykla-labs/.dotfiles
+cd ~/Projects/github.com/smykla-skalski/.dotfiles
 git config filter.age.clean "$PWD/.git/age-clean.sh"
 git config filter.age.smudge "$PWD/.git/age-smudge.sh"
 ```
@@ -89,7 +89,7 @@ brew install go-task                     # Install if missing
 **Run manually:**
 
 ```bash
-cd ~/Projects/github.com/smykla-labs/.dotfiles
+cd ~/Projects/github.com/smykla-skalski/.dotfiles
 task install
 ```
 

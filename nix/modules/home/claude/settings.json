@@ -45,7 +45,7 @@
       "Bash(make format:*)",
       "Bash(make lint:*)",
       "Bash(make test:*)",
-      "Bash(markdownlint:*)",
+      "Bash(markdownlint-cli2:*)",
       "Bash(mise:*)",
       "Bash(mkdir:*)",
       "Bash(printf:*)",
@@ -98,7 +98,7 @@
   },
   "statusLine": {
     "type": "command",
-    "command": "bash /Users/bart.smykla@konghq.com/.claude/statusline-command.sh"
+    "command": "~/.claude/statusline.sh"
   },
   "enabledPlugins": {
     "pr-review-toolkit@claude-code-plugins": true,

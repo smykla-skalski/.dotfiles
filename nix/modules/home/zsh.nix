@@ -11,14 +11,24 @@
     # .zshenv is sourced for ALL zsh shells (interactive, non-interactive, login, etc.)
     # This is perfect for Claude Code's non-interactive shells
     envExtra = ''
+      # Prevent "unbound variable" errors in strict mode (set -u)
+      # PROMPT_COMMAND is typically set by interactive shells but not in non-interactive mode
+      : "''${PROMPT_COMMAND:=}"
+
+      # Suppress pkg_resources deprecation warning from kathara_lab_checker
+      export PYTHONWARNINGS="ignore::UserWarning"
+
       # Add ~/.local/bin to PATH for mise executable
       export PATH="$HOME/.local/bin:$PATH"
 
       # Claude Code skills CLI wrapper
-      export PATH="$HOME/Projects/github.com/smykla-labs/research/claude-code/skills/_bin:$PATH"
+      export PATH="$HOME/Projects/github.com/smykla-skalski/research/claude-code/skills/_bin:$PATH"
+
+      # klab - Kubernetes networking labs
+      export PATH="$HOME/Projects/github.com/smykla-skalski/klab/.bin:$PATH"
 
       # Python shell.nix location for direnv
-      export DOTFILES_PATH="$HOME/Projects/github.com/smykla-labs/.dotfiles"
+      export DOTFILES_PATH="$HOME/Projects/github.com/smykla-skalski/.dotfiles"
       export PYTHON_SHELL_NIX="$DOTFILES_PATH/nix/python-env/shell.nix"
 
       # Cargo environment
@@ -43,6 +53,11 @@
     initContent = ''
       # fzf integration
       [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+      # Activate mise for interactive shells (prompt hook re-evaluates on cd)
+      if command -v mise >/dev/null 2>&1; then
+        eval "$(mise activate zsh)"
+      fi
     '';
   };
 }

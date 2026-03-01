@@ -12,4 +12,5 @@ tmp
 .tmux/plugins/tmux-sensible
 .task
 result
-.claude
+.claude/*
+!.claude/rules/

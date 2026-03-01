@@ -8,7 +8,7 @@
 
 let
   # Path to the python environment files (relative to dotfiles)
-  pythonEnvPath = "${config.home.homeDirectory}/Projects/github.com/smykla-labs/.dotfiles/nix/python-env";
+  pythonEnvPath = "${config.home.homeDirectory}/Projects/github.com/smykla-skalski/.dotfiles/nix/python-env";
   nixpkgsPythonVersionsPath = "${pythonEnvPath}/nixpkgs-python-versions.json";
 in
 {

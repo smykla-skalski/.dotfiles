@@ -1,6 +1,6 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "automergeStrategy": "squash",
+  "automerge": false,
   "customManagers": [
     {
       "customType": "regex",
@@ -87,18 +87,17 @@
       "description": "Smyklot action managed by sync-smyklot workflow",
       "enabled": false,
       "matchManagers": ["github-actions"],
-      "matchPackageNames": ["smykla-labs/smyklot"]
+      "matchPackageNames": ["smykla-skalski/smyklot"]
     },
     {
       "addLabels": ["mise"],
-      "automerge": true,
-      "automergeType": "pr",
-      "description": "Automerge non-major mise updates via PR",
+      "description": "Non-major mise updates",
       "matchManagers": ["mise"],
       "matchUpdateTypes": ["minor", "patch"]
     }
   ],
+  "schedule": ["on the first day of the month"],
   "vulnerabilityAlerts": {
-    "automerge": true
+    "automerge": false
   }
 }
