@@ -1168,13 +1168,6 @@ function M.show(config, callbacks, log)
           checkTimer = nil
         end
 
-        -- Hide callback: hides window without destroying (unblocks Space switching)
-        local function hideUI()
-          if configWindow then
-            configWindow:hide()
-          end
-        end
-
         -- Close callback: destroys window
         local function closeUI()
           if configWindow then
@@ -1185,9 +1178,9 @@ function M.show(config, callbacks, log)
           originalFocusedWindow = nil
         end
 
-        -- Call save callback with both functions
+        -- Call save callback
         if callbacks and callbacks.onSave then
-          callbacks.onSave(action.data, originalFocusedWindow, closeUI, hideUI)
+          callbacks.onSave(action.data, originalFocusedWindow, closeUI)
         else
           closeUI()
         end
@@ -1202,13 +1195,6 @@ function M.show(config, callbacks, log)
           checkTimer = nil
         end
 
-        -- Hide callback: hides window without destroying (unblocks Space switching)
-        local function hideUI()
-          if configWindow then
-            configWindow:hide()
-          end
-        end
-
         -- Close callback: destroys window
         local function closeUI()
           if configWindow then
@@ -1219,9 +1205,9 @@ function M.show(config, callbacks, log)
           originalFocusedWindow = nil
         end
 
-        -- Call reload callback with both functions
+        -- Call reload callback
         if callbacks and callbacks.onReload then
-          callbacks.onReload(originalFocusedWindow, closeUI, hideUI)
+          callbacks.onReload(originalFocusedWindow, closeUI)
         else
           closeUI()
         end

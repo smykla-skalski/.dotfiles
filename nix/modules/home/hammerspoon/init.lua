@@ -159,7 +159,7 @@ function showConfigUI()
 
   -- Define callbacks for UI actions
   local callbacks = {
-    onSave = function(newConfig, originalWindow, closeUI, hideUI)
+    onSave = function(newConfig, originalWindow, closeUI)
       log.i("Save action from UI")
       log.d(string.format("New config: fontWithMonitor=%d, fontWithout=%d, ghosttyWithMonitor=%d, ghosttyWithout=%d",
         newConfig.fontSizeWithMonitor, newConfig.fontSizeWithoutMonitor,
@@ -234,12 +234,13 @@ function showConfigUI()
       if ghosttyChanged then
         local fontSize = hasExternalMonitor and config.ghosttyFontSizeWithMonitor or config.ghosttyFontSizeWithoutMonitor
         log.i(string.format("Applying Ghostty font size %d", fontSize))
+        -- Close UI before Ghostty activation - webview blocks Space switching regardless of level
+        if closeUI then
+          closeUI()
+        end
+        hs.alert.show("Applying font settings...", 2)
         _G._saveGhosttyTimer = hs.timer.doAfter(0.2, function()
           _G._saveGhosttyTimer = nil
-          -- Hide UI right before Ghostty activation so floating webview doesn't block Space switching
-          if hideUI then
-            hideUI()
-          end
           ghostty.updateFontSize(fontSize, config, log, onComplete)
         end)
       elseif jetbrainsChanged then
@@ -252,7 +253,7 @@ function showConfigUI()
       end
     end,
 
-    onReload = function(originalWindow, closeUI, hideUI)
+    onReload = function(originalWindow, closeUI)
       log.i("Reload action from UI (apply settings without saving)")
 
       -- Capture the original window passed from UI (captured before UI opened)
@@ -288,14 +289,16 @@ function showConfigUI()
         jetbrains.updateFontSize(jetbrainsFontSize, config, log)
       end)
 
-      -- Start Ghostty update after delay, then close UI when done
+      -- Close UI before Ghostty activation - webview blocks Space switching regardless of level
+      if closeUI then
+        closeUI()
+      end
+      hs.alert.show("Applying font settings...", 2)
+
+      -- Start Ghostty update after delay, then restore focus when done
       _G._reloadGhosttyTimer = hs.timer.doAfter(0.2, function()
         _G._reloadGhosttyTimer = nil
         log.d("Starting Ghostty update (async)")
-        -- Hide UI right before Ghostty activation so floating webview doesn't block Space switching
-        if hideUI then
-          hideUI()
-        end
         ghostty.updateFontSize(ghosttyFontSize, config, log, onComplete)
       end)
     end,
