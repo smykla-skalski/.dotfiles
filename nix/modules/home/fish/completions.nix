@@ -56,6 +56,12 @@ in
       complete --command klab --no-files --arguments "(env _KLAB_COMPLETE=complete_fish _TYPER_COMPLETE_FISH_ACTION=get-args _TYPER_COMPLETE_ARGS=(commandline -cp) klab)" --condition "env _KLAB_COMPLETE=complete_fish _TYPER_COMPLETE_FISH_ACTION=is-args _TYPER_COMPLETE_ARGS=(commandline -cp) klab"
     '';
 
+    "fish/completions/codex.fish".text = ''
+      if command -sq codex
+        codex completion fish | source
+      end
+    '';
+
     # Note: mise completions are handled by programs.mise.enableFishIntegration
     # Note: broot integration (br.fish) is handled by programs.broot in broot.nix
     # with enableFishIntegration = true
