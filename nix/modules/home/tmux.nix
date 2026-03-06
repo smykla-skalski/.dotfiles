@@ -34,6 +34,13 @@
       set -g @resurrect-strategy-vim 'session'
       set -g @resurrect-capture-pane-contents 'on'
 
+      # Ghostty terminal features
+      set -as terminal-features ',xterm-ghostty:RGB:clipboard:hyperlinks:osc7:strikethrough:overline:usstyle:sync:extkeys'
+      set -as terminal-features ',xterm-256color:RGB:clipboard:hyperlinks:osc7:strikethrough:overline:usstyle:sync:extkeys'
+
+      # Avoid passthrough rendering glitches in OpenCode + tmux
+      set -g allow-passthrough off
+
       # Ensure we can send 'Ctrl+a' to other apps
       bind C-a send-prefix
 
@@ -47,6 +54,9 @@
       # Splitting panes with '|' and '-' with the same path as the current pane
       bind | split-window -h -c "#{pane_current_path}"
       bind - split-window -v -c "#{pane_current_path}"
+
+      # Equalize panes
+      bind = select-layout tiled
 
       # When creating new window, use path from current pane
       bind c new-window -c "#{pane_current_path}"
@@ -74,6 +84,12 @@
 
       bind n next-window
       bind p previous-window
+
+      # Pane navigation
+      bind h select-pane -L
+      bind j select-pane -D
+      bind k select-pane -U
+      bind l select-pane -R
 
       # Disable arrow key pane navigation
       unbind Up
