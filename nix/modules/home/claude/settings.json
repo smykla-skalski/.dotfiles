@@ -113,5 +113,9 @@
     "tool-evaluator@awesome-claude-code-plugins": true
   },
   "alwaysThinkingEnabled": true,
+  "prefersReducedMotion": true,
+  "spinnerTipsEnabled": false,
+  "terminalProgressBarEnabled": false,
+  "teammateMode": "tmux",
   "model": "sonnet"
 }
