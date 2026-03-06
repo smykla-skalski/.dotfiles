@@ -10,7 +10,8 @@
 {
   # Tmuxp session configurations
   xdg.configFile."tmuxp/dev.yaml".text = ''
-    session_name: dev
+    session_name: main
+    start_directory: "''${PWD}"
     windows:
     - window_name: main
       layout: tiled

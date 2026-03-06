@@ -7,6 +7,50 @@
 
 let
   fishPath = "${pkgs.fish}/bin/fish";
+  tmuxPath = "${pkgs.tmux}/bin/tmux";
+  tmuxpPath = "${pkgs.tmuxp}/bin/tmuxp";
+  ghosttyTmuxLauncher = pkgs.writeShellScript "ghostty-tmux-launcher" ''
+    set -eu
+
+    start_tmux() {
+      if ${tmuxPath} has-session -t main 2>/dev/null; then
+        ${tmuxPath} attach-session -t main
+        return $?
+      fi
+
+      if [ -x "${tmuxpPath}" ]; then
+        if "${tmuxpPath}" load -d dev >/dev/null 2>&1; then
+          ${tmuxPath} attach-session -t main
+          return $?
+        fi
+      fi
+
+      ${tmuxPath} new-session -A -s main
+    }
+
+    if [ -z "''${PWD-}" ]; then
+      export PWD="$HOME"
+    fi
+
+    if [ -n "''${TMUX-}" ]; then
+      exec ${fishPath}
+    fi
+
+    if start_tmux; then
+      exit 0
+    fi
+
+    # Fallback path if xterm-ghostty terminfo is unavailable for tmux.
+    if [ "''${TERM-}" = "xterm-ghostty" ]; then
+      export TERM=xterm-256color
+      if start_tmux; then
+        exit 0
+      fi
+    fi
+
+    # Last resort: keep terminal usable even if tmux startup fails.
+    exec ${fishPath}
+  '';
 in
 {
   programs.ghostty = {
@@ -27,8 +71,8 @@ in
       # Window configuration
       window-decoration = "auto";
       macos-option-as-alt = true;
-      macos-titlebar-style = "tabs";
-      window-show-tab-bar = "auto";
+      macos-titlebar-style = "hidden";
+      window-show-tab-bar = "never";
 
       # Start in fullscreen (like Alacritty config)
       fullscreen = true;
@@ -36,8 +80,11 @@ in
       # Scrollback
       scrollback-limit = 10000;
 
-      # Shell - just fish, no tmux
-      command = fishPath;
+      # Keep Ghostty terminal identity for app feature detection.
+      term = "xterm-ghostty";
+
+      # Always launch into shared tmux session
+      command = "direct:${ghosttyTmuxLauncher}";
 
       # Shell integration (title needed for fish_title to work)
       shell-integration-features = "cursor,sudo,title";
@@ -90,58 +137,47 @@ in
         # Inspector for debugging keybindings
         "super+i=inspector:toggle"
 
-        # === Splits (standard shortcuts) ===
-        # Create splits
-        "cmd+d=new_split:right"                    # Vertical split (like iTerm2)
-        "cmd+shift+d=new_split:down"               # Horizontal split (like iTerm2)
-        "cmd+alt+z=toggle_split_zoom"              # Toggle zoom current split
+        # === Tmux-first pane workflow ===
+        # Create panes
+        "cmd+d=text:\\x01|"
+        "cmd+shift+d=text:\\x01-"
+        "cmd+alt+z=text:\\x01z"
 
-        # Navigate splits
-        "cmd+alt+left=goto_split:left"
-        "cmd+alt+right=goto_split:right"
-        "cmd+alt+up=goto_split:up"
-        "cmd+alt+down=goto_split:down"
+        # Navigate panes
+        "cmd+alt+left=text:\\x01h"
+        "cmd+alt+right=text:\\x01l"
+        "cmd+alt+up=text:\\x01k"
+        "cmd+alt+down=text:\\x01j"
+
+        # Keep these for Ghostty split cycling used by Hammerspoon
         "cmd+bracket_left=goto_split:previous"     # Cmd+[
         "cmd+bracket_right=goto_split:next"        # Cmd+]
 
-        # Resize splits
-        "cmd+ctrl+left=resize_split:left,50"
-        "cmd+ctrl+right=resize_split:right,50"
-        "cmd+ctrl+up=resize_split:up,50"
-        "cmd+ctrl+down=resize_split:down,50"
-        "cmd+shift+equal=equalize_splits"          # Cmd+Shift+= (like Cmd++)
+        # Resize panes
+        "cmd+ctrl+left=text:\\x01H"
+        "cmd+ctrl+right=text:\\x01L"
+        "cmd+ctrl+up=text:\\x01K"
+        "cmd+ctrl+down=text:\\x01J"
+        "cmd+shift+equal=text:\\x01="
 
-        # === Tabs (standard shortcuts) ===
-        "cmd+t=new_tab"                            # New tab (universal)
-        "cmd+w=close_surface"                      # Close tab/split (universal)
+        # === Tmux windows ===
+        "cmd+t=text:\\x01c"
+        "cmd+w=text:\\x01X"
 
-        # Navigate tabs with Cmd+number
-        "cmd+one=goto_tab:1"
-        "cmd+two=goto_tab:2"
-        "cmd+three=goto_tab:3"
-        "cmd+four=goto_tab:4"
-        "cmd+five=goto_tab:5"
-        "cmd+six=goto_tab:6"
-        "cmd+seven=goto_tab:7"
-        "cmd+eight=goto_tab:8"
-        "cmd+nine=goto_tab:9"
-
-        # Also support Alt+number for tab navigation (alternative)
-        "alt+one=goto_tab:1"
-        "alt+two=goto_tab:2"
-        "alt+three=goto_tab:3"
-        "alt+four=goto_tab:4"
-        "alt+five=goto_tab:5"
-        "alt+six=goto_tab:6"
-        "alt+seven=goto_tab:7"
-        "alt+eight=goto_tab:8"
-        "alt+nine=goto_tab:9"
-
-        # Tab navigation with arrows
-        "cmd+shift+bracket_left=previous_tab"      # Cmd+Shift+[
-        "cmd+shift+bracket_right=next_tab"         # Cmd+Shift+]
-        "cmd+grave_accent=next_tab"                # Cmd+~ (backtick)
-        "cmd+shift+grave_accent=previous_tab"      # Cmd+Shift+~
+        # Window navigation
+        "cmd+one=text:\\x011"
+        "cmd+two=text:\\x012"
+        "cmd+three=text:\\x013"
+        "cmd+four=text:\\x014"
+        "cmd+five=text:\\x015"
+        "cmd+six=text:\\x016"
+        "cmd+seven=text:\\x017"
+        "cmd+eight=text:\\x018"
+        "cmd+nine=text:\\x019"
+        "cmd+shift+bracket_left=text:\\x01p"
+        "cmd+shift+bracket_right=text:\\x01n"
+        "cmd+grave_accent=text:\\x01n"
+        "cmd+shift+grave_accent=text:\\x01p"
 
         # === Utility shortcuts ===
         "cmd+k=clear_screen"                       # Clear screen (Terminal.app standard)
