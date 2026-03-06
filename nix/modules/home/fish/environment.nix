@@ -53,6 +53,7 @@
     set --export LANG en_US.UTF-8
     set --export SHELL $HOME/.nix-profile/bin/bash
     set --export BASH_ENV $HOME/.bash_env
+    set --export OPENCODE_DISABLE_TERMINAL_TITLE "1"
 
     # fzf configuration (fzf 0.67.0+)
     # These are set here instead of _fzf_wrapper.fish for more control
