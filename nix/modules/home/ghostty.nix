@@ -102,6 +102,11 @@ in
       clipboard-paste-protection = false;
       clipboard-trim-trailing-spaces = true;
 
+      # Keep Shift reserved for Ghostty so Cmd+Shift+Click still opens URLs
+      # when tmux or another TUI has mouse reporting enabled.
+      link-url = true;
+      mouse-shift-capture = "never";
+
       # Always confirm before closing (protects against accidental Cmd+Q)
       confirm-close-surface = "always";
 
