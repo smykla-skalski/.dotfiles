@@ -62,6 +62,19 @@ in
       end
     '';
 
+    # opencode - yargs-based CLI (not Cobra), uses --get-yargs-completions for dynamic completions
+    # Installed outside nix (~/.opencode/bin/opencode), guarded by availability check
+    "fish/completions/opencode.fish".text = ''
+      if command -sq opencode
+        function __opencode_yargs_completion
+          set -l args (commandline -opc)
+          set -l cur (commandline -ct)
+          opencode --get-yargs-completions $args $cur 2>/dev/null
+        end
+        complete -c opencode -f -a "(__opencode_yargs_completion)"
+      end
+    '';
+
     # Note: mise completions are handled by programs.mise.enableFishIntegration
     # Note: broot integration (br.fish) is handled by programs.broot in broot.nix
     # with enableFishIntegration = true

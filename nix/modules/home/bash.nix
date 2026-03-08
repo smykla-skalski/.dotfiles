@@ -77,6 +77,11 @@
             fi
           fi
         fi
+
+        # opencode completion (yargs-generated, requires mapfile/bash 4+)
+        if command -v opencode >/dev/null 2>&1; then
+          eval "$(opencode completion)"
+        fi
       fi
 
       # Add ~/.local/bin to PATH for mise and other tools

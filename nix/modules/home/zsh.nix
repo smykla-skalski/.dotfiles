@@ -58,6 +58,13 @@
       if command -v mise >/dev/null 2>&1; then
         eval "$(mise activate zsh)"
       fi
+
+      # opencode completion (yargs-generated bash completion loaded via bashcompinit)
+      if command -v opencode >/dev/null 2>&1; then
+        autoload -U bashcompinit
+        bashcompinit
+        eval "$(opencode completion)"
+      fi
     '';
   };
 }
