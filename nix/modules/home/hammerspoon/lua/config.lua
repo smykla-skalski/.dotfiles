@@ -29,6 +29,15 @@ M.defaults = {
     "DataGrip*",
   },
   jetbrainsBasePath = "/Library/Application Support/JetBrains",
+  -- Zed IDE
+  zedEnabled = true,
+  zedConfigPath = os.getenv("HOME") .. "/.config/zed/settings.json",
+  zedBufferFontSizeWithMonitor = 20,
+  zedBufferFontSizeWithoutMonitor = 16,
+  zedUiFontSizeWithMonitor = 20,
+  zedUiFontSizeWithoutMonitor = 18,
+  zedTerminalFontSizeWithMonitor = 18,
+  zedTerminalFontSizeWithoutMonitor = 14,
 }
 
 -------------------------------------------------------------------------------

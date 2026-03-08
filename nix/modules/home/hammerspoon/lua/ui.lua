@@ -550,6 +550,38 @@ local function generateHtml(config)
       font-size: 14px;
       margin-top: 6px;
     }
+    .zed-section {
+      margin-top: 28px;
+      padding-top: 22px;
+      border-top: 1px solid rgba(0,0,0,0.07);
+    }
+    .zed-spinners {
+      display: flex;
+      gap: 0;
+      transition: opacity 0.2s;
+    }
+    .zed-spinners.disabled {
+      opacity: 0.4;
+      pointer-events: none;
+    }
+    .zed-col { flex: 1; }
+    .zed-col-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #444;
+      margin-bottom: 12px;
+    }
+    .zed-col-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+    .zed-col-label {
+      font-size: 12px;
+      color: #888;
+      margin-bottom: 4px;
+    }
+    .zed-config-path { margin-top: 20px; }
   </style>
 </head>
 <body>
@@ -619,6 +651,106 @@ local function generateHtml(config)
         </div>
       </div>
     </div>
+
+    <!-- Zed IDE -->
+    <div class="zed-section">
+      <h3 style="margin-top: 0;">Zed IDE</h3>
+      <div class="zed-spinners" id="zedSpinners">
+        <div class="zed-col">
+          <div class="zed-col-title">Buffer Font</div>
+          <div class="zed-col-grid">
+            <div>
+              <div class="zed-col-label">Built-in Display</div>
+              <div class="number-input-wrapper">
+                <input type="number" id="zedBufferFontSizeWithoutMonitor" min="8" max="36" value="%d">
+                <div class="number-input-arrows">
+                  <div class="number-input-arrow" data-input="zedBufferFontSizeWithoutMonitor" data-dir="up"></div>
+                  <div class="number-input-arrow" data-input="zedBufferFontSizeWithoutMonitor" data-dir="down"></div>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div class="zed-col-label">External Monitor</div>
+              <div class="number-input-wrapper">
+                <input type="number" id="zedBufferFontSizeWithMonitor" min="8" max="36" value="%d">
+                <div class="number-input-arrows">
+                  <div class="number-input-arrow" data-input="zedBufferFontSizeWithMonitor" data-dir="up"></div>
+                  <div class="number-input-arrow" data-input="zedBufferFontSizeWithMonitor" data-dir="down"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="width:1px;background:rgba(0,0,0,0.06);margin:0 24px;"></div>
+        <div class="zed-col">
+          <div class="zed-col-title">UI Font</div>
+          <div class="zed-col-grid">
+            <div>
+              <div class="zed-col-label">Built-in Display</div>
+              <div class="number-input-wrapper">
+                <input type="number" id="zedUiFontSizeWithoutMonitor" min="8" max="36" value="%d">
+                <div class="number-input-arrows">
+                  <div class="number-input-arrow" data-input="zedUiFontSizeWithoutMonitor" data-dir="up"></div>
+                  <div class="number-input-arrow" data-input="zedUiFontSizeWithoutMonitor" data-dir="down"></div>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div class="zed-col-label">External Monitor</div>
+              <div class="number-input-wrapper">
+                <input type="number" id="zedUiFontSizeWithMonitor" min="8" max="36" value="%d">
+                <div class="number-input-arrows">
+                  <div class="number-input-arrow" data-input="zedUiFontSizeWithMonitor" data-dir="up"></div>
+                  <div class="number-input-arrow" data-input="zedUiFontSizeWithMonitor" data-dir="down"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="width:1px;background:rgba(0,0,0,0.06);margin:0 24px;"></div>
+        <div class="zed-col">
+          <div class="zed-col-title">Terminal Font</div>
+          <div class="zed-col-grid">
+            <div>
+              <div class="zed-col-label">Built-in Display</div>
+              <div class="number-input-wrapper">
+                <input type="number" id="zedTerminalFontSizeWithoutMonitor" min="8" max="36" value="%d">
+                <div class="number-input-arrows">
+                  <div class="number-input-arrow" data-input="zedTerminalFontSizeWithoutMonitor" data-dir="up"></div>
+                  <div class="number-input-arrow" data-input="zedTerminalFontSizeWithoutMonitor" data-dir="down"></div>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div class="zed-col-label">External Monitor</div>
+              <div class="number-input-wrapper">
+                <input type="number" id="zedTerminalFontSizeWithMonitor" min="8" max="36" value="%d">
+                <div class="number-input-arrows">
+                  <div class="number-input-arrow" data-input="zedTerminalFontSizeWithMonitor" data-dir="up"></div>
+                  <div class="number-input-arrow" data-input="zedTerminalFontSizeWithMonitor" data-dir="down"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div><!-- .zed-spinners -->
+      <div class="settings-row" style="margin-top: 20px;">
+        <div class="config-item">
+          <label>Zed Config Path</label>
+          <input type="text" id="zedConfigPath" value="%s">
+          <div class="description">Path to settings.json (Zed hot-reloads automatically)</div>
+        </div>
+        <div class="config-item">
+          <label>Zed IDE</label>
+          <div class="checkbox-wrapper">
+            <input type="checkbox" id="zedEnabled" %s>
+            <span class="custom-checkbox"></span>
+            <label for="zedEnabled">Enable Zed IDE</label>
+          </div>
+          <div class="description">Apply font settings to Zed IDE</div>
+        </div>
+      </div>
+    </div><!-- .zed-section -->
 
     <h3>JetBrains IDE Patterns</h3>
     <table class="ide-patterns-table">
@@ -718,6 +850,14 @@ local function generateHtml(config)
         ghosttyFontSizeWithMonitor: parseInt(document.getElementById('ghosttyFontSizeWithMonitor').value),
         ghosttyFontSizeWithoutMonitor: parseInt(document.getElementById('ghosttyFontSizeWithoutMonitor').value),
         ghosttyConfigOverlayPath: expandTildeToHome(document.getElementById('ghosttyConfigOverlayPath').value),
+        zedEnabled: document.getElementById('zedEnabled').checked,
+        zedConfigPath: expandTildeToHome(document.getElementById('zedConfigPath').value),
+        zedBufferFontSizeWithoutMonitor: parseInt(document.getElementById('zedBufferFontSizeWithoutMonitor').value),
+        zedBufferFontSizeWithMonitor: parseInt(document.getElementById('zedBufferFontSizeWithMonitor').value),
+        zedUiFontSizeWithoutMonitor: parseInt(document.getElementById('zedUiFontSizeWithoutMonitor').value),
+        zedUiFontSizeWithMonitor: parseInt(document.getElementById('zedUiFontSizeWithMonitor').value),
+        zedTerminalFontSizeWithoutMonitor: parseInt(document.getElementById('zedTerminalFontSizeWithoutMonitor').value),
+        zedTerminalFontSizeWithMonitor: parseInt(document.getElementById('zedTerminalFontSizeWithMonitor').value),
         idePatterns: idePatterns.sort()
       };
     }
@@ -733,6 +873,14 @@ local function generateHtml(config)
       if (a.ghosttyFontSizeWithMonitor !== b.ghosttyFontSizeWithMonitor) return false;
       if (a.ghosttyFontSizeWithoutMonitor !== b.ghosttyFontSizeWithoutMonitor) return false;
       if (a.ghosttyConfigOverlayPath !== b.ghosttyConfigOverlayPath) return false;
+      if (a.zedEnabled !== b.zedEnabled) return false;
+      if (a.zedConfigPath !== b.zedConfigPath) return false;
+      if (a.zedBufferFontSizeWithoutMonitor !== b.zedBufferFontSizeWithoutMonitor) return false;
+      if (a.zedBufferFontSizeWithMonitor !== b.zedBufferFontSizeWithMonitor) return false;
+      if (a.zedUiFontSizeWithoutMonitor !== b.zedUiFontSizeWithoutMonitor) return false;
+      if (a.zedUiFontSizeWithMonitor !== b.zedUiFontSizeWithMonitor) return false;
+      if (a.zedTerminalFontSizeWithoutMonitor !== b.zedTerminalFontSizeWithoutMonitor) return false;
+      if (a.zedTerminalFontSizeWithMonitor !== b.zedTerminalFontSizeWithMonitor) return false;
 
       // Compare IDE patterns arrays
       if (a.idePatterns.length !== b.idePatterns.length) return false;
@@ -787,6 +935,22 @@ local function generateHtml(config)
       }
     }
 
+    function updateZedSectionState() {
+      const enabled = document.getElementById('zedEnabled').checked;
+      const spinners = document.getElementById('zedSpinners');
+      const pathInput = document.getElementById('zedConfigPath');
+      if (enabled) {
+        spinners.classList.remove('disabled');
+        pathInput.disabled = false;
+        pathInput.style.opacity = '';
+      } else {
+        spinners.classList.add('disabled');
+        pathInput.disabled = true;
+        pathInput.style.opacity = '0.4';
+      }
+      checkForChanges();
+    }
+
     // Attach change listeners to all form inputs
     function attachChangeListeners() {
       // Number and text inputs
@@ -801,6 +965,13 @@ local function generateHtml(config)
       checkboxes.forEach(checkbox => {
         checkbox.addEventListener('change', checkForChanges);
       });
+
+      // Zed enabled toggle: override with state-aware handler
+      const zedCb = document.getElementById('zedEnabled');
+      if (zedCb) {
+        zedCb.removeEventListener('change', checkForChanges);
+        zedCb.addEventListener('change', updateZedSectionState);
+      }
     }
 
     window.addEventListener('DOMContentLoaded', function() {
@@ -809,11 +980,17 @@ local function generateHtml(config)
         pathInput.value = replaceHomeWithTilde(pathInput.value);
       }
 
+      const zedPathInput = document.getElementById('zedConfigPath');
+      if (zedPathInput) {
+        zedPathInput.value = replaceHomeWithTilde(zedPathInput.value);
+      }
+
       // Capture original config state after path normalization
       // Use setTimeout to ensure all DOM updates are complete
       setTimeout(function() {
         originalConfig = getFormState();
         // Initial state is clean - show Reload button
+        updateZedSectionState();
         checkForChanges();
         attachChangeListeners();
       }, 0);
@@ -1083,6 +1260,14 @@ local function generateHtml(config)
     config.fontSizeWithMonitor,
     config.ghosttyFontSizeWithoutMonitor,
     config.ghosttyFontSizeWithMonitor,
+    config.zedBufferFontSizeWithoutMonitor,
+    config.zedBufferFontSizeWithMonitor,
+    config.zedUiFontSizeWithoutMonitor,
+    config.zedUiFontSizeWithMonitor,
+    config.zedTerminalFontSizeWithoutMonitor,
+    config.zedTerminalFontSizeWithMonitor,
+    config.zedConfigPath,
+    config.zedEnabled and 'checked="checked"' or '',
     defaultHeadersHtml,
     defaultCheckboxesHtml,
     customPatternsHtml,

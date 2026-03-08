@@ -38,6 +38,7 @@ local configModule = require("config")
 local display = require("display")
 local jetbrains = require("jetbrains")
 local ghostty = require("ghostty")
+local zed = require("zed")
 local ui = require("ui")
 
 -------------------------------------------------------------------------------
@@ -46,6 +47,14 @@ local ui = require("ui")
 
 -- Alert duration in seconds
 local ALERT_DURATION = 2
+
+local function applyZedFonts(cfg, hasExternalMonitor, log)
+  if not cfg.zedEnabled then return end
+  local bufferSize = hasExternalMonitor and cfg.zedBufferFontSizeWithMonitor or cfg.zedBufferFontSizeWithoutMonitor
+  local uiSize     = hasExternalMonitor and cfg.zedUiFontSizeWithMonitor     or cfg.zedUiFontSizeWithoutMonitor
+  local termSize   = hasExternalMonitor and cfg.zedTerminalFontSizeWithMonitor or cfg.zedTerminalFontSizeWithoutMonitor
+  pcall(function() zed.updateFontSize(bufferSize, uiSize, termSize, cfg, log) end)
+end
 
 -------------------------------------------------------------------------------
 -- Configuration
@@ -134,6 +143,9 @@ function applyFontSettings()
     jetbrains.updateFontSize(jetbrainsFontSize, config, log)
   end)
 
+  -- Apply Zed font sizes synchronously (file write, no keystrokes needed)
+  applyZedFonts(config, hasExternalMonitor, log)
+
   -- Start Ghostty update after a short delay (needs uninterrupted keystroke sending)
   _G._ghosttyTimer = hs.timer.doAfter(0.2, function()
     _G._ghosttyTimer = nil  -- Allow GC after firing
@@ -189,6 +201,15 @@ function showConfigUI()
                              config.ghosttyFontSizeWithoutMonitor ~= newConfig.ghosttyFontSizeWithoutMonitor or
                              config.ghosttyConfigOverlayPath ~= newConfig.ghosttyConfigOverlayPath
 
+      local zedChanged = config.zedEnabled ~= newConfig.zedEnabled
+        or config.zedConfigPath ~= newConfig.zedConfigPath
+        or config.zedBufferFontSizeWithMonitor ~= newConfig.zedBufferFontSizeWithMonitor
+        or config.zedBufferFontSizeWithoutMonitor ~= newConfig.zedBufferFontSizeWithoutMonitor
+        or config.zedUiFontSizeWithMonitor ~= newConfig.zedUiFontSizeWithMonitor
+        or config.zedUiFontSizeWithoutMonitor ~= newConfig.zedUiFontSizeWithoutMonitor
+        or config.zedTerminalFontSizeWithMonitor ~= newConfig.zedTerminalFontSizeWithMonitor
+        or config.zedTerminalFontSizeWithoutMonitor ~= newConfig.zedTerminalFontSizeWithoutMonitor
+
       -- Update config with new values
       for key, value in pairs(newConfig) do
         config[key] = value
@@ -221,6 +242,10 @@ function showConfigUI()
 
       -- Store timers in global variables to prevent garbage collection
       -- See: https://github.com/Hammerspoon/hammerspoon/issues/3102
+
+      if zedChanged then
+        applyZedFonts(config, hasExternalMonitor, log)
+      end
 
       if jetbrainsChanged then
         local fontSize = hasExternalMonitor and config.fontSizeWithMonitor or config.fontSizeWithoutMonitor
@@ -281,6 +306,9 @@ function showConfigUI()
 
       -- Store timers in global variables to prevent garbage collection
       -- See: https://github.com/Hammerspoon/hammerspoon/issues/3102
+
+      -- Apply Zed font sizes synchronously (file write, no keystrokes needed)
+      applyZedFonts(config, hasExternalMonitor, log)
 
       -- Start JetBrains update
       _G._reloadJetbrainsTimer = hs.timer.doAfter(0, function()
