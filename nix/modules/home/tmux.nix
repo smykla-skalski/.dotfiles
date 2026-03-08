@@ -41,6 +41,11 @@
       # Avoid passthrough rendering glitches in OpenCode + tmux
       set -g allow-passthrough off
 
+      # Require Ctrl for mouse pane resize to prevent accidental resizing
+      # when dragging (e.g. scrollbar) crosses a pane border
+      unbind -T root MouseDrag1Border
+      bind -T root C-MouseDrag1Border resize-pane -M
+
       # Ensure we can send 'Ctrl+a' to other apps
       bind C-a send-prefix
 
