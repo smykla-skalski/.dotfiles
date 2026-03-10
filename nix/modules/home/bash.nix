@@ -48,6 +48,10 @@
 
       # Source shared shell aliases (from Fish abbreviations)
       [ -f "$HOME/.config/shell/aliases.sh" ] && source "$HOME/.config/shell/aliases.sh"
+
+      # Fish abbreviation-tips exports are shell-local UI config. Keep them out
+      # of non-Fish processes so toolchains do not inherit malformed prompt bytes.
+      unset ABBR_TIPS_PROMPT ABBR_TIPS_REGEXES ABBR_TIPS_AUTO_UPDATE
     '';
     force = true;  # Overwrite existing .bash_env
   };
@@ -106,6 +110,10 @@
       # Source shared shell aliases (from Fish abbreviations)
       [ -f "$HOME/.config/shell/aliases.sh" ] && source "$HOME/.config/shell/aliases.sh"
 
+      # Fish abbreviation-tips exports are shell-local UI config. Keep them out
+      # of non-Fish processes so toolchains do not inherit malformed prompt bytes.
+      unset ABBR_TIPS_PROMPT ABBR_TIPS_REGEXES ABBR_TIPS_AUTO_UPDATE
+
       # Cargo environment
       [ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
 
@@ -136,6 +144,10 @@
 
       # Source shared shell aliases (from Fish abbreviations)
       [ -f "$HOME/.config/shell/aliases.sh" ] && source "$HOME/.config/shell/aliases.sh"
+
+      # Fish abbreviation-tips exports are shell-local UI config. Keep them out
+      # of non-Fish processes so toolchains do not inherit malformed prompt bytes.
+      unset ABBR_TIPS_PROMPT ABBR_TIPS_REGEXES ABBR_TIPS_AUTO_UPDATE
 
       # Cargo environment
       [ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"

@@ -47,6 +47,10 @@
 
       # Source shared shell aliases (from Fish abbreviations)
       [ -f "$HOME/.config/shell/aliases.sh" ] && source "$HOME/.config/shell/aliases.sh"
+
+      # Fish abbreviation-tips exports are shell-local UI config. Keep them out
+      # of non-Fish processes so toolchains do not inherit malformed prompt bytes.
+      unset ABBR_TIPS_PROMPT ABBR_TIPS_REGEXES ABBR_TIPS_AUTO_UPDATE
     '';
 
     # .zshrc content (interactive shells only)
