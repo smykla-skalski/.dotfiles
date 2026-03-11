@@ -8,24 +8,16 @@
 let
   fishPath = "${pkgs.fish}/bin/fish";
   tmuxPath = "${pkgs.tmux}/bin/tmux";
-  tmuxpPath = "${pkgs.tmuxp}/bin/tmuxp";
   ghosttyTmuxLauncher = pkgs.writeShellScript "ghostty-tmux-launcher" ''
     set -eu
 
     start_tmux() {
-      if ${tmuxPath} has-session -t main 2>/dev/null; then
-        ${tmuxPath} attach-session -t main
-        return $?
+      start_dir="''${PWD:-$HOME}"
+      if [ ! -d "$start_dir" ]; then
+        start_dir="$HOME"
       fi
 
-      if [ -x "${tmuxpPath}" ]; then
-        if "${tmuxpPath}" load -d dev >/dev/null 2>&1; then
-          ${tmuxPath} attach-session -t main
-          return $?
-        fi
-      fi
-
-      ${tmuxPath} new-session -A -s main
+      ${tmuxPath} new-session -A -s main -c "$start_dir"
     }
 
     if [ -z "''${PWD-}" ]; then
