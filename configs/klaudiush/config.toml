@@ -154,10 +154,17 @@ lang = ""            # Go version (e.g., "go1.21", auto-detected from go.mod if 
 modpath = ""         # Module path (auto-detected from go.mod if empty)
 # gofumpt_path = ""  # Custom gofumpt binary path
 
+[providers.claude]
+enabled = true
+
 [providers.codex]
 enabled = true
 experimental = true
 hooks_config_path = "~/.codex/hooks.json"
+
+[providers.gemini]
+enabled = true
+settings_path = "~/.gemini/settings.json"
 
 # Notification Validators
 [validators.notification]
