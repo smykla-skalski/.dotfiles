@@ -6,7 +6,9 @@
 {
   programs.tmux = {
     enable = true;
-    shell = "${pkgs.fish}/bin/fish";
+    # Use the profile symlink instead of a store-pinned fish path so long-lived
+    # tmux servers keep opening panes with the current shell generation.
+    shell = "${config.home.homeDirectory}/.nix-profile/bin/fish";
 
     # Enable tmuxp session manager
     tmuxp.enable = true;
