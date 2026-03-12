@@ -43,12 +43,15 @@
       "commitlint"                            # Commit message linter
       "check-jsonschema"                      # JSON Schema validator
       "aqua"                                  # CLI version manager
+      "mise"                                  # Tool version manager
+      "uv"                                    # Python package manager
       "chart-releaser"                        # Helm charts releaser
       "vexctl"                                # VEX metadata tool
       "muffet"                                # Website link checker
       "toxiproxy"                             # TCP proxy for chaos
       "kubeshark"                             # Kubernetes network analyzer
       "jump"                                  # Directory bookmarking
+      "snyk-cli"                              # Security scanner
     ];
 
     # GUI Applications (casks)

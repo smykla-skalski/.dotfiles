@@ -1,5 +1,19 @@
 { pkgs, ... }:
 
+let
+  mkExternalToolWrapper = name: candidates: installHint:
+    pkgs.writeShellScriptBin name ''
+      for candidate in ${builtins.concatStringsSep " " candidates}; do
+        if [ -x "$candidate" ]; then
+          exec "$candidate" "$@"
+        fi
+      done
+
+      echo "${name} is managed outside Nix. ${installHint}" >&2
+      exit 1
+    '';
+in
+
 {
   home.packages = with pkgs; [
     # ============================================================================
@@ -107,7 +121,10 @@
     grype         # Vulnerability scanner for containers
     syft          # SBOM generator
     trivy         # Container vulnerability scanner
-    snyk          # Snyk security scanner
+    (mkExternalToolWrapper "snyk" [
+      "/opt/homebrew/bin/snyk"
+      "/usr/local/bin/snyk"
+    ] "Install it with Homebrew (`brew install snyk`) or run `darwin-rebuild switch`.")
     osv-scanner   # OSV vulnerability database scanner
     scorecard     # OpenSSF security metrics
 
@@ -152,7 +169,10 @@
     # ============================================================================
     # aqua - not in nixpkgs, keep using mise
     pre-commit    # Git pre-commit hooks framework
-    uv            # Extremely fast Python package installer and resolver
+    (mkExternalToolWrapper "uv" [
+      "/opt/homebrew/bin/uv"
+      "/usr/local/bin/uv"
+    ] "Install it with Homebrew (`brew install uv`) or run `darwin-rebuild switch`.")
 
     # ============================================================================
     # Python

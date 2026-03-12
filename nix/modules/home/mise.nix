@@ -1,43 +1,44 @@
 # Mise tool version manager configuration
 #
-# Migrated from chezmoi to home-manager programs.mise.
-# Mise manages runtime versions (Go, Ruby, Node, etc.) in a declarative way.
-#
-# Note: As of Jan 2025, mise reads settings from config.toml under [settings],
-# not from a separate settings.toml file. The globalConfig option handles this.
-{ config, lib, pkgs, ... }:
+# Keep the declarative mise config in Home Manager, but use an external binary
+# so `home-manager switch` never has to build mise from source.
+{ pkgs, ... }:
 
-{
-  programs.mise = {
-    enable = true;
+let
+  misePackage = pkgs.writeShellScriptBin "mise" ''
+    for candidate in "$HOME/.local/bin/mise" /opt/homebrew/bin/mise /usr/local/bin/mise; do
+      if [ -x "$candidate" ]; then
+        exec "$candidate" "$@"
+      fi
+    done
 
-    # Disable home-manager's bash integration since we manually configure it in bash.nix
-    # This prevents duplicate activation and gives us full control over non-interactive shells
-    enableBashIntegration = false;
+    echo "mise is managed outside Nix. Install it with the official installer or Homebrew." >&2
+    exit 1
+  '';
 
-    # Enable fish shell integration (full activation with hook-env per prompt)
-    enableFishIntegration = true;
+  miseConfig = {
+    tools = (builtins.fromTOML (builtins.readFile ./mise/config.toml)).tools;
 
-    # Global tool configuration
-    # Written to $XDG_CONFIG_HOME/mise/config.toml
-    #
-    # Tool versions are read from mise/config.toml and managed by Renovate
-    globalConfig = {
-      tools = (builtins.fromTOML (builtins.readFile ./mise/config.toml)).tools;
-
-      settings = {
-        experimental = true;
-        idiomatic_version_file_enable_tools = [ "ruby" ];
-        auto_install = false;
-        not_found_auto_install = false;
-        auto_install_disable_tools = [
-          "go:github.com/chrusty/protoc-gen-jsonschema/cmd/protoc-gen-jsonschema"
-        ];
-        fetch_remote_versions_cache = "24h";
-        fetch_remote_versions_timeout = "2s";
-        cache_prune_age = "90d";
-        lockfile = true;
-      };
+    settings = {
+      experimental = true;
+      idiomatic_version_file_enable_tools = [ "ruby" ];
+      auto_install = false;
+      not_found_auto_install = false;
+      auto_install_disable_tools = [
+        "go:github.com/chrusty/protoc-gen-jsonschema/cmd/protoc-gen-jsonschema"
+      ];
+      fetch_remote_versions_cache = "24h";
+      fetch_remote_versions_timeout = "2s";
+      cache_prune_age = "90d";
+      lockfile = true;
     };
   };
+in
+{
+  home.packages = [ misePackage ];
+
+  # Written to $XDG_CONFIG_HOME/mise/config.toml
+  # Tool versions are read from mise/config.toml and managed by Renovate
+  xdg.configFile."mise/config.toml".source =
+    (pkgs.formats.toml { }).generate "mise-config.toml" miseConfig;
 }
