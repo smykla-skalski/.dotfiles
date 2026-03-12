@@ -117,13 +117,17 @@
     # PATH additions
     fish_add_path --global --move $FORTRESS_PATH/.dotfiles/bin
     fish_add_path --global --move "$HOME/.cargo/bin"
-    fish_add_path --global --move "$HOME/.local/bin"
     fish_add_path --global --move "$HOME/bin"
     fish_add_path --global --move "$HOMEBREW_PREFIX/opt/coreutils/libexec/gnubin"
     fish_add_path --global --append "$HOME/.krew/bin"
     fish_add_path --global --append "$HOME/.opencode/bin"
     fish_add_path --global --append "$PROJECTS_PATH/smykla-skalski/research/claude-code/skills/_bin"
     fish_add_path --global --append "$PROJECTS_PATH/smykla-skalski/klab/.bin"
+
+    # Activate mise from the external binary managed outside Nix
+    if command -q mise
+      mise activate fish | source
+    end
 
     # mise tool completions (auto-generated)
     if test -f "$DOTFILES_PATH/tmp/mise-completions.fish"

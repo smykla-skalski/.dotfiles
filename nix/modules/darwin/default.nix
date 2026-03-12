@@ -1,5 +1,9 @@
 { pkgs, lib, config, ... }:
 
+let
+  userHome = "/Users/${config.system.primaryUser}";
+in
+
 {
   imports = [
     ./homebrew.nix
@@ -16,6 +20,21 @@
   nixpkgs.config.allowUnfree = true;
 
   environment.systemPackages = with pkgs; [ git ];
+
+  launchd.user.envVariables.PATH = [
+    "${userHome}/.local/bin"
+    "${userHome}/.nix-profile/bin"
+    "/etc/profiles/per-user/${config.system.primaryUser}/bin"
+    "/run/current-system/sw/bin"
+    "/opt/homebrew/bin"
+    "/opt/homebrew/sbin"
+    "/usr/local/bin"
+    "/usr/local/sbin"
+    "/usr/bin"
+    "/bin"
+    "/usr/sbin"
+    "/sbin"
+  ];
 
   # Enable fish shell system-wide with nix-darwin paths
   programs.fish = {

@@ -26,9 +26,6 @@
       # Suppress pkg_resources deprecation warning from kathara_lab_checker
       export PYTHONWARNINGS="ignore::UserWarning"
 
-      # Add ~/.local/bin to PATH for mise executable
-      export PATH="$HOME/.local/bin:$PATH"
-
       # Claude Code skills CLI wrapper
       export PATH="$HOME/Projects/github.com/smykla-skalski/research/claude-code/skills/_bin:$PATH"
 
@@ -87,9 +84,6 @@
           eval "$(opencode completion)"
         fi
       fi
-
-      # Add ~/.local/bin to PATH for mise and other tools
-      export PATH="$HOME/.local/bin:$PATH"
 
       # Claude Code skills CLI wrapper
       export PATH="$HOME/Projects/github.com/smykla-skalski/research/claude-code/skills/_bin:$PATH"

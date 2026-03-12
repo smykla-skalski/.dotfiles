@@ -24,18 +24,9 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    klaudiush = {
-      url = "github:smykla-skalski/klaudiush?dir=nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    mise-flake = {
-      url = "github:jdx/mise";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
   };
 
-  outputs = inputs@{ self, nixpkgs, nix-darwin, home-manager, sops-nix, af, klaudiush, mise-flake, ... }:
+  outputs = inputs@{ self, nixpkgs, nix-darwin, home-manager, sops-nix, af, ... }:
     let
       system = "aarch64-darwin";
       hostname = "bartsmykla";
@@ -45,7 +36,6 @@
       # Shared Home Manager module imports (DRY principle)
       homeModules = [
         sops-nix.homeManagerModules.sops
-        klaudiush.homeManagerModules.default
 
         # Disable home-manager manual generation to suppress the
         # 'options.json builtins.derivation without context' warning from
@@ -53,11 +43,9 @@
         { manual.manpages.enable = false; manual.html.enable = false; manual.json.enable = false; }
 
         # Disable man-cache generation (mandb index for `man -k` / apropos).
-        # Building the cache requires running mandb locally because the
-        # man-paths derivation contains mise from mise-flake (not in
-        # cache.nixos.org), causing a full rebuild on every switch.
-        # With 108 packages including openssl (hundreds of 3ssl man pages)
-        # this makes every switch extremely slow.
+        # Building the cache requires running mandb locally, and with this
+        # package set that adds a lot of activation time for very little value.
+        # We do not rely on `man -k`, so keep cache generation disabled.
         { programs.man.generateCaches = false; }
         ./modules/home/bash.nix
         ./modules/home/broot.nix
@@ -71,11 +59,11 @@
         ./modules/home/grype.nix
         ./modules/home/hammerspoon.nix
         ./modules/home/k9s.nix
-        ./modules/home/klaudiush.nix
         ./modules/home/lnav.nix
         ./modules/home/mise.nix
         ./modules/home/navi.nix
         ./modules/home/packages.nix
+        ./modules/home/path.nix
         ./modules/home/shell-aliases.nix
         ./modules/home/shell-functions.nix
         ./modules/home/sops.nix
@@ -105,12 +93,10 @@
             users.users.${username}.uid = 501;
           }
 
-          # Overlays: add klaudiush and use mise-flake for latest mise
+          # Overlays: relax tmuxp Python deps
           ({ pkgs, ... }: {
             nixpkgs.overlays = [
               (final: prev: {
-                klaudiush = klaudiush.packages.${system}.default;
-                mise = mise-flake.packages.${system}.default;
                 # tmuxp 1.56.0 pins libtmux~=0.47.0 but nixpkgs has 0.53.x
                 tmuxp = prev.tmuxp.overridePythonAttrs (old: {
                   nativeBuildInputs = (old.nativeBuildInputs or []) ++ [ prev.python3Packages.pythonRelaxDepsHook ];
@@ -165,8 +151,6 @@
               config.allowUnfree = true;
               overlays = [
                 (final: prev: {
-                  klaudiush = klaudiush.packages.${system}.default;
-                  mise = mise-flake.packages.${system}.default;
                   # tmuxp 1.56.0 pins libtmux~=0.47.0 but nixpkgs has 0.53.x
                   tmuxp = prev.tmuxp.overridePythonAttrs (old: {
                     nativeBuildInputs = (old.nativeBuildInputs or []) ++ [ prev.python3Packages.pythonRelaxDepsHook ];
