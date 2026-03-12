@@ -124,9 +124,18 @@
     fish_add_path --global --append "$PROJECTS_PATH/smykla-skalski/research/claude-code/skills/_bin"
     fish_add_path --global --append "$PROJECTS_PATH/smykla-skalski/klab/.bin"
 
-    # Activate mise from the external binary managed outside Nix
-    if command -q mise
-      mise activate fish | source
+    # Activate mise from the external binary, not from any Nix profile wrapper
+    set -l mise_bin
+    if test -x "$HOME/.local/bin/mise"
+      set mise_bin "$HOME/.local/bin/mise"
+    else if test -x /opt/homebrew/bin/mise
+      set mise_bin /opt/homebrew/bin/mise
+    else if test -x /usr/local/bin/mise
+      set mise_bin /usr/local/bin/mise
+    end
+
+    if test -n "$mise_bin"
+      $mise_bin activate fish | source
     end
 
     # mise tool completions (auto-generated)

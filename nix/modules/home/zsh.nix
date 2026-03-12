@@ -35,8 +35,17 @@
       [ -d "$HOME/.rd/bin" ] && export PATH="$HOME/.rd/bin:$PATH"
 
       # For non-interactive shells, use mise hook-env
-      if command -v mise >/dev/null 2>&1; then
-          eval "$(mise hook-env -s zsh)"
+      mise_bin=""
+      if [ -x "$HOME/.local/bin/mise" ]; then
+          mise_bin="$HOME/.local/bin/mise"
+      elif [ -x /opt/homebrew/bin/mise ]; then
+          mise_bin="/opt/homebrew/bin/mise"
+      elif [ -x /usr/local/bin/mise ]; then
+          mise_bin="/usr/local/bin/mise"
+      fi
+
+      if [ -n "$mise_bin" ]; then
+          eval "$("$mise_bin" hook-env -s zsh)"
       fi
 
       # Source shared shell functions (from Fish functions)
@@ -56,8 +65,17 @@
       [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
       # Activate mise for interactive shells (prompt hook re-evaluates on cd)
-      if command -v mise >/dev/null 2>&1; then
-        eval "$(mise activate zsh)"
+      mise_bin=""
+      if [ -x "$HOME/.local/bin/mise" ]; then
+        mise_bin="$HOME/.local/bin/mise"
+      elif [ -x /opt/homebrew/bin/mise ]; then
+        mise_bin="/opt/homebrew/bin/mise"
+      elif [ -x /usr/local/bin/mise ]; then
+        mise_bin="/usr/local/bin/mise"
+      fi
+
+      if [ -n "$mise_bin" ]; then
+        eval "$("$mise_bin" activate zsh)"
       fi
 
       # opencode completion (yargs-generated bash completion loaded via bashcompinit)

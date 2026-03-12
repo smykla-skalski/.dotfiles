@@ -36,8 +36,17 @@
       # hook-env respects PWD and per-project .mise.toml files, ensuring correct tool versions
       # This is used by Claude Code CLI, make, and other non-interactive bash invocations
       # Uses hook-env instead of activate for consistent behavior with per-directory configs
-      if command -v mise >/dev/null 2>&1; then
-        eval "$(mise hook-env -s bash)"
+      mise_bin=""
+      if [ -x "$HOME/.local/bin/mise" ]; then
+        mise_bin="$HOME/.local/bin/mise"
+      elif [ -x /opt/homebrew/bin/mise ]; then
+        mise_bin="/opt/homebrew/bin/mise"
+      elif [ -x /usr/local/bin/mise ]; then
+        mise_bin="/usr/local/bin/mise"
+      fi
+
+      if [ -n "$mise_bin" ]; then
+        eval "$("$mise_bin" hook-env -s bash)"
       fi
 
       # Source shared shell functions (from Fish functions)
@@ -118,8 +127,17 @@
       [ -f "$HOME/.config/broot/launcher/bash/br" ] && source "$HOME/.config/broot/launcher/bash/br"
 
       # Activate mise for interactive shells (prompt hook re-evaluates on cd)
-      if command -v mise >/dev/null 2>&1; then
-        eval "$(mise activate bash)"
+      mise_bin=""
+      if [ -x "$HOME/.local/bin/mise" ]; then
+        mise_bin="$HOME/.local/bin/mise"
+      elif [ -x /opt/homebrew/bin/mise ]; then
+        mise_bin="/opt/homebrew/bin/mise"
+      elif [ -x /usr/local/bin/mise ]; then
+        mise_bin="/usr/local/bin/mise"
+      fi
+
+      if [ -n "$mise_bin" ]; then
+        eval "$("$mise_bin" activate bash)"
       fi
     '';
 

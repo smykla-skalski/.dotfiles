@@ -5,17 +5,6 @@
 { pkgs, ... }:
 
 let
-  misePackage = pkgs.writeShellScriptBin "mise" ''
-    for candidate in "$HOME/.local/bin/mise" /opt/homebrew/bin/mise /usr/local/bin/mise; do
-      if [ -x "$candidate" ]; then
-        exec "$candidate" "$@"
-      fi
-    done
-
-    echo "mise is managed outside Nix. Install it with the official installer or Homebrew." >&2
-    exit 1
-  '';
-
   miseConfig = {
     tools = (builtins.fromTOML (builtins.readFile ./mise/config.toml)).tools;
 
@@ -35,8 +24,6 @@ let
   };
 in
 {
-  home.packages = [ misePackage ];
-
   # Written to $XDG_CONFIG_HOME/mise/config.toml
   # Tool versions are read from mise/config.toml and managed by Renovate
   xdg.configFile."mise/config.toml".source =
