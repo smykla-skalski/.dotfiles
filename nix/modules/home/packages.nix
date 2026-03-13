@@ -236,7 +236,7 @@ in
     # ============================================================================
     # Custom/Third-party tools (not in nixpkgs, keep in Homebrew)
     # ============================================================================
-    # smykla-skalski/af/af - personal CLI tool
+    # smykla-skalski/tap/af - personal CLI tool
     # docker-mac-net-connect - Docker networking
     # cyclonedx-cli - SBOM tool
     # popeye - Kubernetes cluster linter

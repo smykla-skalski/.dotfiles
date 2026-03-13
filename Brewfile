@@ -23,7 +23,7 @@
 # TAPS - Third-party Homebrew repositories
 # ==============================================================================
 # Personal tap for custom tools
-tap "bartsmykla/af", "git@github.com:bartsmykla/homebrew-af.git"
+tap "smykla-skalski/tap", "git@github.com:smykla-skalski/homebrew-tap.git"
 
 # Development tools
 tap "bufbuild/buf"           # Protocol Buffers tooling
@@ -214,7 +214,7 @@ brew "zlib"         # Data compression library
 # ==============================================================================
 # CUSTOM TAP FORMULAS
 # ==============================================================================
-brew "bartsmykla/af/af"  # Personal CLI tool
+brew "smykla-skalski/tap/af"  # Personal CLI tool
 brew "chipmk/tap/docker-mac-net-connect"  # Docker-for-Mac IP access
 brew "cyclonedx/cyclonedx/cyclonedx-cli"  # CycloneDX SBOM tool
 brew "derailed/popeye/popeye"  # Kubernetes cluster linter
