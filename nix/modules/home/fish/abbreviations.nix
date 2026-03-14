@@ -28,9 +28,9 @@
     csl = "claude --model Sonnet --effort low";
     csm = "claude --model Sonnet --effort medium";
     csh = "claude --model Sonnet --effort high";
-    col = "claude --model Opus --effort low";
-    com = "claude --model Opus --effort medium";
-    coh = "claude --model Opus --effort high";
+    col = "claude --model Opus[1m] --effort low";
+    com = "claude --model Opus[1m] --effort medium";
+    coh = "claude --model Opus[1m] --effort high";
 
     # Claude Code - resume (interactive session picker)
     cr = "claude --resume";
@@ -38,9 +38,9 @@
     cslr = "claude --model Sonnet --effort low --resume";
     csmr = "claude --model Sonnet --effort medium --resume";
     cshr = "claude --model Sonnet --effort high --resume";
-    colr = "claude --model Opus --effort low --resume";
-    comr = "claude --model Opus --effort medium --resume";
-    cohr = "claude --model Opus --effort high --resume";
+    colr = "claude --model Opus[1m] --effort low --resume";
+    comr = "claude --model Opus[1m] --effort medium --resume";
+    cohr = "claude --model Opus[1m] --effort high --resume";
 
     # Claude Code - resume last session for current project
     cl = "claude --resume (jq -r --arg pwd (pwd) 'select(.project == $pwd) | .sessionId' ~/.claude/history.jsonl | tail -1)";
@@ -48,9 +48,9 @@
     csll = "claude --model Sonnet --effort low --resume (jq -r --arg pwd (pwd) 'select(.project == $pwd) | .sessionId' ~/.claude/history.jsonl | tail -1)";
     csml = "claude --model Sonnet --effort medium --resume (jq -r --arg pwd (pwd) 'select(.project == $pwd) | .sessionId' ~/.claude/history.jsonl | tail -1)";
     cshl = "claude --model Sonnet --effort high --resume (jq -r --arg pwd (pwd) 'select(.project == $pwd) | .sessionId' ~/.claude/history.jsonl | tail -1)";
-    coll = "claude --model Opus --effort low --resume (jq -r --arg pwd (pwd) 'select(.project == $pwd) | .sessionId' ~/.claude/history.jsonl | tail -1)";
-    coml = "claude --model Opus --effort medium --resume (jq -r --arg pwd (pwd) 'select(.project == $pwd) | .sessionId' ~/.claude/history.jsonl | tail -1)";
-    cohl = "claude --model Opus --effort high --resume (jq -r --arg pwd (pwd) 'select(.project == $pwd) | .sessionId' ~/.claude/history.jsonl | tail -1)";
+    coll = "claude --model Opus[1m] --effort low --resume (jq -r --arg pwd (pwd) 'select(.project == $pwd) | .sessionId' ~/.claude/history.jsonl | tail -1)";
+    coml = "claude --model Opus[1m] --effort medium --resume (jq -r --arg pwd (pwd) 'select(.project == $pwd) | .sessionId' ~/.claude/history.jsonl | tail -1)";
+    cohl = "claude --model Opus[1m] --effort high --resume (jq -r --arg pwd (pwd) 'select(.project == $pwd) | .sessionId' ~/.claude/history.jsonl | tail -1)";
 
     # Home Manager
     hmn = "home-manager news --flake $DOTFILES_PATH/nix#home-bart";
