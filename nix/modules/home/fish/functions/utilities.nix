@@ -57,7 +57,7 @@
 
         # Don't set title for apps that control their own (editors, TUIs, etc)
         # They'll set it themselves and we'll reset it when they exit
-        set -l skip_apps claude vim nvim emacs nano less more man ssh
+        set -l skip_apps vim nvim emacs nano less more man ssh
         if contains "$command" $skip_apps
           return
         end

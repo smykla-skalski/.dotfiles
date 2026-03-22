@@ -116,6 +116,15 @@
       bind -r K resize-pane -U 5
       bind -r L resize-pane -R 5
 
+      # Window naming: use process name, fall back to dir basename at shell prompt
+      set-option -g automatic-rename on
+      set-option -g automatic-rename-format '#{?#{==:#{pane_current_command},fish},#{b:pane_current_path},#{pane_current_command}}'
+      # Prevent CLI tools from overriding the window name with version strings
+      set-option -g allow-rename off
+      # Push the window name to Ghostty's tab title
+      set-option -g set-titles on
+      set-option -g set-titles-string '#W [#S]'
+
       set -g status-interval 5
       set -g display-time 750
 
