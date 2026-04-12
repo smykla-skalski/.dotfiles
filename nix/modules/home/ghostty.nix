@@ -11,13 +11,20 @@ let
   ghosttyTmuxLauncher = pkgs.writeShellScript "ghostty-tmux-launcher" ''
     set -eu
 
+    # Quick terminal gets its own isolated session; regular windows share "main".
+    if [ -n "''${GHOSTTY_QUICK_TERMINAL-}" ]; then
+      session_name="quick"
+    else
+      session_name="main"
+    fi
+
     start_tmux() {
       start_dir="''${PWD:-$HOME}"
       if [ ! -d "$start_dir" ]; then
         start_dir="$HOME"
       fi
 
-      ${tmuxPath} new-session -A -s main -c "$start_dir"
+      ${tmuxPath} new-session -A -s "$session_name" -c "$start_dir"
     }
 
     if [ -z "''${PWD-}" ]; then
