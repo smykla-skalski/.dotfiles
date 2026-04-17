@@ -32,6 +32,10 @@
       # klab - Kubernetes networking labs
       export PATH="$HOME/Projects/github.com/smykla-skalski/klab/.bin:$PATH"
 
+      # Bun
+      export BUN_INSTALL="$HOME/.bun"
+      export PATH="$BUN_INSTALL/bin:$PATH"
+
       # Activate mise for non-interactive shells using hook-env for better version resolution
       # hook-env respects PWD and per-project .mise.toml files, ensuring correct tool versions
       # This is used by Claude Code CLI, make, and other non-interactive bash invocations
@@ -119,6 +123,10 @@
 
       # Cargo environment
       [ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
+
+      # Bun
+      export BUN_INSTALL="$HOME/.bun"
+      export PATH="$BUN_INSTALL/bin:$PATH"
 
       # fzf integration
       [ -f ~/.fzf.bash ] && source ~/.fzf.bash
