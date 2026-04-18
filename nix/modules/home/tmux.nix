@@ -20,6 +20,7 @@
     # Settings
     baseIndex = 1;
     escapeTime = 1;
+    focusEvents = true;
     historyLimit = 5000;
     mouse = true;
     keyMode = "vi";
