@@ -1,8 +1,14 @@
 # Claude Code configuration
 #
 # Manages Claude Code config files:
-# - CLAUDE.md, settings.json, statusline.sh — plain files in ./claude/
-# - installed_plugins.json, known_marketplaces.json — sops-nix secrets
+# - CLAUDE.md.default, settings.json.default, statusline.sh — defaults from ./claude/
+# - CLAUDE.md — user-editable file seeded from CLAUDE.md.default by activation
+#
+# Claude Code owns `installed_plugins.json` and `known_marketplaces.json`
+# directly inside `~/.claude/`. They must not be managed here because the
+# previous sops-nix path placed them under $DARWIN_USER_TEMP_DIR, which macOS
+# periodically purges — installed plugins and marketplaces vanished across
+# reboots.
 #
 # To update settings.json:
 # 1. Edit ~/.claude/settings.json with your changes
@@ -11,9 +17,7 @@
 { config, lib, pkgs, ... }:
 
 let
-  # Get the Darwin temp directory for sops secrets
-  # sops-nix on Darwin uses $DARWIN_USER_TEMP_DIR/secrets/
-  secretsDir = ''$(/usr/bin/getconf DARWIN_USER_TEMP_DIR 2>/dev/null)/secrets'';
+  claudeMdTemplate = ./claude/CLAUDE.md;
 
   # Read the settings.json template and substitute BASH_ENV path
   settingsTemplate = builtins.readFile ./claude/settings.json;
@@ -30,9 +34,10 @@ in
   # Copy this to settings.json if you want to reset to defaults
   home.file.".claude/settings.json.default".text = settingsJson;
 
-  # CLAUDE.md — plain file (not sops-encrypted)
-  home.file.".claude/CLAUDE.md" = {
-    source = ./claude/CLAUDE.md;
+  # Keep the canonical CLAUDE.md template available for manual resets,
+  # but do not manage ~/.claude/CLAUDE.md directly so tools can edit it.
+  home.file.".claude/CLAUDE.md.default" = {
+    source = claudeMdTemplate;
     force = true;
   };
 
@@ -43,23 +48,38 @@ in
     force = true;
   };
 
-  # Symlink remaining Claude secrets from sops
-  home.activation.linkClaudeSecrets = lib.hm.dag.entryAfter [ "writeBoundary" "sops-nix" ] ''
-    # Get the actual temp directory
-    if [ -x /usr/bin/getconf ]; then
-      TEMP_DIR="$(/usr/bin/getconf DARWIN_USER_TEMP_DIR 2>/dev/null)"
-    else
-      TEMP_DIR=""
-    fi
+  # Seed ~/.claude/CLAUDE.md from the managed default if missing, and migrate the
+  # old Nix-managed symlink to a regular editable file on the first switch.
+  home.activation.installEditableClaudeMd = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    claude_md="$HOME/.claude/CLAUDE.md"
+    claude_md_default="${claudeMdTemplate}"
 
-    if [ -f "$TEMP_DIR/secrets/claude-installed_plugins.json" ]; then
-      ln -sf "$TEMP_DIR/secrets/claude-installed_plugins.json" "$HOME/.claude/installed_plugins.json"
-      echo "Linked installed_plugins.json from sops secret"
+    if [ ! -e "$claude_md_default" ]; then
+      echo "Skipping CLAUDE.md install: missing template $claude_md_default"
+    elif [ -L "$claude_md" ]; then
+      tmp_file="$(mktemp "${TMPDIR:-/tmp}/claude-md.XXXXXX")"
+      cat "$claude_md" > "$tmp_file"
+      chmod 600 "$tmp_file"
+      rm -f "$claude_md"
+      mv "$tmp_file" "$claude_md"
+      echo "Migrated ~/.claude/CLAUDE.md from Home Manager symlink to editable file"
+    elif [ ! -e "$claude_md" ]; then
+      install -m 600 "$claude_md_default" "$claude_md"
+      echo "Seeded editable ~/.claude/CLAUDE.md from managed default"
     fi
+  '';
 
-    if [ -f "$TEMP_DIR/secrets/claude-known_marketplaces.json" ]; then
-      ln -sf "$TEMP_DIR/secrets/claude-known_marketplaces.json" "$HOME/.claude/known_marketplaces.json"
-      echo "Linked known_marketplaces.json from sops secret"
-    fi
+  # Clean up stale symlinks left behind by the old sops-managed layout so that
+  # Claude Code can create real files in ~/.claude/. The symlink targets live
+  # in $DARWIN_USER_TEMP_DIR, which macOS purges periodically, leaving broken
+  # links that prevent Claude from persisting plugin registrations.
+  home.activation.removeLegacyClaudePluginSymlinks = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    for name in installed_plugins.json known_marketplaces.json; do
+      target="$HOME/.claude/$name"
+      if [ -L "$target" ]; then
+        rm -f "$target"
+        echo "Removed legacy ~/.claude/$name symlink"
+      fi
+    done
   '';
 }

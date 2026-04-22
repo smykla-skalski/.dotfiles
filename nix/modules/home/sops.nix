@@ -29,15 +29,6 @@
       "exercism/user" = {
         path = "%r/secrets/exercism-user.json";
       };
-
-      # Claude Code configuration (CLAUDE.md moved to plain file in claude.nix)
-      "claude/installed_plugins" = {
-        path = "%r/secrets/claude-installed_plugins.json";
-      };
-
-      "claude/known_marketplaces" = {
-        path = "%r/secrets/claude-known_marketplaces.json";
-      };
     };
   };
 }
