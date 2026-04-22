@@ -1,5 +1,18 @@
 #!/usr/bin/env bash
 
+# Caveman mode indicator
+caveman_text=""
+caveman_flag="$HOME/.claude/.caveman-active"
+if [[ -f "$caveman_flag" ]]; then
+    caveman_mode=$(cat "$caveman_flag" 2>/dev/null)
+    if [[ "$caveman_mode" == "full" || -z "$caveman_mode" ]]; then
+        caveman_text=$'\e[7;38;5;172m C \e[0m \e[90m│\e[0m '
+    else
+        caveman_suffix=${caveman_mode^^}
+        caveman_text=$'\e[7;38;5;172m C:'"${caveman_suffix}"$' \e[0m \e[90m│\e[0m '
+    fi
+fi
+
 # Parse all JSON fields in a single jq call
 read -r cwd sid tin tout used speed mid mname < <(
     jq -r '[
@@ -176,6 +189,6 @@ else
 fi
 
 # Build and print the status line
-printf "%b %b \e[0m%b %b \e[90m│\e[0m %b \e[90m│\e[0m %b%dk↓\e[0m %b%dk↑\e[0m \e[90m│\e[0m \e[90m\$%s\e[0m" \
-    "$model_color" "$mname" "$model_separator" "$project_display" "$ctx_section" \
+printf "%b%b %b \e[0m%b %b \e[90m│\e[0m %b \e[90m│\e[0m %b%dk↓\e[0m %b%dk↑\e[0m \e[90m│\e[0m \e[90m\$%s\e[0m" \
+    "$caveman_text" "$model_color" "$mname" "$model_separator" "$project_display" "$ctx_section" \
     "$tin_color" "$tin_k" "$tout_color" "$tout_k" "$cost"
