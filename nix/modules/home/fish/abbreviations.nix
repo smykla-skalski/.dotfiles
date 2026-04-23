@@ -6,7 +6,7 @@
     # General utilities
     pgc = "git_clone_to_projects";
     e2e_clean = "make kind/stop/all; docker stop (docker ps -aq)";
-    cp = "rsync -aP";
+    rcp = "rsync -aP";
     bi = "brew install";
     bic = "brew install --cask";
     msync = "set name (basename (pwd)); mutagen sync create --name=$name (pwd) bart@smyk.la:~/$name";
