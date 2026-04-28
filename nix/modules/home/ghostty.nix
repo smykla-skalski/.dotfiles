@@ -8,15 +8,14 @@
 let
   fishPath = "${pkgs.fish}/bin/fish";
   tmuxPath = "${pkgs.tmux}/bin/tmux";
-  ghosttyTmuxLauncher = pkgs.writeShellScript "ghostty-tmux-launcher" ''
+  ghosttyLauncher = pkgs.writeShellScript "ghostty-launcher" ''
     set -eu
 
-    # Quick terminal gets its own isolated session; regular windows share "main".
     if [ -n "''${GHOSTTY_QUICK_TERMINAL-}" ]; then
-      session_name="quick"
-    else
-      session_name="main"
+      exec ${fishPath}
     fi
+
+    session_name="main"
 
     start_tmux() {
       start_dir="''${PWD:-$HOME}"
@@ -82,8 +81,8 @@ in
       # Keep Ghostty terminal identity for app feature detection.
       term = "xterm-ghostty";
 
-      # Always launch into shared tmux session
-      command = "direct:${ghosttyTmuxLauncher}";
+      # Regular windows launch into shared tmux; quick terminal stays raw fish.
+      command = "direct:${ghosttyLauncher}";
 
       # Shell integration (title needed for fish_title to work)
       shell-integration-features = "cursor,sudo,title";
