@@ -154,6 +154,13 @@
       source "$HOMEBREW_PREFIX/share/google-cloud-sdk/path.fish.inc"
     end
 
+    set -l home_local_bin "$HOME/.local/bin"
+    if test -d "$home_local_bin"
+      set -gx PATH $home_local_bin (string match -v -- "$home_local_bin" $PATH)
+    else
+      set -gx PATH (string match -v -- "$home_local_bin" $PATH)
+    end
+
     # Note: Direnv hook handled by programs.direnv in direnv.nix
     # Manual hook disabled since direnv.nix handles integration
     set --global direnv_fish_mode eval_on_arrow

@@ -36,7 +36,7 @@
       # Ghostty can launch tmux with a stripped PATH that omits the Nix profile.
       # Set the server environment explicitly so run-shell hooks and TPM plugins
       # can always find tmux and other profile-managed binaries.
-      set-environment -g PATH "${config.home.homeDirectory}/.nix-profile/bin:/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+      set-environment -g PATH "${config.home.homeDirectory}/.local/bin:${config.home.homeDirectory}/.nix-profile/bin:/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin"
       set-environment -g SHELL "${config.home.homeDirectory}/.nix-profile/bin/fish"
 
       # Resurrect settings

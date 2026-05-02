@@ -48,6 +48,13 @@ in
       fish_add_path --prepend --move /run/current-system/sw/bin
       fish_add_path --prepend --move /etc/profiles/per-user/$USER/bin
       fish_add_path --prepend --move $HOME/.nix-profile/bin
+
+      set -l home_local_bin "$HOME/.local/bin"
+      if test -d "$home_local_bin"
+        set -gx PATH $home_local_bin (string match -v -- "$home_local_bin" $PATH)
+      else
+        set -gx PATH (string match -v -- "$home_local_bin" $PATH)
+      end
     '';
   };
 

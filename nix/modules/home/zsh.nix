@@ -61,6 +61,11 @@
       # Fish abbreviation-tips exports are shell-local UI config. Keep them out
       # of non-Fish processes so toolchains do not inherit malformed prompt bytes.
       unset ABBR_TIPS_PROMPT ABBR_TIPS_REGEXES ABBR_TIPS_AUTO_UPDATE
+
+      # Keep user-installed binaries ahead of Homebrew, Nix, and mise-managed paths.
+      typeset -U path PATH
+      path=("$HOME/.local/bin" $path)
+      export PATH
     '';
 
     # .zshrc content (interactive shells only)
@@ -81,6 +86,10 @@
       if [ -n "$mise_bin" ]; then
         eval "$("$mise_bin" activate zsh)"
       fi
+
+      typeset -U path PATH
+      path=("$HOME/.local/bin" $path)
+      export PATH
 
       # opencode completion (yargs-generated bash completion loaded via bashcompinit)
       if command -v opencode >/dev/null 2>&1; then

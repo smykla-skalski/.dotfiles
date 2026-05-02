@@ -62,6 +62,30 @@
       # Fish abbreviation-tips exports are shell-local UI config. Keep them out
       # of non-Fish processes so toolchains do not inherit malformed prompt bytes.
       unset ABBR_TIPS_PROMPT ABBR_TIPS_REGEXES ABBR_TIPS_AUTO_UPDATE
+
+      path_prepend_home_local_bin() {
+        local dir="$HOME/.local/bin"
+        local new_path=""
+        local part
+        local path_parts=()
+        if [ -n "''${PATH:-}" ]; then
+          IFS=':' read -r -a path_parts <<< "''${PATH}"
+        fi
+        if [ ''${#path_parts[@]} -gt 0 ]; then
+          for part in "''${path_parts[@]}"; do
+            [ -z "$part" ] && continue
+            [ "$part" = "$dir" ] && continue
+            if [ -n "$new_path" ]; then
+              new_path="$new_path:$part"
+            else
+              new_path="$part"
+            fi
+          done
+        fi
+        export PATH="$dir''${new_path:+:$new_path}"
+      }
+      path_prepend_home_local_bin
+      unset -f path_prepend_home_local_bin
     '';
     force = true;  # Overwrite existing .bash_env
   };
@@ -147,6 +171,30 @@
       if [ -n "$mise_bin" ]; then
         eval "$("$mise_bin" activate bash)"
       fi
+
+      path_prepend_home_local_bin() {
+        local dir="$HOME/.local/bin"
+        local new_path=""
+        local part
+        local path_parts=()
+        if [ -n "''${PATH:-}" ]; then
+          IFS=':' read -r -a path_parts <<< "''${PATH}"
+        fi
+        if [ ''${#path_parts[@]} -gt 0 ]; then
+          for part in "''${path_parts[@]}"; do
+            [ -z "$part" ] && continue
+            [ "$part" = "$dir" ] && continue
+            if [ -n "$new_path" ]; then
+              new_path="$new_path:$part"
+            else
+              new_path="$part"
+            fi
+          done
+        fi
+        export PATH="$dir''${new_path:+:$new_path}"
+      }
+      path_prepend_home_local_bin
+      unset -f path_prepend_home_local_bin
     '';
 
     # .profile content (login shells)
@@ -171,6 +219,30 @@
 
       # Cargo environment
       [ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
+
+      path_prepend_home_local_bin() {
+        local dir="$HOME/.local/bin"
+        local new_path=""
+        local part
+        local path_parts=()
+        if [ -n "''${PATH:-}" ]; then
+          IFS=':' read -r -a path_parts <<< "''${PATH}"
+        fi
+        if [ ''${#path_parts[@]} -gt 0 ]; then
+          for part in "''${path_parts[@]}"; do
+            [ -z "$part" ] && continue
+            [ "$part" = "$dir" ] && continue
+            if [ -n "$new_path" ]; then
+              new_path="$new_path:$part"
+            else
+              new_path="$part"
+            fi
+          done
+        fi
+        export PATH="$dir''${new_path:+:$new_path}"
+      }
+      path_prepend_home_local_bin
+      unset -f path_prepend_home_local_bin
     '';
   };
 }
