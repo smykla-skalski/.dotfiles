@@ -60,6 +60,82 @@
     dcox = "claude --model Opus --effort xhigh --dangerously-skip-permissions";
     dcoxm = "claude --model Opus --effort max --dangerously-skip-permissions";
 
+    # Codex
+    x = "codex";
+    xsl = "codex --model gpt-5.3-codex-spark -c model_reasoning_effort=low";
+    xsm = "codex --model gpt-5.3-codex-spark -c model_reasoning_effort=medium";
+    xsh = "codex --model gpt-5.3-codex-spark -c model_reasoning_effort=high";
+    xsx = "codex --model gpt-5.3-codex-spark -c model_reasoning_effort=xhigh";
+    xcl = "codex --model gpt-5.3-codex -c model_reasoning_effort=low";
+    xcm = "codex --model gpt-5.3-codex -c model_reasoning_effort=medium";
+    xch = "codex --model gpt-5.3-codex -c model_reasoning_effort=high";
+    xcx = "codex --model gpt-5.3-codex -c model_reasoning_effort=xhigh";
+    x4l = "codex --model gpt-5.4 -c model_reasoning_effort=low";
+    x4m = "codex --model gpt-5.4 -c model_reasoning_effort=medium";
+    x4h = "codex --model gpt-5.4 -c model_reasoning_effort=high";
+    x4x = "codex --model gpt-5.4 -c model_reasoning_effort=xhigh";
+    x5l = "codex --model gpt-5.5 -c model_reasoning_effort=low";
+    x5m = "codex --model gpt-5.5 -c model_reasoning_effort=medium";
+    x5h = "codex --model gpt-5.5 -c model_reasoning_effort=high";
+    x5x = "codex --model gpt-5.5 -c model_reasoning_effort=xhigh";
+
+    # Codex - resume (interactive session picker)
+    xr = "codex resume";
+    xslr = "codex resume --model gpt-5.3-codex-spark -c model_reasoning_effort=low";
+    xsmr = "codex resume --model gpt-5.3-codex-spark -c model_reasoning_effort=medium";
+    xshr = "codex resume --model gpt-5.3-codex-spark -c model_reasoning_effort=high";
+    xsxr = "codex resume --model gpt-5.3-codex-spark -c model_reasoning_effort=xhigh";
+    xclr = "codex resume --model gpt-5.3-codex -c model_reasoning_effort=low";
+    xcmr = "codex resume --model gpt-5.3-codex -c model_reasoning_effort=medium";
+    xchr = "codex resume --model gpt-5.3-codex -c model_reasoning_effort=high";
+    xcxr = "codex resume --model gpt-5.3-codex -c model_reasoning_effort=xhigh";
+    x4lr = "codex resume --model gpt-5.4 -c model_reasoning_effort=low";
+    x4mr = "codex resume --model gpt-5.4 -c model_reasoning_effort=medium";
+    x4hr = "codex resume --model gpt-5.4 -c model_reasoning_effort=high";
+    x4xr = "codex resume --model gpt-5.4 -c model_reasoning_effort=xhigh";
+    x5lr = "codex resume --model gpt-5.5 -c model_reasoning_effort=low";
+    x5mr = "codex resume --model gpt-5.5 -c model_reasoning_effort=medium";
+    x5hr = "codex resume --model gpt-5.5 -c model_reasoning_effort=high";
+    x5xr = "codex resume --model gpt-5.5 -c model_reasoning_effort=xhigh";
+
+    # Codex - dangerously-bypass-approvals-and-sandbox
+    dx = "codex --dangerously-bypass-approvals-and-sandbox";
+    dxsl = "codex --model gpt-5.3-codex-spark -c model_reasoning_effort=low --dangerously-bypass-approvals-and-sandbox";
+    dxsm = "codex --model gpt-5.3-codex-spark -c model_reasoning_effort=medium --dangerously-bypass-approvals-and-sandbox";
+    dxsh = "codex --model gpt-5.3-codex-spark -c model_reasoning_effort=high --dangerously-bypass-approvals-and-sandbox";
+    dxsx = "codex --model gpt-5.3-codex-spark -c model_reasoning_effort=xhigh --dangerously-bypass-approvals-and-sandbox";
+    dxcl = "codex --model gpt-5.3-codex -c model_reasoning_effort=low --dangerously-bypass-approvals-and-sandbox";
+    dxcm = "codex --model gpt-5.3-codex -c model_reasoning_effort=medium --dangerously-bypass-approvals-and-sandbox";
+    dxch = "codex --model gpt-5.3-codex -c model_reasoning_effort=high --dangerously-bypass-approvals-and-sandbox";
+    dxcx = "codex --model gpt-5.3-codex -c model_reasoning_effort=xhigh --dangerously-bypass-approvals-and-sandbox";
+    dx4l = "codex --model gpt-5.4 -c model_reasoning_effort=low --dangerously-bypass-approvals-and-sandbox";
+    dx4m = "codex --model gpt-5.4 -c model_reasoning_effort=medium --dangerously-bypass-approvals-and-sandbox";
+    dx4h = "codex --model gpt-5.4 -c model_reasoning_effort=high --dangerously-bypass-approvals-and-sandbox";
+    dx4x = "codex --model gpt-5.4 -c model_reasoning_effort=xhigh --dangerously-bypass-approvals-and-sandbox";
+    dx5l = "codex --model gpt-5.5 -c model_reasoning_effort=low --dangerously-bypass-approvals-and-sandbox";
+    dx5m = "codex --model gpt-5.5 -c model_reasoning_effort=medium --dangerously-bypass-approvals-and-sandbox";
+    dx5h = "codex --model gpt-5.5 -c model_reasoning_effort=high --dangerously-bypass-approvals-and-sandbox";
+    dx5x = "codex --model gpt-5.5 -c model_reasoning_effort=xhigh --dangerously-bypass-approvals-and-sandbox";
+
+    # Codex - dangerously-bypass-approvals-and-sandbox + resume (interactive session picker)
+    dxr = "codex resume --dangerously-bypass-approvals-and-sandbox";
+    dxslr = "codex resume --model gpt-5.3-codex-spark -c model_reasoning_effort=low --dangerously-bypass-approvals-and-sandbox";
+    dxsmr = "codex resume --model gpt-5.3-codex-spark -c model_reasoning_effort=medium --dangerously-bypass-approvals-and-sandbox";
+    dxshr = "codex resume --model gpt-5.3-codex-spark -c model_reasoning_effort=high --dangerously-bypass-approvals-and-sandbox";
+    dxsxr = "codex resume --model gpt-5.3-codex-spark -c model_reasoning_effort=xhigh --dangerously-bypass-approvals-and-sandbox";
+    dxclr = "codex resume --model gpt-5.3-codex -c model_reasoning_effort=low --dangerously-bypass-approvals-and-sandbox";
+    dxcmr = "codex resume --model gpt-5.3-codex -c model_reasoning_effort=medium --dangerously-bypass-approvals-and-sandbox";
+    dxchr = "codex resume --model gpt-5.3-codex -c model_reasoning_effort=high --dangerously-bypass-approvals-and-sandbox";
+    dxcxr = "codex resume --model gpt-5.3-codex -c model_reasoning_effort=xhigh --dangerously-bypass-approvals-and-sandbox";
+    dx4lr = "codex resume --model gpt-5.4 -c model_reasoning_effort=low --dangerously-bypass-approvals-and-sandbox";
+    dx4mr = "codex resume --model gpt-5.4 -c model_reasoning_effort=medium --dangerously-bypass-approvals-and-sandbox";
+    dx4hr = "codex resume --model gpt-5.4 -c model_reasoning_effort=high --dangerously-bypass-approvals-and-sandbox";
+    dx4xr = "codex resume --model gpt-5.4 -c model_reasoning_effort=xhigh --dangerously-bypass-approvals-and-sandbox";
+    dx5lr = "codex resume --model gpt-5.5 -c model_reasoning_effort=low --dangerously-bypass-approvals-and-sandbox";
+    dx5mr = "codex resume --model gpt-5.5 -c model_reasoning_effort=medium --dangerously-bypass-approvals-and-sandbox";
+    dx5hr = "codex resume --model gpt-5.5 -c model_reasoning_effort=high --dangerously-bypass-approvals-and-sandbox";
+    dx5xr = "codex resume --model gpt-5.5 -c model_reasoning_effort=xhigh --dangerously-bypass-approvals-and-sandbox";
+
     # Claude Code - dangerously-skip-permissions + resume (interactive session picker)
     dcr = "claude --resume --dangerously-skip-permissions";
     dcslr = "claude --model Sonnet --effort low --resume --dangerously-skip-permissions";
