@@ -28,11 +28,16 @@ let
 
     # Claude Code
     c = "claude";
-    csl = "claude --model Sonnet --effort low";
-    csm = "claude --model Sonnet --effort medium";
-    csh = "claude --model Sonnet --effort high";
-    csx = "claude --model Sonnet --effort xhigh";
-    csxm = "claude --model Sonnet --effort max";
+    csl = "claude --model opusplan --effort low";
+    csm = "claude --model opusplan --effort medium";
+    csh = "claude --model opusplan --effort high";
+    csx = "claude --model opusplan --effort xhigh";
+    csxm = "claude --model opusplan --effort max";
+    csnl = "claude --model Sonnet --effort low";
+    csnm = "claude --model Sonnet --effort medium";
+    csnh = "claude --model Sonnet --effort high";
+    csnx = "claude --model Sonnet --effort xhigh";
+    csnxm = "claude --model Sonnet --effort max";
     col = "claude --model Opus --effort low";
     com = "claude --model Opus --effort medium";
     coh = "claude --model Opus --effort high";
@@ -41,11 +46,16 @@ let
 
     # Claude Code - resume (interactive session picker)
     cr = "claude --resume";
-    cslr = "claude --model Sonnet --effort low --resume";
-    csmr = "claude --model Sonnet --effort medium --resume";
-    cshr = "claude --model Sonnet --effort high --resume";
-    csxr = "claude --model Sonnet --effort xhigh --resume";
-    csxmr = "claude --model Sonnet --effort max --resume";
+    cslr = "claude --model opusplan --effort low --resume";
+    csmr = "claude --model opusplan --effort medium --resume";
+    cshr = "claude --model opusplan --effort high --resume";
+    csxr = "claude --model opusplan --effort xhigh --resume";
+    csxmr = "claude --model opusplan --effort max --resume";
+    csnlr = "claude --model Sonnet --effort low --resume";
+    csnmr = "claude --model Sonnet --effort medium --resume";
+    csnhr = "claude --model Sonnet --effort high --resume";
+    csnxr = "claude --model Sonnet --effort xhigh --resume";
+    csnxmr = "claude --model Sonnet --effort max --resume";
     colr = "claude --model Opus --effort low --resume";
     comr = "claude --model Opus --effort medium --resume";
     cohr = "claude --model Opus --effort high --resume";
@@ -54,11 +64,16 @@ let
 
     # Claude Code - dangerously-skip-permissions
     dc = "claude --dangerously-skip-permissions";
-    dcsl = "claude --model Sonnet --effort low --dangerously-skip-permissions";
-    dcsm = "claude --model Sonnet --effort medium --dangerously-skip-permissions";
-    dcsh = "claude --model Sonnet --effort high --dangerously-skip-permissions";
-    dcsx = "claude --model Sonnet --effort xhigh --dangerously-skip-permissions";
-    dcsxm = "claude --model Sonnet --effort max --dangerously-skip-permissions";
+    dcsl = "claude --model opusplan --effort low --dangerously-skip-permissions";
+    dcsm = "claude --model opusplan --effort medium --dangerously-skip-permissions";
+    dcsh = "claude --model opusplan --effort high --dangerously-skip-permissions";
+    dcsx = "claude --model opusplan --effort xhigh --dangerously-skip-permissions";
+    dcsxm = "claude --model opusplan --effort max --dangerously-skip-permissions";
+    dcsnl = "claude --model Sonnet --effort low --dangerously-skip-permissions";
+    dcsnm = "claude --model Sonnet --effort medium --dangerously-skip-permissions";
+    dcsnh = "claude --model Sonnet --effort high --dangerously-skip-permissions";
+    dcsnx = "claude --model Sonnet --effort xhigh --dangerously-skip-permissions";
+    dcsnxm = "claude --model Sonnet --effort max --dangerously-skip-permissions";
     dcol = "claude --model Opus --effort low --dangerously-skip-permissions";
     dcom = "claude --model Opus --effort medium --dangerously-skip-permissions";
     dcoh = "claude --model Opus --effort high --dangerously-skip-permissions";
@@ -143,11 +158,16 @@ let
 
     # Claude Code - dangerously-skip-permissions + resume (interactive session picker)
     dcr = "claude --resume --dangerously-skip-permissions";
-    dcslr = "claude --model Sonnet --effort low --resume --dangerously-skip-permissions";
-    dcsmr = "claude --model Sonnet --effort medium --resume --dangerously-skip-permissions";
-    dcshr = "claude --model Sonnet --effort high --resume --dangerously-skip-permissions";
-    dcsxr = "claude --model Sonnet --effort xhigh --resume --dangerously-skip-permissions";
-    dcsxmr = "claude --model Sonnet --effort max --resume --dangerously-skip-permissions";
+    dcslr = "claude --model opusplan --effort low --resume --dangerously-skip-permissions";
+    dcsmr = "claude --model opusplan --effort medium --resume --dangerously-skip-permissions";
+    dcshr = "claude --model opusplan --effort high --resume --dangerously-skip-permissions";
+    dcsxr = "claude --model opusplan --effort xhigh --resume --dangerously-skip-permissions";
+    dcsxmr = "claude --model opusplan --effort max --resume --dangerously-skip-permissions";
+    dcsnlr = "claude --model Sonnet --effort low --resume --dangerously-skip-permissions";
+    dcsnmr = "claude --model Sonnet --effort medium --resume --dangerously-skip-permissions";
+    dcsnhr = "claude --model Sonnet --effort high --resume --dangerously-skip-permissions";
+    dcsnxr = "claude --model Sonnet --effort xhigh --resume --dangerously-skip-permissions";
+    dcsnxmr = "claude --model Sonnet --effort max --resume --dangerously-skip-permissions";
     dcolr = "claude --model Opus --effort low --resume --dangerously-skip-permissions";
     dcomr = "claude --model Opus --effort medium --resume --dangerously-skip-permissions";
     dcohr = "claude --model Opus --effort high --resume --dangerously-skip-permissions";
