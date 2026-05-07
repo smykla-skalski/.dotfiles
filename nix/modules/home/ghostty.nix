@@ -11,10 +11,6 @@ let
   ghosttyLauncher = pkgs.writeShellScript "ghostty-launcher" ''
     set -eu
 
-    if [ -n "''${GHOSTTY_QUICK_TERMINAL-}" ]; then
-      exec ${fishPath}
-    fi
-
     session_name="main"
 
     start_tmux() {
@@ -74,6 +70,7 @@ in
 
       # Start in fullscreen (like Alacritty config)
       fullscreen = true;
+      initial-window = true;
 
       # Scrollback
       scrollback-limit = 10000;
@@ -81,8 +78,11 @@ in
       # Keep Ghostty terminal identity for app feature detection.
       term = "xterm-ghostty";
 
-      # Regular windows launch into shared tmux; quick terminal stays raw fish.
-      command = "direct:${ghosttyLauncher}";
+      # Only the first app window launches into shared tmux. Every later
+      # surface, including the quick terminal and Ghostty native splits, uses
+      # raw fish so quick terminal panes never spawn tmux.
+      initial-command = "direct:${ghosttyLauncher}";
+      command = "direct:${fishPath}";
 
       # Shell integration (title needed for fish_title to work)
       shell-integration-features = "cursor,sudo,title";
