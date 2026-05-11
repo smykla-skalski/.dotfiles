@@ -56,14 +56,13 @@
     set --export OPENCODE_DISABLE_TERMINAL_TITLE "1"
 
     # fzf configuration (fzf 0.67.0+)
-    # --height is fallback for outside tmux, --tmux takes precedence inside tmux
+    # --height renders inline in the current pane (tmux or not); no --tmux popup
     # --no-mouse prevents conflicts with tmux mouse mode (tmux/tmux#2458)
     # --walker-skip covers built-in walker fallback when FZF_DEFAULT_COMMAND is unavailable
     set --export FZF_DEFAULT_OPTS "\
       --cycle \
       --border=rounded \
       --height=90% \
-      --tmux=bottom,50% \
       --scroll-off=3 \
       --preview-window=wrap \
       --marker='*' \
