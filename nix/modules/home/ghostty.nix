@@ -96,9 +96,9 @@ in
       cursor-style-blink = false;
 
       # Bell: surface terminal BEL as dock attention + title mark + border
-      # flash. Silent. tmux (bell-action any) forwards BEL from inside any
-      # pane so Claude Code's claude-notify hook can grab attention.
-      audible-bell = false;
+      # flash. Silent (omit `audible` / `system` from bell-features). tmux
+      # (bell-action any) forwards BEL from inside any pane so Claude Code's
+      # claude-notify hook can grab attention.
       bell-features = "attention,title,border";
 
       # Copy/paste behavior
