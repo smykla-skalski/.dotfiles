@@ -69,7 +69,15 @@
       bind | split-window -h -c "#{pane_current_path}"
       bind - split-window -v -c "#{pane_current_path}"
 
-      # Equalize panes
+      # Equalize panes across the full window. tmux's default Prefix + E uses
+      # `select-layout -E`, which only evens the active pane and its siblings
+      # and can look like a no-op. Make the obvious "equalize everything"
+      # action available on both Prefix + e and Prefix + E, and keep Prefix + =
+      # as an alias.
+      unbind-key -T prefix -q e
+      unbind-key -T prefix -q E
+      bind e select-layout tiled
+      bind E select-layout tiled
       bind = select-layout tiled
 
       # When creating new window, use path from current pane
