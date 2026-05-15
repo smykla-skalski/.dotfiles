@@ -201,7 +201,6 @@ brew "tlrc"         # tldr client (command examples)
 brew "aspell"       # Spell checker
 brew "gum"          # Shell script styling tool
 brew "usage"        # Tool for usage-spec CLIs
-brew "terminal-notifier"  # macOS notifications from CLI
 
 # Development Libraries
 brew "capstone"     # Disassembly framework

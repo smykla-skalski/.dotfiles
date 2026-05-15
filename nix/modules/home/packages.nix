@@ -220,7 +220,6 @@ in
     aspell        # Spell checker
     gum           # Shell script styling tool
     # usage - not in nixpkgs
-    terminal-notifier # macOS notifications from CLI
     graphviz      # Graph visualization
     # vim - managed via programs.vim
 
