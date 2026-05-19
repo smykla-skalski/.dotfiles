@@ -21,6 +21,8 @@ in
 
   environment.systemPackages = with pkgs; [ git ];
 
+  launchd.user.envVariables.CODEX_HOME = "/Users/Shared/codex-home";
+
   launchd.user.envVariables.PATH = [
     "${userHome}/.local/bin"
     "${userHome}/.nix-profile/bin"

@@ -38,6 +38,7 @@
       # can always find tmux and other profile-managed binaries.
       set-environment -g PATH "${config.home.homeDirectory}/.local/bin:${config.home.homeDirectory}/.nix-profile/bin:/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin"
       set-environment -g SHELL "${config.home.homeDirectory}/.nix-profile/bin/fish"
+      set-environment -g CODEX_HOME "/Users/Shared/codex-home"
 
       # Resurrect settings
       set -g @resurrect-strategy-vim 'session'

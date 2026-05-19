@@ -28,6 +28,9 @@
       export DOTFILES_PATH="$HOME/Projects/github.com/smykla-skalski/.dotfiles"
       export PYTHON_SHELL_NIX="$DOTFILES_PATH/nix/python-env/shell.nix"
 
+      # Codex home (shared across users)
+      export CODEX_HOME="/Users/Shared/codex-home"
+
       # Cargo environment
       [ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
 

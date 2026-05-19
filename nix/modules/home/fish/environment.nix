@@ -54,6 +54,7 @@
     set --export SHELL $HOME/.nix-profile/bin/bash
     set --export BASH_ENV $HOME/.bash_env
     set --export OPENCODE_DISABLE_TERMINAL_TITLE "1"
+    set --export CODEX_HOME /Users/Shared/codex-home
 
     # fzf configuration (fzf 0.67.0+)
     # --height renders inline in the current pane (tmux or not); no --tmux popup

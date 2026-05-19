@@ -26,6 +26,9 @@
       # Suppress pkg_resources deprecation warning from kathara_lab_checker
       export PYTHONWARNINGS="ignore::UserWarning"
 
+      # Codex home (shared across users)
+      export CODEX_HOME="/Users/Shared/codex-home"
+
       # Claude Code skills CLI wrapper
       export PATH="$HOME/Projects/github.com/smykla-skalski/research/claude-code/skills/_bin:$PATH"
 
@@ -135,6 +138,9 @@
       export DOTFILES_PATH="$HOME/Projects/github.com/smykla-skalski/.dotfiles"
       export PYTHON_SHELL_NIX="$DOTFILES_PATH/nix/python-env/shell.nix"
 
+      # Codex home (shared across users)
+      export CODEX_HOME="/Users/Shared/codex-home"
+
       # Source shared shell functions (from Fish functions)
       [ -f "$HOME/.config/shell/functions.sh" ] && source "$HOME/.config/shell/functions.sh"
 
@@ -206,6 +212,9 @@
 
       # Set BASH_ENV so non-interactive bash shells (like make) can find mise
       export BASH_ENV="$HOME/.bash_env"
+
+      # Codex home (shared across users)
+      export CODEX_HOME="/Users/Shared/codex-home"
 
       # Source shared shell functions (from Fish functions)
       [ -f "$HOME/.config/shell/functions.sh" ] && source "$HOME/.config/shell/functions.sh"
