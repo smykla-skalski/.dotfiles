@@ -56,6 +56,27 @@
         eval "$("$mise_bin" hook-env -s bash)"
       fi
 
+      # Cargo bin - prepend AFTER mise so the rustup proxy at ~/.cargo/bin
+      # wins over any /opt/homebrew/bin or /usr/local/bin that mise's
+      # inherited PATH might surface. Without this, a Homebrew/MacPorts rust
+      # install silently shadows the rustup proxy: sccache (set as
+      # rustc-wrapper in the harness repo's .cargo/config.toml) resolves a
+      # bare `rustc` via PATH, picks the standalone binary, and the harness
+      # daemon cargo cache thrashes on every cross-context build. The harness
+      # build script also hard-fails on a Homebrew/MacPorts rust install at
+      # the canonical locations, but defense-in-depth here keeps any
+      # bash-spawned cargo invocation safe before that guard even runs.
+      if [ -d "$HOME/.cargo/bin" ]; then
+        case ":$PATH:" in
+          *":$HOME/.cargo/bin:"*)
+            : # already present somewhere; leave order alone
+            ;;
+          *)
+            export PATH="$HOME/.cargo/bin:$PATH"
+            ;;
+        esac
+      fi
+
       # Source shared shell functions (from Fish functions)
       [ -f "$HOME/.config/shell/functions.sh" ] && source "$HOME/.config/shell/functions.sh"
 
