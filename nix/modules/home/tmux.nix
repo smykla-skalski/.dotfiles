@@ -40,6 +40,14 @@
       set-environment -g SHELL "${config.home.homeDirectory}/.nix-profile/bin/fish"
       set-environment -g CODEX_HOME "/Users/Shared/codex-home"
 
+      # The tmux-sensible plugin (loaded above) sets default-command to
+      # "reattach-to-user-namespace -l $SHELL" on macOS. Our fish exports
+      # SHELL=bash for bash-compat tooling, so that wraps every pane in bash -
+      # which is why tmuxp sessions and new panes spawn bash instead of fish.
+      # Force fish explicitly here. extraConfig is sourced after the plugins,
+      # and run-shell is synchronous during sourcing, so this wins.
+      set -g default-command "${config.home.homeDirectory}/.nix-profile/bin/fish"
+
       # Resurrect settings
       set -g @resurrect-strategy-vim 'session'
       set -g @resurrect-capture-pane-contents 'on'

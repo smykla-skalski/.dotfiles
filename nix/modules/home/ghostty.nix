@@ -22,6 +22,14 @@ let
       ${tmuxPath} new-session -A -s "$session_name" -c "$start_dir"
     }
 
+    # The quick terminal must never spawn tmux. Ghostty sets
+    # GHOSTTY_QUICK_TERMINAL=1 in the quick terminal surface, including when
+    # the quick terminal is the first surface at app launch and therefore runs
+    # initial-command (this launcher) instead of command (raw fish).
+    if [ "''${GHOSTTY_QUICK_TERMINAL-}" = "1" ]; then
+      exec ${fishPath}
+    fi
+
     if [ -z "''${PWD-}" ]; then
       export PWD="$HOME"
     fi
