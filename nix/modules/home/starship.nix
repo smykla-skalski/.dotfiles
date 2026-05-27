@@ -40,7 +40,7 @@
       ];
 
       add_newline = false;
-      command_timeout = 300;
+      command_timeout = 2000;
 
       directory = {
         style = "fg:#ffffff bg:#9A348E";
