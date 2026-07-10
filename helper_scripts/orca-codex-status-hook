@@ -1,0 +1,14 @@
+#!/bin/sh
+
+# Orca removes direct registrations of this script from the shared Codex home
+# while migrating legacy hooks. Keep the registered command on this wrapper.
+if [ -z "${HOME:-}" ]; then
+  exit 0
+fi
+
+hook="$HOME/.orca/agent-hooks/codex-hook.sh"
+if [ ! -x "$hook" ]; then
+  exit 0
+fi
+
+exec /bin/sh "$hook"

@@ -7,4 +7,10 @@
     source = config.lib.file.mkOutOfStoreSymlink "/opt/homebrew/bin/python3";
     force = true;
   };
+
+  home.file.".local/bin/orca-codex-status-hook" = {
+    source = ../../../helper_scripts/orca-codex-status-hook;
+    executable = true;
+    force = true;
+  };
 }
