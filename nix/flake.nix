@@ -51,6 +51,7 @@
         ./modules/home/broot.nix
         ./modules/home/broot-tips.nix
         ./modules/home/claude.nix
+        ./modules/home/cloudflared.nix
         ./modules/home/command-suggestions.nix
         ./modules/home/direnv.nix
         ./modules/home/exercism.nix

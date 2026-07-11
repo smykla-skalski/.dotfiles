@@ -13,4 +13,10 @@
     executable = true;
     force = true;
   };
+
+  home.file.".local/bin/orca-mobile-pair-cloudflare" = {
+    source = ../../../helper_scripts/orca-mobile-pair-cloudflare;
+    executable = true;
+    force = true;
+  };
 }

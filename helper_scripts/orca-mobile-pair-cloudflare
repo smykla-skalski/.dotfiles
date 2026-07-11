@@ -1,0 +1,67 @@
+#!/usr/bin/env python3
+
+"""Rewrite an Orca Mobile pairing offer to use the Cloudflare WSS endpoint."""
+
+from __future__ import annotations
+
+import base64
+import json
+import subprocess
+import sys
+from urllib.parse import parse_qs, urlparse
+
+
+PUBLIC_ENDPOINT = "wss://orca.smykla.com"
+
+
+def rewrite_pairing_code(raw_value: str) -> str:
+    raw_value = raw_value.strip()
+    if not raw_value:
+        raise ValueError("clipboard does not contain an Orca pairing code")
+
+    if raw_value.lower().startswith("orca://"):
+        parsed = urlparse(raw_value)
+        if parsed.scheme != "orca" or parsed.netloc != "pair":
+            raise ValueError("clipboard does not contain an Orca pairing URL")
+        values = parse_qs(parsed.query).get("code", [])
+        if len(values) != 1:
+            raise ValueError("Orca pairing URL has no unique code")
+        encoded = values[0]
+    else:
+        encoded = raw_value
+
+    padding = "=" * (-len(encoded) % 4)
+    try:
+        offer = json.loads(base64.urlsafe_b64decode(encoded + padding))
+    except (ValueError, json.JSONDecodeError) as error:
+        raise ValueError("clipboard contains an invalid Orca pairing code") from error
+
+    if not isinstance(offer, dict) or offer.get("v") != 2:
+        raise ValueError("unsupported Orca pairing offer")
+    if offer.get("scope") not in (None, "mobile"):
+        raise ValueError("pairing offer is not scoped for Orca Mobile")
+    for required_key in ("deviceToken", "publicKeyB64"):
+        if not isinstance(offer.get(required_key), str) or not offer[required_key]:
+            raise ValueError(f"pairing offer is missing {required_key}")
+
+    offer["endpoint"] = PUBLIC_ENDPOINT
+    payload = json.dumps(offer, separators=(",", ":")).encode()
+    rewritten = base64.urlsafe_b64encode(payload).decode().rstrip("=")
+    return f"orca://pair?code={rewritten}"
+
+
+def main() -> int:
+    try:
+        source = sys.stdin.read() if not sys.stdin.isatty() else subprocess.check_output(["pbpaste"], text=True)
+        rewritten = rewrite_pairing_code(source)
+        subprocess.run(["pbcopy"], input=rewritten, text=True, check=True)
+    except (ValueError, subprocess.CalledProcessError, FileNotFoundError) as error:
+        print(f"orca-mobile-pair-cloudflare: {error}", file=sys.stderr)
+        return 1
+
+    print(f"Orca Mobile pairing code for {PUBLIC_ENDPOINT} copied to clipboard.")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
