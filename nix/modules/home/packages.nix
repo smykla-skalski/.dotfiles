@@ -107,6 +107,7 @@ in
     azure-cli     # Azure CLI
     saml2aws      # AWS login via SAML IDP
     eksctl        # Amazon EKS CLI
+    scaleway-cli  # Scaleway CLI
     # gcloud - managed as cask via Homebrew
 
     # ============================================================================

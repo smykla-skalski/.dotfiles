@@ -62,6 +62,12 @@ in
       end
     '';
 
+    "fish/completions/scw.fish".text = ''
+      if test -x "${pkgs.scaleway-cli}/bin/scw"
+        ${pkgs.scaleway-cli}/bin/scw autocomplete script shell=fish | source
+      end
+    '';
+
     # opencode - dynamic runtime completion with fish-first fallback strategy
     # - prefers native fish completion if opencode adds it
     # - falls back to yargs completion API today
