@@ -81,7 +81,9 @@ tout_k=$(( (tout + 500) / 1000 ))
 
 # Detect model type
 is_opus=false
+is_fable=false
 [[ "$mid" == *"opus"* ]] && is_opus=true
+[[ "$mid" == *"fable"* ]] && is_fable=true
 
 # Handle 1M badge detection and formatting
 has_1m_badge=false
@@ -96,7 +98,10 @@ if [[ "$mname" =~ \(1M[[:space:]]*(context|Context|CONTEXT)?\) ]]; then
 fi
 
 # Determine model colors and separator
-if $is_opus; then
+if $is_fable; then
+    model_color="\e[1;38;5;201m"
+    model_separator=" \e[90m│\e[0m"
+elif $is_opus; then
     model_color="\e[7m\e[1m\e[31m"
     if $has_1m_badge; then
         model_separator="\e[90m│\e[0m"
@@ -163,7 +168,9 @@ else
 fi
 
 # Calculate cost based on model with 2026 pricing
-if [[ "$mid" == *"opus-4."[56]* || "$mid" == *"opus-4-"[56]* ]]; then
+if $is_fable; then
+    cost=$(printf "%.2f" "$(echo "scale=2; ($tin * 10 + $tout * 50) / 1000000" | bc)")
+elif [[ "$mid" == *"opus-4."[56]* || "$mid" == *"opus-4-"[56]* ]]; then
     # Opus 4.5/4.6 with fast mode and 1M context detection
     if [[ "$speed" == "fast" ]]; then
         if (( tin > 200000 )); then
