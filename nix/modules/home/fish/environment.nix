@@ -109,8 +109,14 @@
     # fzf.fish preview commands (must be exported for fzf's preview subprocess)
     set --export fzf_preview_dir_cmd "eza --all --long --icons always --color=always"
 
-    # Homebrew (skip if already initialized to speed up subshells)
-    if not set -q HOMEBREW_PREFIX
+    # Homebrew
+    # Source shellenv unless /opt/homebrew/bin is already on PATH (i.e. a login
+    # shell or a terminal that ran brew shellenv for us). We deliberately do NOT
+    # gate on $HOMEBREW_PREFIX being set: GUI-launched non-login shells (e.g.
+    # Ghostty) inherit HOMEBREW_PREFIX from launchd but NOT /opt/homebrew/bin on
+    # $PATH, so the old `if not set -q HOMEBREW_PREFIX` guard would skip this and
+    # leave brew/jump/... unreachable.
+    if not contains /opt/homebrew/bin $PATH
       /opt/homebrew/bin/brew shellenv fish | source
     end
 
