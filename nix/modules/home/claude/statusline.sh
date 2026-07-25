@@ -196,6 +196,12 @@ else
 fi
 
 # Build and print the status line
-printf "%b%b %b \e[0m%b %b \e[90m│\e[0m %b \e[90m│\e[0m %b%dk↓\e[0m %b%dk↑\e[0m \e[90m│\e[0m \e[90m\$%s\e[0m" \
-    "$caveman_text" "$model_color" "$mname" "$model_separator" "$project_display" "$ctx_section" \
-    "$tin_color" "$tin_k" "$tout_color" "$tout_k" "$cost"
+#
+# The context-window, token-count and cost segments are computed above (the
+# logic is intentionally kept) but intentionally omitted from the printed line.
+printf "%b%b %b \e[0m%b %b" \
+    "$caveman_text" "$model_color" "$mname" "$model_separator" "$project_display"
+
+# Reference the retained-but-undisplayed values so shellcheck does not flag the
+# preserved context/token/cost logic as unused.
+: "${ctx_section}${tin_k}${tout_k}${tin_color}${tout_color}${cost}"
