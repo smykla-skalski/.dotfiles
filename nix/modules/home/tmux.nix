@@ -67,6 +67,14 @@
       # Ensure we can send 'Ctrl+a' to other apps
       bind C-a send-prefix
 
+      # Nested tmux, e.g. attaching to a session on a server over ssh. C-\
+      # hands the keyboard to the inner tmux: the prefix, the M-1..M-9 root
+      # binds and mouse events all pass through untouched. C-\ again takes it
+      # back. Double-tapping the prefix instead would forward only prefixed
+      # commands and leave every root-table bind unreachable.
+      bind -T root 'C-\' set prefix None \; set key-table off \; set status-style "fg=colour245,bg=colour236" \; set window-status-current-style "fg=colour245,bg=default" \; if -F '#{pane_in_mode}' 'send-keys -X cancel' \; refresh-client -S
+      bind -T off 'C-\' set -u prefix \; set -u key-table \; set -u status-style \; set -u window-status-current-style \; refresh-client -S
+
       # Force reload of config file
       unbind r
       bind r source-file ~/.config/tmux/tmux.conf\; display "Reloaded tmux.conf"
@@ -159,7 +167,7 @@
       # Status line
       set -g status-left-length 40
       set -g status-left "#[fg=colour240][#S] "
-      set -g status-right "#[fg=colour242]%d/%B/%Y #[fg=white]%R"
+      set -g status-right "#{?#{==:#{client_key_table},off},#[fg=colour232]#[bg=colour203] PASSTHROUGH #[default] ,}#[fg=colour242]%d/%B/%Y #[fg=white]%R"
 
       # Unbind default behavior of Ctrl-d (detaching session without prefix)
       unbind -n C-d
