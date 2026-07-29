@@ -29,6 +29,11 @@
       # Codex home (shared across users)
       export CODEX_HOME="/Users/Shared/codex-home"
 
+      # Homebrew shellenv (for non-interactive shells that don't inherit launchd PATH)
+      if [[ ":$PATH:" != *":/opt/homebrew/bin:"* ]]; then
+        eval "$(/opt/homebrew/bin/brew shellenv)"
+      fi
+
       # Claude Code skills CLI wrapper
       export PATH="$HOME/Projects/github.com/smykla-skalski/research/claude-code/skills/_bin:$PATH"
 
@@ -246,6 +251,11 @@
       # Fish abbreviation-tips exports are shell-local UI config. Keep them out
       # of non-Fish processes so toolchains do not inherit malformed prompt bytes.
       unset ABBR_TIPS_PROMPT ABBR_TIPS_REGEXES ABBR_TIPS_AUTO_UPDATE
+
+      # Homebrew shellenv (for login shells that don't inherit launchd PATH, e.g. SSH)
+      if [[ ":$PATH:" != *":/opt/homebrew/bin:"* ]]; then
+        eval "$(/opt/homebrew/bin/brew shellenv)"
+      fi
 
       # Cargo environment
       [ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"

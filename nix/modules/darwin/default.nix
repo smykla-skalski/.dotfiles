@@ -57,6 +57,11 @@ in
       else
         set -gx PATH (string match -v -- "$home_local_bin" $PATH)
       end
+
+      # Homebrew shellenv (for non-interactive shells that don't inherit launchd PATH)
+      if not contains /opt/homebrew/bin $PATH
+        /opt/homebrew/bin/brew shellenv fish | source
+      end
     '';
   };
 

@@ -31,6 +31,11 @@
       # Codex home (shared across users)
       export CODEX_HOME="/Users/Shared/codex-home"
 
+      # Homebrew shellenv (for non-interactive shells that don't inherit launchd PATH)
+      if [[ ":$PATH:" != *":/opt/homebrew/bin:"* ]]; then
+        eval "$(/opt/homebrew/bin/brew shellenv)"
+      fi
+
       # Cargo environment
       [ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
 
