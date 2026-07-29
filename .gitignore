@@ -14,3 +14,4 @@ tmp
 result
 .claude/*
 !.claude/rules/
+.zcode/

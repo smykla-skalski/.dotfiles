@@ -25,6 +25,7 @@
   },
   "ignores": [
     ".claude/sessions/",
+    ".zcode/",
     "tmp/",
     "knowledge/",
     "todos/",
