@@ -77,7 +77,7 @@
       "bartender"                             # Menu bar organizer
       "hiddenbar"                             # Menu bar management
       "raycast"                               # Productivity launcher
-      "send-to-kindle"                        # Kindle file sender
+      # send-to-kindle - removed: cask disabled upstream 2026-06-01 (use amazon.com/sendtokindle)
       "obsidian"                              # Knowledge base
       "omnigraffle"                           # Diagramming tool
       "gpg-suite"                             # GPG encryption

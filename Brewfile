@@ -283,7 +283,7 @@ cask "bartender"         # Menu bar organizer
 cask "caffeine"          # Prevent system sleep
 cask "hiddenbar"         # Hide menu bar items
 cask "raycast"           # Command launcher
-cask "send-to-kindle"    # Send documents to Kindle
+# cask "send-to-kindle"  # removed: cask disabled upstream 2026-06-01 (use amazon.com/sendtokindle)
 
 # Productivity
 cask "obsidian"          # Knowledge base (Markdown)
