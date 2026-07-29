@@ -87,7 +87,7 @@ brew "lnav", args: ["HEAD"]  # Log file viewer (using latest from HEAD)
 # Version Control
 brew "git"          # Distributed version control
 brew "git-crypt"    # Transparent file encryption in git
-brew "gh"           # GitHub CLI
+# gh - managed via nix-darwin Homebrew module (nix/modules/darwin/homebrew.nix)
 
 # Build Tools & Compilers
 brew "make"         # GNU Make

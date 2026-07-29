@@ -65,7 +65,7 @@ in
     # ============================================================================
     git           # Distributed version control
     git-crypt     # Transparent file encryption in git
-    gh            # GitHub CLI
+    # gh - managed via Homebrew (see nix/modules/darwin/homebrew.nix) for latest version
 
     # ============================================================================
     # Build Tools & Compilers

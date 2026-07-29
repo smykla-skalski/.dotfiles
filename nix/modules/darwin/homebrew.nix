@@ -53,6 +53,7 @@
       "kubeshark"                             # Kubernetes network analyzer
       "jump"                                  # Directory bookmarking
       "snyk-cli"                              # Security scanner
+      "gh"                                    # GitHub CLI (latest, auto-updating)
     ];
 
     # GUI Applications (casks)
