@@ -23,151 +23,177 @@
       url = "github:smykla-skalski/af";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
   };
 
-  outputs = inputs@{ self, nixpkgs, nix-darwin, home-manager, sops-nix, af, ... }:
-    let
-      system = "aarch64-darwin";
-      hostname = "bartsmykla";
-      # Username with special characters needs careful handling
-      username = "bart.smykla@konghq.com";
+  outputs = inputs @ {
+    self,
+    nixpkgs,
+    nix-darwin,
+    home-manager,
+    sops-nix,
+    af,
+    ...
+  }: let
+    system = "aarch64-darwin";
+    hostname = "bartsmykla";
+    # Username with special characters needs careful handling
+    username = "bart.smykla@konghq.com";
 
-      # Shared Home Manager module imports (DRY principle)
-      homeModules = [
-        sops-nix.homeManagerModules.sops
+    # Shared Home Manager module imports (DRY principle)
+    homeModules = [
+      sops-nix.homeManagerModules.sops
 
-        # Disable home-manager manual generation to suppress the
-        # 'options.json builtins.derivation without context' warning from
-        # Determinate Nix. See: https://github.com/nix-community/home-manager/issues/7935
-        { manual.manpages.enable = false; manual.html.enable = false; manual.json.enable = false; }
+      # Disable home-manager manual generation to suppress the
+      # 'options.json builtins.derivation without context' warning from
+      # Determinate Nix. See: https://github.com/nix-community/home-manager/issues/7935
+      {
+        manual.manpages.enable = false;
+        manual.html.enable = false;
+        manual.json.enable = false;
+      }
 
-        # Disable man-cache generation (mandb index for `man -k` / apropos).
-        # Building the cache requires running mandb locally, and with this
-        # package set that adds a lot of activation time for very little value.
-        # We do not rely on `man -k`, so keep cache generation disabled.
-        { programs.man.generateCaches = false; }
-        ./modules/home/bash.nix
-        ./modules/home/broot.nix
-        ./modules/home/broot-tips.nix
-        ./modules/home/claude.nix
-        ./modules/home/cloudflared.nix
-        ./modules/home/command-suggestions.nix
-        ./modules/home/direnv.nix
-        ./modules/home/exercism.nix
-        ./modules/home/fish.nix
-        ./modules/home/ghostty.nix
-        ./modules/home/grype.nix
-        ./modules/home/hammerspoon.nix
-        ./modules/home/k9s.nix
-        ./modules/home/lnav.nix
-        ./modules/home/mise.nix
-        ./modules/home/navi.nix
-        ./modules/home/packages.nix
-        ./modules/home/path.nix
-        ./modules/home/shell-aliases.nix
-        ./modules/home/shell-functions.nix
-        ./modules/home/sops.nix
-        ./modules/home/starship.nix
-        ./modules/home/syft.nix
-        ./modules/home/tmux.nix
-        ./modules/home/tmuxp.nix
-        ./modules/home/toolhive-studio.nix
-        ./modules/home/vim.nix
-        ./modules/home/zsh.nix
-      ];
-    in
-    {
-      darwinConfigurations.${hostname} = nix-darwin.lib.darwinSystem {
-        inherit system;
-        modules = [
-          # Host-specific configuration
-          ./hosts/bartsmykla
+      # Disable man-cache generation (mandb index for `man -k` / apropos).
+      # Building the cache requires running mandb locally, and with this
+      # package set that adds a lot of activation time for very little value.
+      # We do not rely on `man -k`, so keep cache generation disabled.
+      {programs.man.generateCaches = false;}
+      ./modules/home/bash.nix
+      ./modules/home/broot.nix
+      ./modules/home/broot-tips.nix
+      ./modules/home/claude.nix
+      ./modules/home/cloudflared.nix
+      ./modules/home/command-suggestions.nix
+      ./modules/home/direnv.nix
+      ./modules/home/exercism.nix
+      ./modules/home/fish.nix
+      ./modules/home/ghostty.nix
+      ./modules/home/grype.nix
+      ./modules/home/hammerspoon.nix
+      ./modules/home/k9s.nix
+      ./modules/home/lnav.nix
+      ./modules/home/mise.nix
+      ./modules/home/navi.nix
+      ./modules/home/packages.nix
+      ./modules/home/path.nix
+      ./modules/home/shell-aliases.nix
+      ./modules/home/shell-functions.nix
+      ./modules/home/sops.nix
+      ./modules/home/starship.nix
+      ./modules/home/syft.nix
+      ./modules/home/tmux.nix
+      ./modules/home/tmuxp.nix
+      ./modules/home/toolhive-studio.nix
+      ./modules/home/vim.nix
+      ./modules/home/zsh.nix
+    ];
+  in {
+    darwinConfigurations.${hostname} = nix-darwin.lib.darwinSystem {
+      inherit system;
+      modules = [
+        # Host-specific configuration
+        ./hosts/bartsmykla
 
-          # Darwin system configuration
-          ./modules/darwin
+        # Darwin system configuration
+        ./modules/darwin
 
-          # Set primary user (required for homebrew, system.defaults, etc.)
-          {
-            system.primaryUser = username;
-            # Required by home-manager nix-darwin integration
-            users.users.${username}.uid = 501;
-          }
+        # Set primary user (required for homebrew, system.defaults, etc.)
+        {
+          system.primaryUser = username;
+          # Required by home-manager nix-darwin integration
+          users.users.${username}.uid = 501;
+        }
 
-          # Overlays: relax tmuxp Python deps
-          ({ pkgs, ... }: {
-            nixpkgs.overlays = [
-              (final: prev: {
-                # tmuxp 1.56.0 pins libtmux~=0.47.0 but nixpkgs has 0.53.x
-                tmuxp = prev.tmuxp.overridePythonAttrs (old: {
-                  nativeBuildInputs = (old.nativeBuildInputs or []) ++ [ prev.python3Packages.pythonRelaxDepsHook ];
-                  pythonRelaxDeps = [ "libtmux" ];
-                });
-              })
-            ];
-          })
+        # Overlays: relax tmuxp Python deps
+        ({pkgs, ...}: {
+          nixpkgs.overlays = [
+            (final: prev: {
+              # tmuxp 1.56.0 pins libtmux~=0.47.0 but nixpkgs has 0.53.x
+              tmuxp = prev.tmuxp.overridePythonAttrs (old: {
+                nativeBuildInputs = (old.nativeBuildInputs or []) ++ [prev.python3Packages.pythonRelaxDepsHook];
+                pythonRelaxDeps = ["libtmux"];
+              });
+            })
+          ];
+        })
 
-          # Home-manager module
-          home-manager.darwinModules.home-manager
-          ({ pkgs, lib, ... }: {
-            home-manager = {
-              useGlobalPkgs = true;
-              useUserPackages = true;
-              backupFileExtension = "hm-backup";
-              users.${username} = { pkgs, lib, config, ... }: {
-                imports = homeModules;
+        # Home-manager module
+        home-manager.darwinModules.home-manager
+        ({
+          pkgs,
+          lib,
+          ...
+        }: {
+          home-manager = {
+            useGlobalPkgs = true;
+            useUserPackages = true;
+            backupFileExtension = "hm-backup";
+            users.${username} = {
+              pkgs,
+              lib,
+              config,
+              ...
+            }: {
+              imports = homeModules;
 
-                home.username = username;
-                home.homeDirectory = lib.mkForce "/Users/bart.smykla@konghq.com";
-                home.stateVersion = "24.05";
+              home.username = username;
+              home.homeDirectory = lib.mkForce "/Users/bart.smykla@konghq.com";
+              home.stateVersion = "24.05";
 
-                programs.home-manager.enable = true;
+              programs.home-manager.enable = true;
 
-                programs.git = {
-                  enable = true;
-                  settings.user.name = "Bart Smykla";
-                  settings.user.email = "bartek@smykla.com";
-                };
-
-                # Suppress "Last login" message
-                home.file.".hushlogin".text = "";
-
-                # Add af package from flake input
-                home.packages = [ af.packages.${system}.default ];
+              programs.git = {
+                enable = true;
+                signing.format = "ssh";
+                settings.user.name = "Bart Smykla";
+                settings.user.email = "bartek@smykla.com";
               };
-            };
-          })
-        ];
-      };
 
-      darwinPackages = self.darwinConfigurations.${hostname}.pkgs;
+              # Suppress "Last login" message
+              home.file.".hushlogin".text = "";
 
-      # Standalone Home Manager entry so the CLI can be run without sudo.
-      homeConfigurations = {
-        # Short alias to avoid quoting the @ in commands: home-manager switch --flake ./nix#home-bart
-        home-bart =
-          let
-            hmPkgs = import nixpkgs {
-              system = "aarch64-darwin";
-              config.allowUnfree = true;
-              overlays = [
-                (final: prev: {
-                  # tmuxp 1.56.0 pins libtmux~=0.47.0 but nixpkgs has 0.53.x
-                  tmuxp = prev.tmuxp.overridePythonAttrs (old: {
-                    nativeBuildInputs = (old.nativeBuildInputs or []) ++ [ prev.python3Packages.pythonRelaxDepsHook ];
-                    pythonRelaxDeps = [ "libtmux" ];
-                  });
-                })
-              ];
+              # Add af package from flake input
+              home.packages = [af.packages.${system}.default];
             };
-            envUser = builtins.getEnv "USER";
-            envHome = builtins.getEnv "HOME";
-            userName = if envUser != "" then envUser else username;
-            userHome = if envHome != "" then envHome else "/Users/${username}";
-          in
-          home-manager.lib.homeManagerConfiguration {
-            pkgs = hmPkgs;
-            modules = homeModules ++ [
+          };
+        })
+      ];
+    };
+
+    darwinPackages = self.darwinConfigurations.${hostname}.pkgs;
+
+    # Standalone Home Manager entry so the CLI can be run without sudo.
+    homeConfigurations = {
+      # Short alias to avoid quoting the @ in commands: home-manager switch --flake ./nix#home-bart
+      home-bart = let
+        hmPkgs = import nixpkgs {
+          system = "aarch64-darwin";
+          config.allowUnfree = true;
+          overlays = [
+            (final: prev: {
+              # tmuxp 1.56.0 pins libtmux~=0.47.0 but nixpkgs has 0.53.x
+              tmuxp = prev.tmuxp.overridePythonAttrs (old: {
+                nativeBuildInputs = (old.nativeBuildInputs or []) ++ [prev.python3Packages.pythonRelaxDepsHook];
+                pythonRelaxDeps = ["libtmux"];
+              });
+            })
+          ];
+        };
+        envUser = builtins.getEnv "USER";
+        envHome = builtins.getEnv "HOME";
+        userName =
+          if envUser != ""
+          then envUser
+          else username;
+        userHome =
+          if envHome != ""
+          then envHome
+          else "/Users/${username}";
+      in
+        home-manager.lib.homeManagerConfiguration {
+          pkgs = hmPkgs;
+          modules =
+            homeModules
+            ++ [
               {
                 home.username = userName;
                 home.homeDirectory = userHome;
@@ -175,10 +201,10 @@
                 # Suppress "Last login" message
                 home.file.".hushlogin".text = "";
                 # Add af package from flake input
-                home.packages = [ af.packages.${system}.default ];
+                home.packages = [af.packages.${system}.default];
               }
             ];
-          };
-      };
+        };
     };
+  };
 }
