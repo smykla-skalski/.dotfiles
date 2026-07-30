@@ -74,10 +74,10 @@ in
       window-decoration = "auto";
       macos-option-as-alt = true;
       macos-titlebar-style = "hidden";
-      window-show-tab-bar = "never";
 
-      # Start in fullscreen (like Alacritty config)
-      fullscreen = true;
+      # Avoid Ghostty 1.3 native fullscreen restoration reopening as a
+      # maximized normal window. Native tabs are unused in the tmux workflow.
+      fullscreen = "non-native";
       initial-window = true;
 
       # Scrollback
@@ -132,9 +132,6 @@ in
 
       # Bright, visible divider (coral/salmon pink from terminal)
       split-divider-color = "#E06C75";
-
-      # Performance
-      adjust-cell-width = 0;
 
       # Theme
       theme = "Monokai Classic";
