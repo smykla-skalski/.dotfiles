@@ -51,7 +51,7 @@
     set --export EDITOR vim
     set --export LC_ALL en_US.UTF-8
     set --export LANG en_US.UTF-8
-    set --export SHELL $HOME/.nix-profile/bin/bash
+    set --export SHELL ${config.home.profileDirectory}/bin/bash
     set --export BASH_ENV $HOME/.bash_env
     set --export OPENCODE_DISABLE_TERMINAL_TITLE "1"
     set --export CODEX_HOME /Users/Shared/codex-home

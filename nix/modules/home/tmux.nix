@@ -6,9 +6,9 @@
 {
   programs.tmux = {
     enable = true;
-    # Use the profile symlink instead of a store-pinned fish path so long-lived
-    # tmux servers keep opening panes with the current shell generation.
-    shell = "${config.home.homeDirectory}/.nix-profile/bin/fish";
+    # Use the active Home Manager profile instead of a store-pinned Fish path
+    # so long-lived tmux servers follow the current system generation.
+    shell = "${config.home.profileDirectory}/bin/fish";
 
     # Enable tmuxp session manager
     tmuxp.enable = true;
@@ -36,8 +36,8 @@
       # Ghostty can launch tmux with a stripped PATH that omits the Nix profile.
       # Set the server environment explicitly so run-shell hooks and TPM plugins
       # can always find tmux and other profile-managed binaries.
-      set-environment -g PATH "${config.home.homeDirectory}/.local/bin:${config.home.homeDirectory}/.nix-profile/bin:/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin"
-      set-environment -g SHELL "${config.home.homeDirectory}/.nix-profile/bin/fish"
+      set-environment -g PATH "${config.home.homeDirectory}/.local/bin:${config.home.profileDirectory}/bin:${config.home.homeDirectory}/.nix-profile/bin:/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+      set-environment -g SHELL "${config.home.profileDirectory}/bin/fish"
       set-environment -g CODEX_HOME "/Users/Shared/codex-home"
 
       # The tmux-sensible plugin (loaded above) sets default-command to
@@ -46,7 +46,7 @@
       # which is why tmuxp sessions and new panes spawn bash instead of fish.
       # Force fish explicitly here. extraConfig is sourced after the plugins,
       # and run-shell is synchronous during sourcing, so this wins.
-      set -g default-command "${config.home.homeDirectory}/.nix-profile/bin/fish"
+      set -g default-command "${config.home.profileDirectory}/bin/fish"
 
       # Resurrect settings
       set -g @resurrect-strategy-vim 'session'

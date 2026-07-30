@@ -25,9 +25,9 @@ in
 
   launchd.user.envVariables.PATH = [
     "${userHome}/.local/bin"
-    "${userHome}/.nix-profile/bin"
     "/etc/profiles/per-user/${config.system.primaryUser}/bin"
     "/run/current-system/sw/bin"
+    "${userHome}/.nix-profile/bin"
     "/opt/homebrew/bin"
     "/opt/homebrew/sbin"
     "/usr/local/bin"
@@ -47,9 +47,11 @@ in
     babelfishPackage = pkgs.babelfish;
     shellInit = ''
       # Add nix-darwin managed paths
+      # Add the optional user profile first because each --prepend moves its
+      # argument to the front. The system Home Manager profile must win.
+      fish_add_path --prepend --move $HOME/.nix-profile/bin
       fish_add_path --prepend --move /run/current-system/sw/bin
       fish_add_path --prepend --move /etc/profiles/per-user/$USER/bin
-      fish_add_path --prepend --move $HOME/.nix-profile/bin
 
       set -l home_local_bin "$HOME/.local/bin"
       if test -d "$home_local_bin"
