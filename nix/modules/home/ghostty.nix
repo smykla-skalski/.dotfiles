@@ -3,9 +3,12 @@
 # Ghostty is a fast, feature-rich terminal emulator with native macOS UI.
 # Package installed via Homebrew (Nix package broken on Darwin).
 # This module manages configuration only.
-{ config, lib, pkgs, ... }:
-
-let
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}: let
   fishPath = "${pkgs.fish}/bin/fish";
   tmuxPath = "${pkgs.tmux}/bin/tmux";
   ghosttyLauncher = pkgs.writeShellScript "ghostty-launcher" ''
@@ -53,8 +56,7 @@ let
     # Last resort: keep terminal usable even if tmux startup fails.
     exec ${fishPath}
   '';
-in
-{
+in {
   programs.ghostty = {
     enable = true;
 
@@ -164,8 +166,8 @@ in
         "cmd+alt+down=text:\\x01j"
 
         # Keep these for Ghostty split cycling used by Hammerspoon
-        "cmd+bracket_left=goto_split:previous"     # Cmd+[
-        "cmd+bracket_right=goto_split:next"        # Cmd+]
+        "cmd+bracket_left=goto_split:previous" # Cmd+[
+        "cmd+bracket_right=goto_split:next" # Cmd+]
 
         # Resize panes
         "cmd+ctrl+left=text:\\x01H"
@@ -194,9 +196,9 @@ in
         "cmd+shift+grave_accent=text:\\x01p"
 
         # === Utility shortcuts ===
-        "cmd+k=clear_screen"                       # Clear screen (Terminal.app standard)
-        "cmd+shift+k=clear_screen"                 # Alternative clear
-        "cmd+r=reload_config"                      # Reload config
+        "cmd+k=clear_screen" # Clear screen (Terminal.app standard)
+        "cmd+shift+k=clear_screen" # Alternative clear
+        "cmd+r=reload_config" # Reload config
 
         # Shell integration - jump between prompts
         "ctrl+shift+up=jump_to_prompt:-1"
