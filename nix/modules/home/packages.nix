@@ -12,6 +12,17 @@ let
       echo "${name} is managed outside Nix. ${installHint}" >&2
       exit 1
     '';
+
+  shellspec = pkgs.shellspec.overrideAttrs (old: {
+    postFixup = (old.postFixup or "") + ''
+      rm -f $out/bin/shellspec
+      cat > $out/bin/shellspec << 'SHELLSPEC_WRAPPER_EOF'
+#!/bin/sh
+exec "$(dirname "$(readlink -f "$0")")/../lib/shellspec/shellspec" "$@"
+SHELLSPEC_WRAPPER_EOF
+      chmod +x $out/bin/shellspec
+    '';
+  });
 in
 
 {
