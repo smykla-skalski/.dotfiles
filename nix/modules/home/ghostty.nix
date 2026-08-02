@@ -76,10 +76,6 @@ in {
       window-decoration = "auto";
       macos-option-as-alt = true;
       macos-titlebar-style = "hidden";
-
-      # Avoid Ghostty 1.3 native fullscreen restoration reopening as a
-      # maximized normal window. Native tabs are unused in the tmux workflow.
-      fullscreen = "non-native";
       initial-window = true;
 
       # Scrollback

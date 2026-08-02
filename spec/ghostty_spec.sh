@@ -9,9 +9,9 @@ Describe 'Ghostty configuration'
     }
     Before 'setup'
 
-    It 'uses non-native fullscreen to avoid the macOS native restoration regression'
+    It 'uses native macOS fullscreen'
         When call grep -qF 'fullscreen = "non-native";' "${GHOSTTY_MODULE}"
-        The status should be success
+        The status should be failure
     End
 
     It 'does not configure the Linux-only tab bar setting'
