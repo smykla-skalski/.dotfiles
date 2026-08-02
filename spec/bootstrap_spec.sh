@@ -52,7 +52,7 @@ Describe 'Bootstrap Script'
         End
 
         It 'passes shellcheck'
-            Skip if "shellcheck not available" command -v shellcheck
+            Skip if "shellcheck not available" [ -z "$(command -v shellcheck 2>/dev/null)" ]
             When call shellcheck "${BOOTSTRAP_SCRIPT}"
             The status should be success
         End

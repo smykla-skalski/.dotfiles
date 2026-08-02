@@ -41,10 +41,8 @@ Describe 'Brewfile'
         When call brew bundle check --file="${DOTFILES_PATH}/Brewfile" --no-upgrade
         # Accept both status 0 (all installed) and 1 (some missing) as valid
         The status should not equal 2
-        # Allow informational output (stdout and stderr from brew)
-        The stdout should be present
-        # Brew outputs JSON API messages to stderr (informational, not errors)
-        The stderr should be defined
+        # brew bundle check writes status info to stderr, not stdout
+        The stderr should be present
     End
 
     Describe 'Essential packages are declared'
