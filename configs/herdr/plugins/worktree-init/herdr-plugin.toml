@@ -1,0 +1,10 @@
+id = "dotfiles.worktree-init"
+name = "Worktree Init"
+version = "0.1.0"
+min_herdr_version = "0.7.0"
+description = "Run mise trust in a newly created Git worktree"
+platforms = ["macos", "linux"]
+
+[[events]]
+on = "worktree.created"
+command = ["bash", "scripts/on-create.sh"]
