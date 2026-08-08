@@ -25,17 +25,17 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Generate GitHub App token
         id: generate-token
-        uses: actions/create-github-app-token@29824e69f54612133e76f7eaac726eef6c875baf # v2.2.1
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
         with:
-          app-id: ${{ vars.SMYKLOT_APP_ID }}
+          client-id: ${{ vars.SMYKLOT_CLIENT_ID || 'Iv23liMyF31aNYay8IXy' }}
           private-key: ${{ secrets.SMYKLOT_APP_PRIVATE_KEY }}
 
       - name: Poll reactions on open PRs
-        uses: smykla-skalski/smyklot@2059852fc4166dc6353887db42e13276506d7215 # v1.11.2
+        uses: smykla-skalski/smyklot@15bc6586e383c17b14b38bbb1606fc519e833b80 # v1.14.0
         with:
           args: poll
         env:
