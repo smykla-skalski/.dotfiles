@@ -247,12 +247,8 @@ cask "1password-cli"     # 1Password command-line interface
 cask "alfred"            # Application launcher and productivity
 cask "rectangle"         # Window management via keyboard
 
-# Terminals
-cask "alacritty"         # GPU-accelerated terminal (primary)
-
 # Browsers
 cask "firefox@developer-edition"  # Firefox Developer Edition
-cask "opera"             # Opera browser
 
 # Development Tools
 cask "insomnia"          # HTTP/GraphQL client

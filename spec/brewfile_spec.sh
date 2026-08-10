@@ -60,11 +60,6 @@ Describe 'Brewfile'
             When call grep -q '^brew "vim"' "${DOTFILES_PATH}/Brewfile"
             The status should be success
         End
-
-        It 'declares alacritty cask'
-            When call grep -q '^cask "alacritty"' "${DOTFILES_PATH}/Brewfile"
-            The status should be success
-        End
     End
 
     Describe 'Brewfile structure'
