@@ -251,7 +251,6 @@ cask "rectangle"         # Window management via keyboard
 cask "alacritty"         # GPU-accelerated terminal (primary)
 
 # Browsers
-cask "brave-browser"     # Privacy-focused browser
 cask "firefox@developer-edition"  # Firefox Developer Edition
 cask "opera"             # Opera browser
 
@@ -274,14 +273,12 @@ cask "discord"           # Voice and text chat
 cask "signal"            # Secure messaging
 
 # Utilities
-cask "bartender"         # Menu bar organizer
 cask "caffeine"          # Prevent system sleep
 cask "hiddenbar"         # Hide menu bar items
 cask "raycast"           # Command launcher
 # cask "send-to-kindle"  # removed: cask disabled upstream 2026-06-01 (use amazon.com/sendtokindle)
 
 # Productivity
-cask "obsidian"          # Knowledge base (Markdown)
 cask "omnigraffle"       # Diagramming tool
 
 # Security & Networking
