@@ -63,10 +63,7 @@
       "hammerspoon"                           # macOS automation
       "rectangle"                             # Window management
       "ghostty"                               # Fast native terminal emulator
-      "iterm2"                                # Terminal emulator
       "firefox@developer-edition"             # Firefox dev edition
-      "visual-studio-code"                    # Code editor
-      "jetbrains-toolbox"                     # JetBrains IDE manager
       "insomnia"                              # API client
       "chatgpt"                               # OpenAI ChatGPT
       "claude"                                # Anthropic Claude
@@ -81,7 +78,6 @@
       "obsidian"                              # Knowledge base
       "omnigraffle"                           # Diagramming tool
       "gpg-suite"                             # GPG encryption
-      "ngrok"                                 # Tunnel service
       "wireshark-app"                         # Network analyzer
       "steelseries-gg"                        # Gaming peripherals
       "font-fira-code"                        # Programming font

@@ -249,8 +249,6 @@ cask "rectangle"         # Window management via keyboard
 
 # Terminals
 cask "alacritty"         # GPU-accelerated terminal (primary)
-cask "iterm2"            # Alternative terminal
-cask "kitty"             # GPU-based terminal
 
 # Browsers
 cask "brave-browser"     # Privacy-focused browser
@@ -258,9 +256,6 @@ cask "firefox@developer-edition"  # Firefox Developer Edition
 cask "opera"             # Opera browser
 
 # Development Tools
-cask "cursor"            # AI-powered code editor
-cask "visual-studio-code"  # VS Code
-cask "jetbrains-toolbox"  # JetBrains IDE manager
 cask "insomnia"          # HTTP/GraphQL client
 
 # AI Tools
@@ -291,7 +286,6 @@ cask "omnigraffle"       # Diagramming tool
 
 # Security & Networking
 cask "gpg-suite"         # GPG tools for macOS
-cask "ngrok"             # Secure tunnels to localhost
 cask "wireshark-app"     # Network protocol analyzer
 
 # Gaming/Peripherals
@@ -304,38 +298,6 @@ cask "hashicorp-vagrant"  # Development environment manager
 cask "font-fira-code"           # Fira Code font
 cask "font-fira-code-nerd-font" # Fira Code with icons
 cask "font-fira-mono-nerd-font" # Fira Mono with icons
-
-# ==============================================================================
-# VS CODE EXTENSIONS
-# ==============================================================================
-# Note: These are auto-generated. Manage via VS Code or `code --install-extension`
-vscode "anthropic.claude-code"
-vscode "bierner.markdown-preview-github-styles"
-vscode "eamodio.gitlens"
-vscode "emmanuelbeziat.vscode-great-icons"
-vscode "file-icons.file-icons"
-vscode "github.copilot"
-vscode "github.copilot-chat"
-vscode "github.vscode-github-actions"
-vscode "github.vscode-pull-request-github"
-vscode "golang.go"
-vscode "grafana.grafana-alloy"
-vscode "k--kato.intellij-idea-keybindings"
-vscode "lnav.lnav"
-vscode "mechatroner.rainbow-csv"
-vscode "monokai.theme-monokai-pro-vscode"
-vscode "ms-azuretools.vscode-containers"
-vscode "ms-azuretools.vscode-docker"
-vscode "ms-kubernetes-tools.vscode-kubernetes-tools"
-vscode "ms-python.debugpy"
-vscode "ms-python.python"
-vscode "ms-python.vscode-pylance"
-vscode "ms-sarifvscode.sarif-viewer"
-vscode "ms-vscode-remote.remote-containers"
-vscode "openai.chatgpt"
-vscode "redhat.vscode-yaml"
-vscode "repreng.csv"
-vscode "yzhang.markdown-all-in-one"
 
 # ==============================================================================
 # GO PACKAGES
