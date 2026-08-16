@@ -5,6 +5,16 @@
 { config, lib, pkgs, ... }:
 
 {
+  # An unmanaged ~/.zprofile predates home-manager managing this file for
+  # session vars, which blocks activation otherwise. The zsh module writes it
+  # under the "./.zprofile" key because dotDir defaults to the home directory,
+  # but the "./" prefix breaks the collision check's forced-path comparison,
+  # so normalize the target while forcing the overwrite.
+  home.file."./.zprofile" = {
+    force = true;
+    target = ".zprofile";
+  };
+
   programs.zsh = {
     enable = true;
 

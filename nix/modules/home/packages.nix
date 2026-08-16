@@ -93,8 +93,6 @@ in
     # ============================================================================
     docker-client       # Docker CLI (OrbStack provides daemon)
     k3d                 # k3s in Docker (local k8s)
-    kind                # Kubernetes IN Docker
-    minikube            # Local Kubernetes
     kubectl             # Kubernetes CLI
     kubectx             # Switch kubectl contexts easily
     k9s                 # Kubernetes TUI
