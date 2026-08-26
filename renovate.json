@@ -8,7 +8,9 @@
       "depNameTemplate": "stacklok/toolhive-studio",
       "description": "Update ToolHive Studio version and hash in nix",
       "extractVersionTemplate": "^v(?<version>.*)$",
-      "managerFilePatterns": ["/^nix/modules/home/toolhive-studio\\.nix$/"],
+      "managerFilePatterns": [
+        "/^nix/modules/home/toolhive-studio\\.nix$/"
+      ],
       "matchStrings": [
         "version = \"(?<currentValue>.*?)\";\\s+src = pkgs\\.fetchurl \\{\\s+url = \"https://github\\.com/stacklok/toolhive-studio/releases/download/v\\$\\{version\\}/ToolHive-arm64\\.dmg\";\\s+sha256 = \"(?<currentDigest>sha256-[A-Za-z0-9+/=]+|[a-f0-9]{52,64})\";"
       ]
@@ -33,7 +35,9 @@
     ":disableRateLimiting",
     ":maintainLockFilesWeekly"
   ],
-  "gitIgnoredAuthors": ["205507218+smyklot[bot]@users.noreply.github.com"],
+  "gitIgnoredAuthors": [
+    "205507218+smyklot[bot]@users.noreply.github.com"
+  ],
   "ignorePaths": [
     "**/tmp/**",
     ".github/workflows/smyklot-pr-commands.yml",
@@ -48,18 +52,28 @@
   "osvVulnerabilityAlerts": true,
   "packageRules": [
     {
-      "addLabels": ["area/ci"],
+      "addLabels": [
+        "area/ci"
+      ],
       "commitMessageTopic": "{{depName}} action",
       "description": "GitHub Actions dependencies",
-      "matchManagers": ["github-actions"],
+      "matchManagers": [
+        "github-actions"
+      ],
       "semanticCommitType": "ci"
     },
     {
       "description": "Group Go tool dependencies",
       "groupName": "Go tooling",
-      "matchDepTypes": ["require"],
-      "matchManagers": ["gomod"],
-      "matchPackageNames": ["/^golang.org/x/tools/"]
+      "matchDepTypes": [
+        "require"
+      ],
+      "matchManagers": [
+        "gomod"
+      ],
+      "matchPackageNames": [
+        "/^golang.org/x/tools/"
+      ]
     },
     {
       "description": [
@@ -74,24 +88,42 @@
     {
       "description": "Group Go version updates from gomod and mise into a single PR",
       "groupName": "go version",
-      "matchDepNames": ["go"],
-      "matchManagers": ["gomod", "mise"],
+      "matchDepNames": [
+        "go"
+      ],
+      "matchManagers": [
+        "gomod",
+        "mise"
+      ],
       "rangeStrategy": "bump"
     },
     {
       "description": "Smyklot action managed by sync-smyklot workflow",
       "enabled": false,
-      "matchManagers": ["github-actions"],
-      "matchPackageNames": ["smykla-skalski/smyklot"]
+      "matchManagers": [
+        "github-actions"
+      ],
+      "matchPackageNames": [
+        "smykla-skalski/smyklot"
+      ]
     },
     {
-      "addLabels": ["mise"],
+      "addLabels": [
+        "mise"
+      ],
       "description": "Non-major mise updates",
-      "matchManagers": ["mise"],
-      "matchUpdateTypes": ["minor", "patch"]
+      "matchManagers": [
+        "mise"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ]
     }
   ],
-  "schedule": ["on the first day of the month"],
+  "schedule": [
+    "on the first day of the month"
+  ],
   "vulnerabilityAlerts": {
     "automerge": false
   }
