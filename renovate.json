@@ -1,19 +1,5 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "automerge": false,
-  "customManagers": [
-    {
-      "customType": "regex",
-      "datasourceTemplate": "github-releases",
-      "depNameTemplate": "stacklok/toolhive-studio",
-      "description": "Update ToolHive Studio version and hash in nix",
-      "extractVersionTemplate": "^v(?<version>.*)$",
-      "managerFilePatterns": ["/^nix/modules/home/toolhive-studio\\.nix$/"],
-      "matchStrings": [
-        "version = \"(?<currentValue>.*?)\";\\s+src = pkgs\\.fetchurl \\{\\s+url = \"https://github\\.com/stacklok/toolhive-studio/releases/download/v\\$\\{version\\}/ToolHive-arm64\\.dmg\";\\s+sha256 = \"(?<currentDigest>sha256-[A-Za-z0-9+/=]+|[a-f0-9]{52,64})\";"
-      ]
-    }
-  ],
   "extends": [
     "config:best-practices",
     ":semanticCommits",
@@ -33,7 +19,6 @@
     ":disableRateLimiting",
     ":maintainLockFilesWeekly"
   ],
-  "gitIgnoredAuthors": ["205507218+smyklot[bot]@users.noreply.github.com"],
   "ignorePaths": [
     "**/tmp/**",
     ".github/workflows/smyklot-pr-commands.yml",
@@ -42,10 +27,8 @@
     "**/secrets/**",
     "**/todos/**"
   ],
-  "nix": {
-    "enabled": true
-  },
   "osvVulnerabilityAlerts": true,
+  "gitIgnoredAuthors": ["205507218+smyklot[bot]@users.noreply.github.com"],
   "packageRules": [
     {
       "addLabels": ["area/ci"],
@@ -66,10 +49,8 @@
         " Group dependency bumps from selected GitHub sources into a single PR across managers",
         " (e.g., mise and gomod) to avoid separate PRs per manager"
       ],
-      "groupName": "{{{replace 'https://github\\.com/[a-z-]+/' '' sourceUrl}}}",
-      "matchSourceUrls": [
-        "https://github.com/{onsi/ginkgo,golangci/golangci-lint}"
-      ]
+      "matchSourceUrls": ["https://github.com/{onsi/ginkgo,golangci/golangci-lint}"],
+      "groupName": "{{{replace 'https://github\\.com/[a-z-]+/' '' sourceUrl}}}"
     },
     {
       "description": "Group Go version updates from gomod and mise into a single PR",
@@ -84,15 +65,13 @@
       "matchManagers": ["github-actions"],
       "matchPackageNames": ["smykla-skalski/smyklot"]
     },
-    {
-      "addLabels": ["mise"],
-      "description": "Non-major mise updates",
-      "matchManagers": ["mise"],
-      "matchUpdateTypes": ["minor", "patch"]
-    }
+    {"addLabels":["mise"],"description":"Non-major mise updates","matchManagers":["mise"],"matchUpdateTypes":["minor","patch"]}
   ],
-  "schedule": ["on the first day of the month"],
   "vulnerabilityAlerts": {
     "automerge": false
-  }
+  },
+  "automerge": false,
+  "customManagers": [{"customType":"regex","datasourceTemplate":"github-releases","depNameTemplate":"stacklok/toolhive-studio","description":"Update ToolHive Studio version and hash in nix","extractVersionTemplate":"^v(?<version>.*)$","managerFilePatterns":["/^nix/modules/home/toolhive-studio\\.nix$/"],"matchStrings":["version = \"(?<currentValue>.*?)\";\\s+src = pkgs\\.fetchurl \\{\\s+url = \"https://github\\.com/stacklok/toolhive-studio/releases/download/v\\$\\{version\\}/ToolHive-arm64\\.dmg\";\\s+sha256 = \"(?<currentDigest>sha256-[A-Za-z0-9+/=]+|[a-f0-9]{52,64})\";"]}],
+  "nix": {"enabled":true},
+  "schedule": ["on the first day of the month"]
 }
