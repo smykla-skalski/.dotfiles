@@ -57,9 +57,24 @@
         mise_bin="/usr/local/bin/mise"
       fi
 
+      # Drop any mise session inherited from the parent shell first. Fish exports
+      # these, so a bash child would have hook-env diff against Fish's session
+      # rather than this shell's, leaving the project's tool directories behind
+      # /opt/homebrew/bin instead of in front of it. A tool whose shebang is
+      # `env node` then runs Homebrew's node rather than the pinned one.
+      unset __MISE_DIFF __MISE_ORIG_PATH __MISE_SESSION MISE_SHELL
+
       if [ -n "$mise_bin" ]; then
         eval "$("$mise_bin" hook-env -s bash)"
       fi
+
+      # Must come after hook-env, which rewrites PATH wholesale and would otherwise
+      # bury this. Shims resolve the tool version at the moment it runs, from the
+      # directory it runs in, which is what makes another project's tools correct:
+      # hook-env only covers the directory this shell started in and nothing re-runs
+      # it on cd, so a command elsewhere would get Homebrew's copy. A shim for a tool
+      # the current directory does not pin falls through to the system copy.
+      export PATH="$HOME/.local/share/mise/shims:$PATH"
 
       # Cargo bin - prepend AFTER mise so the rustup proxy at ~/.cargo/bin
       # wins over any /opt/homebrew/bin or /usr/local/bin that mise's
@@ -129,6 +144,16 @@
 
     # .bashrc content (interactive shells)
     initExtra = ''
+      # tokenwar shell integration. Kept here so home-manager keeps owning ~/.bashrc:
+      # tokenwar's installer appends to the file directly, which replaces the
+      # home-manager symlink with a regular file and blocks the next activation.
+      case ":$PATH:" in *":$HOME/.local/bin:"*) : ;; *) export PATH="$HOME/.local/bin:$PATH" ;; esac
+      tokenwar() { command bash "$HOME/.claude/skills/tokenwar/scripts/tokenwar.sh" "$@"; }
+      codex() { command bash "$HOME/.claude/skills/tokenwar/scripts/tokenwar-launch.sh" codex "$@"; command codex "$@"; }
+      gemini() { command bash "$HOME/.claude/skills/tokenwar/scripts/tokenwar-launch.sh" gemini "$@"; command gemini "$@"; }
+      kimi() { command bash "$HOME/.claude/skills/tokenwar/scripts/tokenwar-launch.sh" kimi "$@"; command kimi "$@"; }
+      opencode() { command bash "$HOME/.claude/skills/tokenwar/scripts/tokenwar-launch.sh" opencode "$@"; command opencode "$@"; }
+
       # Suppress pkg_resources deprecation warning from kathara_lab_checker
       export PYTHONWARNINGS="ignore::UserWarning"
 
