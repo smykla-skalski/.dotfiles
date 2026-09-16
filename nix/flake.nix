@@ -117,46 +117,10 @@
           ];
         })
 
-        # Home-manager module
-        home-manager.darwinModules.home-manager
-        ({
-          pkgs,
-          lib,
-          ...
-        }: {
-          home-manager = {
-            useGlobalPkgs = true;
-            useUserPackages = true;
-            backupFileExtension = "hm-backup";
-            users.${username} = {
-              pkgs,
-              lib,
-              config,
-              ...
-            }: {
-              imports = homeModules;
-
-              home.username = username;
-              home.homeDirectory = lib.mkForce "/Users/bart.smykla@konghq.com";
-              home.stateVersion = "24.05";
-
-              programs.home-manager.enable = true;
-
-              programs.git = {
-                enable = true;
-                signing.format = "ssh";
-                settings.user.name = "Bart Smykla";
-                settings.user.email = "bartek@smykla.com";
-              };
-
-              # Suppress "Last login" message
-              home.file.".hushlogin".text = "";
-
-              # Add af package from flake input
-              home.packages = [af.packages.${system}.default];
-            };
-          };
-        })
+        # The user environment is the standalone homeConfigurations.home-bart
+        # below, not a darwin module. Both built the same package set into two
+        # profiles, /etc/profiles/per-user came first on PATH, and so whichever
+        # had been rebuilt less recently is what a command actually resolved to.
       ];
     };
 
@@ -199,6 +163,16 @@
                 home.username = userName;
                 home.homeDirectory = userHome;
                 home.stateVersion = "24.05";
+
+                programs.home-manager.enable = true;
+
+                programs.git = {
+                  enable = true;
+                  signing.format = "ssh";
+                  settings.user.name = "Bart Smykla";
+                  settings.user.email = "bartek@smykla.com";
+                };
+
                 # Suppress "Last login" message
                 home.file.".hushlogin".text = "";
                 # Add af package from flake input
