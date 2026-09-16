@@ -240,8 +240,8 @@ git-push-upstream-no-verify-force-with-lease
 
 % fish, abbreviations, aws
 
-# AWS login (saml2aws)
-saml2aws --session-duration 43200 -a kong-sandbox-mesh login && eval (saml2aws script -a kong-sandbox-mesh)
+# AWS login (okta-aws-cli)
+okta-aws-cli web --org-domain konghq.okta.com --oidc-client-id 0oa1tmeuzq2l5uyib358 --write-aws-credentials --open-browser
 # Abbr: awslogin
 
 % fish, abbreviations, kubernetes

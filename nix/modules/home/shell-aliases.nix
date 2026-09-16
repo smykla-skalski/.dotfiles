@@ -197,7 +197,7 @@ let
     set-ns = "kubectl config set-context --current --namespace";
     l = "eza --all --long --icons always";
     lt = "eza --all --long --icons always --tree";
-    awslogin = "saml2aws --session-duration 43200 -a kong-sandbox-mesh login && eval $(saml2aws script -a kong-sandbox-mesh)";
+    awslogin = "okta-aws-cli web --org-domain konghq.okta.com --oidc-client-id 0oa1tmeuzq2l5uyib358 --write-aws-credentials --open-browser";
 
     # Git basics
     ga = "git add";

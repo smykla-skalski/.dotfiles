@@ -56,7 +56,7 @@ in
     tree                # Directory tree display
     fswatch             # Cross-platform file change monitor
     # direnv - managed via programs.direnv in direnv.nix
-    # jump - not in nixpkgs, use zoxide instead
+    jump                # autojump-style directory jumper (provides `j`)
     zoxide              # smarter cd command (jump alternative)
 
     # ============================================================================
@@ -114,7 +114,7 @@ in
     # ============================================================================
     awscli2             # AWS CLI v2
     azure-cli           # Azure CLI
-    saml2aws            # AWS login via SAML IDP
+    okta-aws-cli        # AWS login via Okta (replaces saml2aws at Kong)
     eksctl              # Amazon EKS CLI
     scaleway-cli        # Scaleway CLI
     # gcloud - managed as cask via Homebrew
