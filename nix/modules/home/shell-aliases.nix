@@ -197,7 +197,10 @@ let
     set-ns = "kubectl config set-context --current --namespace";
     l = "eza --all --long --icons always";
     lt = "eza --all --long --icons always --tree";
-    awslogin = "okta-aws-cli web --org-domain konghq.okta.com --oidc-client-id 0oa1tmeuzq2l5uyib358 --write-aws-credentials --open-browser";
+    # Every konnect-* profile mints its own credentials through
+    # credential_process, so this is only for refreshing the cached Okta token
+    # by hand, or for writing the kong-cloud-02-* profiles as static blocks.
+    awslogin = "okta-aws-cli web --org-domain konghq.okta.com --oidc-client-id 0oa1tmeuzq2l5uyib358 --cache-access-token --all-profiles --write-aws-credentials";
 
     # Git basics
     ga = "git add";

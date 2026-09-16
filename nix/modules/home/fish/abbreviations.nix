@@ -208,7 +208,7 @@
     set-ns = "kubectl config set-context --current --namespace";
     l = "eza --all --long --icons always";
     lt = "eza --all --long --icons always --tree";
-    awslogin = "okta-aws-cli web --org-domain konghq.okta.com --oidc-client-id 0oa1tmeuzq2l5uyib358 --write-aws-credentials --open-browser";
+    awslogin = "okta-aws-cli web --org-domain konghq.okta.com --oidc-client-id 0oa1tmeuzq2l5uyib358 --cache-access-token --all-profiles --write-aws-credentials";
 
     # Git basics
     ga = "git add";

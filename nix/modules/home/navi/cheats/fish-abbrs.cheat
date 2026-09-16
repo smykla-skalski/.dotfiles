@@ -241,7 +241,7 @@ git-push-upstream-no-verify-force-with-lease
 % fish, abbreviations, aws
 
 # AWS login (okta-aws-cli)
-okta-aws-cli web --org-domain konghq.okta.com --oidc-client-id 0oa1tmeuzq2l5uyib358 --write-aws-credentials --open-browser
+okta-aws-cli web --org-domain konghq.okta.com --oidc-client-id 0oa1tmeuzq2l5uyib358 --cache-access-token --all-profiles --write-aws-credentials
 # Abbr: awslogin
 
 % fish, abbreviations, kubernetes
