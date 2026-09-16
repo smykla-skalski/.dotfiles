@@ -14,7 +14,7 @@ readonly REPO_ORG="bartsmykla"
 readonly REPO_NAME=".dotfiles"
 readonly REPO_URL="https://github.com/${REPO_ORG}/${REPO_NAME}.git"
 readonly AGE_KEY_PATH="${HOME}/.config/age/key.txt"
-readonly AGE_KEY_OP_ID="dyhxf4wgavxqwt23wbsl5my2m"
+readonly AGE_KEY_OP_ID="dyhxf4wgavxqwqt23wbsl5my2m"
 
 # Colors for output
 readonly RED='\033[0;31m'
