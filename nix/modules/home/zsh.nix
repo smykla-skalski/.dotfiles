@@ -88,6 +88,16 @@
 
     # .zshrc content (interactive shells only)
     initContent = ''
+      # tokenwar shell integration. Kept here so home-manager keeps owning ~/.zshrc:
+      # tokenwar's installer appends to the file directly, which replaces the
+      # home-manager symlink with a regular file and blocks the next activation.
+      case ":$PATH:" in *":$HOME/.local/bin:"*) : ;; *) export PATH="$HOME/.local/bin:$PATH" ;; esac
+      tokenwar() { command bash "$HOME/.claude/skills/tokenwar/scripts/tokenwar.sh" "$@"; }
+      codex() { command bash "$HOME/.claude/skills/tokenwar/scripts/tokenwar-launch.sh" codex "$@"; command codex "$@"; }
+      gemini() { command bash "$HOME/.claude/skills/tokenwar/scripts/tokenwar-launch.sh" gemini "$@"; command gemini "$@"; }
+      kimi() { command bash "$HOME/.claude/skills/tokenwar/scripts/tokenwar-launch.sh" kimi "$@"; command kimi "$@"; }
+      opencode() { command bash "$HOME/.claude/skills/tokenwar/scripts/tokenwar-launch.sh" opencode "$@"; command opencode "$@"; }
+
       # fzf integration
       [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 

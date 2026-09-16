@@ -119,7 +119,6 @@ brew "skopeo"       # Work with remote image registries
 # Cloud CLIs
 brew "awscli"       # AWS CLI
 brew "azure-cli"    # Azure CLI
-brew "saml2aws"     # AWS login via SAML IDP
 brew "eksctl"       # Amazon EKS CLI
 
 # Infrastructure as Code

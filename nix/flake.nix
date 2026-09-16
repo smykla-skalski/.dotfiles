@@ -72,6 +72,7 @@
       ./modules/home/k9s.nix
       ./modules/home/lnav.nix
       ./modules/home/mise.nix
+      ./modules/home/mocks-server.nix
       ./modules/home/navi.nix
       ./modules/home/packages.nix
       ./modules/home/path.nix
@@ -116,46 +117,10 @@
           ];
         })
 
-        # Home-manager module
-        home-manager.darwinModules.home-manager
-        ({
-          pkgs,
-          lib,
-          ...
-        }: {
-          home-manager = {
-            useGlobalPkgs = true;
-            useUserPackages = true;
-            backupFileExtension = "hm-backup";
-            users.${username} = {
-              pkgs,
-              lib,
-              config,
-              ...
-            }: {
-              imports = homeModules;
-
-              home.username = username;
-              home.homeDirectory = lib.mkForce "/Users/bart.smykla@konghq.com";
-              home.stateVersion = "24.05";
-
-              programs.home-manager.enable = true;
-
-              programs.git = {
-                enable = true;
-                signing.format = "ssh";
-                settings.user.name = "Bart Smykla";
-                settings.user.email = "bartek@smykla.com";
-              };
-
-              # Suppress "Last login" message
-              home.file.".hushlogin".text = "";
-
-              # Add af package from flake input
-              home.packages = [af.packages.${system}.default];
-            };
-          };
-        })
+        # The user environment is the standalone homeConfigurations.home-bart
+        # below, not a darwin module. Both built the same package set into two
+        # profiles, /etc/profiles/per-user came first on PATH, and so whichever
+        # had been rebuilt less recently is what a command actually resolved to.
       ];
     };
 
@@ -174,6 +139,16 @@
               tmuxp = prev.tmuxp.overridePythonAttrs (old: {
                 nativeBuildInputs = (old.nativeBuildInputs or []) ++ [prev.python3Packages.pythonRelaxDepsHook];
                 pythonRelaxDeps = ["libtmux"];
+              });
+
+              # nixpkgs carries a stale vendorHash for scorecard 5.5.0, so its
+              # vendor derivation fails the fixed-output check and takes every
+              # home-manager generation down with it. This is the hash the
+              # fetch actually produces.
+              scorecard = prev.scorecard.overrideAttrs (old: {
+                goModules = old.goModules.overrideAttrs (_: {
+                  outputHash = "sha256-0KKKZheDNRPLBWtwXgXXG+ixpESO+Gq1FsW83PldiVo=";
+                });
               });
             })
           ];
@@ -198,6 +173,14 @@
                 home.username = userName;
                 home.homeDirectory = userHome;
                 home.stateVersion = "24.05";
+
+                programs.git = {
+                  enable = true;
+                  signing.format = "ssh";
+                  settings.user.name = "Bart Smykla";
+                  settings.user.email = "bartek@smykla.com";
+                };
+
                 # Suppress "Last login" message
                 home.file.".hushlogin".text = "";
                 # Add af package from flake input

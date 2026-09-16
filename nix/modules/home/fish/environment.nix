@@ -110,6 +110,13 @@
     set --export fzf_preview_dir_cmd "eza --all --long --icons always --color=always"
 
     # PATH additions
+
+    # Homebrew prefix must be self-declared: iTerm2 launches fish directly from
+    # launchd, so nothing else exports HOMEBREW_PREFIX. Appended (not prepended)
+    # so Nix-managed tools keep priority over their Homebrew counterparts.
+    set --export HOMEBREW_PREFIX "/opt/homebrew"
+    fish_add_path --global --append "$HOMEBREW_PREFIX/bin" "$HOMEBREW_PREFIX/sbin"
+
     fish_add_path --global --move $FORTRESS_PATH/.dotfiles/bin
     fish_add_path --global --move "$HOME/.cargo/bin"
     set --export BUN_INSTALL "$HOME/.bun"
