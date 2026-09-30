@@ -20,7 +20,10 @@ echo "tmp/*.go" >> .git/info/exclude
 ## Clean all kuma/kong-mesh resources except the kong-mesh-license secret if present
 
 ```sh
-kubectl get endpointslice,replicaset,mutatingwebhookconfiguration,validatingwebhookconfiguration,configmap,secret,crd,svc,clusterrole,clusterrolebinding,role,rolebinding,deploy,serviceaccount,ingress -A -o json \
+resources="endpointslice,replicaset,mutatingwebhookconfiguration,validatingwebhookconfiguration"
+resources="$resources,configmap,secret,crd,svc,clusterrole,clusterrolebinding"
+resources="$resources,role,rolebinding,deploy,serviceaccount,ingress"
+kubectl get "$resources" -A -o json \
   | jq -r '.items[]
     | select(.metadata.name | contains("kong-mesh") or contains("kuma")) 
     | select(.kind != "Namespace" and .kind != "Pod")
@@ -152,6 +155,7 @@ tar -xvzf name.tar.gz
    ```
 
 5. That's it - now we can send something to our pipe
+
    ```sh
    echo "hello" >> /tmp/foo
    ```
