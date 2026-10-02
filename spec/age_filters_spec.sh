@@ -18,6 +18,13 @@ Describe 'Age git filters'
     Before 'setup'
     After 'cleanup'
 
+    It 'converts the file textconv passes rather than stdin'
+        printf 'from the file\n' >"${TEST_DIR}/file"
+        Data 'from stdin'
+        When run bash "${DOTFILES_PATH}/scripts/git-filters/age-smudge.sh" "${TEST_DIR}/file"
+        The output should equal 'from the file'
+    End
+
     It 'populates the age cache of a new linked worktree'
         repo="${TEST_DIR}/repo"
         git init -q "${repo}"

@@ -25,6 +25,13 @@ for candidate in \
   fi
 done
 
+# As diff.age.textconv this runs with the file to convert as its argument, and as
+# a smudge filter with the content on stdin. Reading stdin in both cases left
+# git diff on a secret waiting on the terminal and then showing nothing.
+if [[ $# -gt 0 ]]; then
+  exec <"$1"
+fi
+
 # Preserve trailing newlines through the sentinel, as the clean filter does.
 content=$(cat; echo x)
 content=${content%x}
