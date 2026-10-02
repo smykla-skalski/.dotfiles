@@ -15,7 +15,7 @@ permissions: read-all  # Default read access for all scopes
 jobs:
   analysis:
     name: Scorecards analysis
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     permissions:
       security-events: write  # Upload SARIF results to code-scanning dashboard
       id-token: write         # Publish results and sign attestations
