@@ -66,6 +66,7 @@
       ./modules/home/direnv.nix
       ./modules/home/exercism.nix
       ./modules/home/fish.nix
+      ./modules/home/git-signing.nix
       ./modules/home/ghostty.nix
       ./modules/home/go-cache.nix
       ./modules/home/grype.nix
@@ -164,13 +165,6 @@
                 home.username = userName;
                 home.homeDirectory = userHome;
                 home.stateVersion = "24.05";
-
-                programs.git = {
-                  enable = true;
-                  signing.format = "ssh";
-                  settings.user.name = "Bart Smykla";
-                  settings.user.email = "bartek@smykla.com";
-                };
 
                 # Suppress "Last login" message
                 home.file.".hushlogin".text = "";
