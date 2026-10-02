@@ -123,7 +123,7 @@ Describe 'Bootstrap Script'
 
         It 'has 1Password age key ID'
             When call grep -o 'AGE_KEY_OP_ID="[^"]*"' "${BOOTSTRAP_SCRIPT}"
-            The output should include "dyhxf4wgavxqwt23wbsl5my2m"
+            The output should include "dyhxf4wgavxqwqt23wbsl5my2m"
         End
 
         It 'has default installation directory with environment variable fallback'
