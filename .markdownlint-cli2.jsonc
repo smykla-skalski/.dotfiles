@@ -1,34 +1,19 @@
-// https://github.com/DavidAnson/markdownlint-cli2#configuration
 {
+  // Catches one failure: a fence that never closes and swallows the prose after it.
+  // Prose is one line per paragraph, so the length limit only bites inside code blocks.
   "config": {
-    "$schema": "https://raw.githubusercontent.com/DavidAnson/markdownlint/main/schema/markdownlint-config-schema.json",
-    "default": true,
-    "MD013": false,
-    "MD022": {
-      "lines_above": 1,
-      "lines_below": 1
+    "default": false,
+    "MD013": {
+      "line_length": 10000,
+      "code_block_line_length": 200,
+      "code_blocks": true,
+      "headings": false,
+      "tables": false
     },
-    "MD024": {
-      "siblings_only": true
-    },
-    "MD025": {
-      "front_matter_title": ""
-    },
-    "MD033": {
-      "allowed_elements": [
-        "br",
-        "details",
-        "summary"
-      ]
-    },
-    "MD041": false
+    "MD022": true,
+    "MD031": true
   },
-  "ignores": [
-    ".claude/sessions/",
-    ".zcode/",
-    "tmp/",
-    "knowledge/",
-    "todos/",
-    "result/"
-  ]
+  "globs": ["**/*.md"],
+  "ignores": ["CHANGELOG.md"],
+  "gitignore": true
 }

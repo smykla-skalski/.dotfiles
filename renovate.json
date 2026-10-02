@@ -8,10 +8,6 @@
     ":label(dependencies)",
     ":rebaseStalePrs",
     ":enableVulnerabilityAlertsWithAdditionalLabel(kind/security)",
-    ":automergeMinor",
-    ":automergeDigest",
-    ":automergeLinters",
-    ":automergeTesters",
     ":prConcurrentLimit20",
     "helpers:pinGitHubActionDigests",
     "security:openssf-scorecard",
@@ -29,7 +25,16 @@
   ],
   "osvVulnerabilityAlerts": true,
   "gitIgnoredAuthors": ["205507218+smyklot[bot]@users.noreply.github.com"],
+  "internalChecksFilter": "strict",
+  "platformAutomerge": false,
+  "minimumReleaseAgeBehaviour": "timestamp-required",
   "packageRules": [
+    {
+      "description": "Automerge updates with a verified release age of at least seven days",
+      "matchUpdateTypes": ["major", "minor", "patch", "digest"],
+      "minimumReleaseAge": "7 days",
+      "automerge": true
+    },
     {
       "addLabels": ["area/ci"],
       "commitMessageTopic": "{{depName}} action",
