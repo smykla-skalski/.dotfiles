@@ -1,4 +1,4 @@
-# npm authentication for the private @kong scope on registry.npmjs.org
+# npm registry authentication
 #
 # The token is never written anywhere: ~/.npmrc carries a ${NPM_TOKEN}
 # reference that npm expands as it reads the file, and NPM_TOKEN is resolved
@@ -12,9 +12,7 @@
 { lib, ... }:
 
 let
-  # 1Password, Shared vault, item "NPM konginc (SHARED)", field
-  # "Read Token (exp. 11/18/2026)". Addressed by UUID because an op:// reference
-  # rejects the parentheses in the item title.
+  # Addressed by ID, since an op:// reference by name breaks on some item titles
   tokenReference = "op://q7r4hh4465zentymwtoonxxp3m/bfojwj2lryfxdo5mn7v6uwavii/njgkb53rqjhnfc3meuoyrddmkq";
 
   account = "team-kong.1password.com";
