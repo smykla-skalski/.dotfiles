@@ -136,7 +136,10 @@ in
       "/usr/local/bin/snyk"
     ] "Install it with Homebrew (`brew install snyk`) or run `darwin-rebuild switch`.")
     osv-scanner         # OSV vulnerability database scanner
-    scorecard           # OpenSSF security metrics
+    (mkExternalToolWrapper "scorecard" [
+      "/opt/homebrew/bin/scorecard"
+      "/usr/local/bin/scorecard"
+    ] "Install it with Homebrew (`brew install scorecard`) or run `darwin-rebuild switch`.")
 
     # ============================================================================
     # Linters & Formatters

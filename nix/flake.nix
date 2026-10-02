@@ -140,16 +140,6 @@
                 nativeBuildInputs = (old.nativeBuildInputs or []) ++ [prev.python3Packages.pythonRelaxDepsHook];
                 pythonRelaxDeps = ["libtmux"];
               });
-
-              # nixpkgs carries a stale vendorHash for scorecard 5.5.0, so its
-              # vendor derivation fails the fixed-output check and takes every
-              # home-manager generation down with it. This is the hash the
-              # fetch actually produces.
-              scorecard = prev.scorecard.overrideAttrs (old: {
-                goModules = old.goModules.overrideAttrs (_: {
-                  outputHash = "sha256-0KKKZheDNRPLBWtwXgXXG+ixpESO+Gq1FsW83PldiVo=";
-                });
-              });
             })
           ];
         };
