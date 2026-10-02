@@ -12,12 +12,22 @@ let
   nixpkgsPythonVersionsPath = "${pythonEnvPath}/nixpkgs-python-versions.json";
 in
 {
+  # Silence direnv (log_format = "-" below) from the environment side as well.
+  # direnv PR #1476 maps "-" to an empty LogFormat but logStatus still runs
+  # fmt with it, printing mangled "%!!(MISSING)(EXTRA string=loading ...)"
+  # output on the first .envrc load of each session. An explicit empty
+  # DIRENV_LOG_FORMAT takes precedence over the config file (env wins in
+  # LoadConfig) and loads cleanly, so the hook never sees the broken path.
+  home.sessionVariables.DIRENV_LOG_FORMAT = "";
+
   programs.direnv = {
     enable = true;
 
-    # Override to use git master with log_format fix (PR #1476)
+    # Override to use git master with log_format fix (PR #1476, fixes #1419)
     # https://github.com/direnv/direnv/pull/1476
-    # TODO: Remove once direnv 2.38.0+ is released
+    # Verified 2026-08-19: nixpkgs still ships vanilla 2.37.1 (predates this
+    # fix by 10 days) and upstream has cut no release since. Still required.
+    # TODO: drop this override once a direnv release contains 92436eed.
     package = pkgs.direnv.overrideAttrs (oldAttrs: rec {
       version = "2.37.1-unstable-2025-07-30";
       src = pkgs.fetchFromGitHub {

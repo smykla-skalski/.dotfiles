@@ -27,6 +27,8 @@ vars:
   G_DOTFILES: '{{.USER_WORKING_DIR}}'
   G_HOME: '{{.HOME}}'
   G_PROJECTS_PATH: '{{.HOME}}/Projects/github.com'
+  # The login shell: Homebrew's fish, the Brewfile's primary shell
+  G_FISH: '{{.HOMEBREW_PREFIX | default "/opt/homebrew"}}/bin/fish'
 
 env:
   NO_COLOR: '{{.NO_COLOR | default "0"}}'
@@ -129,28 +131,29 @@ tasks:
     internal: true
     platforms: [darwin]
     preconditions:
-      - sh: command -v fish
+      - sh: test -x "{{.G_FISH}}"
         msg: Fish shell must be installed first (run install:brew)
     status:
-      - grep -q "$(command -v fish)" /etc/shells
+      - grep -qx "{{.G_FISH}}" /etc/shells
     cmds:
       - echo "Adding Fish to /etc/shells..."
-      - command -v fish | sudo tee -a /etc/shells
+      - echo "{{.G_FISH}}" | sudo tee -a /etc/shells
 
   install:shells:set-default:
     desc: Set Fish as default shell
     internal: true
     platforms: [darwin]
     preconditions:
-      - sh: command -v fish
+      - sh: test -x "{{.G_FISH}}"
         msg: Fish shell must be installed first
-      - sh: grep -q "$(command -v fish)" /etc/shells
+      - sh: grep -qx "{{.G_FISH}}" /etc/shells
         msg: Fish must be registered in /etc/shells first
     status:
-      - test "$SHELL" = "$(command -v fish)"
+      # $SHELL is no use here: the fish config exports it as bash for tools
+      - test "$(dscl . -read "/Users/$USER" UserShell | awk '{print $2}')" = "{{.G_FISH}}"
     cmds:
       - echo "Setting Fish as default shell..."
-      - chsh -s "$(command -v fish)"
+      - chsh -s "{{.G_FISH}}"
       - echo "✓ Fish set as default shell (restart terminal to activate)"
 
   install:fish:

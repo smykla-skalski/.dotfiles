@@ -18,18 +18,22 @@ for file in ${age_files}; do
     continue
   fi
 
-  # Get encrypted content from index
-  encrypted=$(git show :"${file}")
+  # Every capture below carries the sentinel the clean filter uses, because the
+  # cache key has to be the hash the clean filter will compute. Plain $(...)
+  # eats trailing newlines, so a file that ends in one hashed differently here
+  # than there, every lookup missed, age re-encrypted with fresh randomness and
+  # git reported the file as permanently modified.
+  encrypted=$(git show :"${file}"; echo x)
+  encrypted=${encrypted%x}
 
-  # Decrypt to get plaintext
-  decrypted=$(echo "${encrypted}" | bash "${SMUDGE_SCRIPT}")
+  decrypted=$(printf '%s' "${encrypted}" | bash "${SMUDGE_SCRIPT}"; echo x)
+  decrypted=${decrypted%x}
 
-  # Calculate content hash
-  content_hash=$(echo -n "${decrypted}" | shasum -a 256 | cut -d' ' -f1)
+  content_hash=$(printf '%s' "${decrypted}" | shasum -a 256 | cut -d' ' -f1)
   cache_file="${CACHE_DIR}/${content_hash}"
 
   # Cache the encrypted version from index
-  echo "${encrypted}" > "${cache_file}"
+  printf '%s' "${encrypted}" > "${cache_file}"
 
   echo "Cached: ${file} -> ${content_hash}"
 done

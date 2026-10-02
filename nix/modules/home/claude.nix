@@ -57,7 +57,7 @@ in
     if [ ! -e "$claude_md_default" ]; then
       echo "Skipping CLAUDE.md install: missing template $claude_md_default"
     elif [ -L "$claude_md" ]; then
-      tmp_file="$(mktemp "${TMPDIR:-/tmp}/claude-md.XXXXXX")"
+      tmp_file="$(mktemp "''${TMPDIR:-/tmp}/claude-md.XXXXXX")"
       cat "$claude_md" > "$tmp_file"
       chmod 600 "$tmp_file"
       rm -f "$claude_md"

@@ -34,7 +34,7 @@ bash /tmp/bootstrap.sh
 
 ```bash
 op signin                                # Sign in to 1Password
-op document get dyhxf4wgavxqwt23wbsl5my2m > ~/.config/age/key.txt
+op document get dyhxf4wgavxqwqt23wbsl5my2m > ~/.config/age/key.txt
 chmod 600 ~/.config/age/key.txt
 ```
 

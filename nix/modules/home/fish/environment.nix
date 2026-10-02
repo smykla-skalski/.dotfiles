@@ -1,8 +1,34 @@
 # Fish shell environment configuration
 # Includes environment variables, PATH setup, and tool integrations
-{ config, ... }:
+{ config, lib, ... }:
 
+let
+  nixDarwinEnvironment = "/etc/fish/setEnvironment.fish";
+in
 {
+  # The login shell is Homebrew's fish, which reads /opt/homebrew/etc/fish and
+  # never nix-darwin's /etc/fish, so load nix-darwin's environment the way nix's
+  # own fish does. It exports the marker that tells bash and zsh children the
+  # session is set up. Without it, a GUI app's `bash -c` (stdin is a socket, so
+  # bash reads /etc/bashrc) re-runs set-environment and resets PATH, dropping
+  # what the parent put in front, such as mise's tools. PATH keeps its order;
+  # only the system entries it lacks are appended.
+  programs.fish.shellInit = ''
+    if not set -q __NIX_DARWIN_SET_ENVIRONMENT_DONE; and test -r ${nixDarwinEnvironment}
+      set -l inherited $PATH
+      source ${nixDarwinEnvironment}
+      set --export --global PATH $inherited (for dir in $PATH; contains -- $dir $inherited; or echo $dir; end)
+    end
+  '';
+
+  # nix-darwin writes that file from programs.fish with useBabelfish (see
+  # nix/modules/darwin/default.nix); say so if a change there drops it
+  home.activation.checkNixDarwinFishEnvironment = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    if [[ ! -r ${nixDarwinEnvironment} ]]; then
+      warnEcho "${nixDarwinEnvironment} is missing, so fish no longer loads nix-darwin's environment"
+    fi
+  '';
+
   programs.fish.interactiveShellInit = ''
     # Prevent "unbound variable" errors in strict mode (set -u) for bash compatibility
     # PROMPT_COMMAND is typically set by interactive shells but not in non-interactive mode
@@ -110,6 +136,13 @@
     set --export fzf_preview_dir_cmd "eza --all --long --icons always --color=always"
 
     # PATH additions
+
+    # Homebrew prefix must be self-declared: iTerm2 launches fish directly from
+    # launchd, so nothing else exports HOMEBREW_PREFIX. Appended (not prepended)
+    # so Nix-managed tools keep priority over their Homebrew counterparts.
+    set --export HOMEBREW_PREFIX "/opt/homebrew"
+    fish_add_path --global --append "$HOMEBREW_PREFIX/bin" "$HOMEBREW_PREFIX/sbin"
+
     fish_add_path --global --move $FORTRESS_PATH/.dotfiles/bin
     fish_add_path --global --move "$HOME/.cargo/bin"
     set --export BUN_INSTALL "$HOME/.bun"

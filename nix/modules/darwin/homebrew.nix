@@ -53,6 +53,7 @@
       "kubeshark"                             # Kubernetes network analyzer
       "jump"                                  # Directory bookmarking
       "snyk-cli"                              # Security scanner
+      "scorecard"                             # OpenSSF security metrics
       "gh"                                    # GitHub CLI (latest, auto-updating)
     ];
 
