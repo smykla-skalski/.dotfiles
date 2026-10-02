@@ -14,7 +14,7 @@ Personal macOS dotfiles managed with [Nix](https://nixos.org/) and [Home Manager
 - **Testing**: Automated syntax checks and linting via Task
 - **Security**: CodeQL analysis, dependency scanning, OpenSSF Scorecard
 - **Git Hooks**: Automated quality checks (lint on commit, test on push)
-- **Git Commit Signing**: Encrypted key in macOS Keychain, loaded at login ([setup](docs/git-commit-signing.md))
+- **Git Commit Signing**: Passphrase-protected SSH key, unlocked at login via the passphrase in macOS Keychain ([setup](docs/git-commit-signing.md))
 - **CI/CD**: GitHub Actions validates changes on Ubuntu & macOS
 - **Tool Management**: mise for version-pinned development tools
 
