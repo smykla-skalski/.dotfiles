@@ -7,7 +7,7 @@
   port = "8140";
   root = "${config.home.homeDirectory}/Projects/github.com/smykla-skalski/smyklot/.bart/mocks";
 in {
-  launchd.agents.mocks-server = lib.mkIf pkgs.stdenv.isDarwin {
+  launchd.agents.mocks-server = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
     enable = true;
     config = {
       ProgramArguments = [

@@ -25,7 +25,7 @@
 in {
   xdg.configFile."cloudflared/config.yml".source = cloudflaredConfig;
 
-  launchd.agents.cloudflared-my-smykla = lib.mkIf pkgs.stdenv.isDarwin {
+  launchd.agents.cloudflared-my-smykla = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
     enable = true;
     config = {
       ProgramArguments = [
