@@ -2,10 +2,12 @@
 # Post-checkout hook: repopulate age encryption cache
 # Ensures encrypted files don't show as modified after checkout
 
-# Get script directory
-GIT_DIR="$(git rev-parse --git-dir)"
+# The filter scripts are installed in the common git dir. A linked worktree's
+# own git dir does not have them, so the cache was never populated there and
+# every secret in a new worktree read as modified.
+COMMON_DIR="$(git rev-parse --git-common-dir)"
 
 # Run cache population script if it exists
-if [[ -x "${GIT_DIR}/age-cache-populate.sh" ]]; then
-  "${GIT_DIR}/age-cache-populate.sh" >/dev/null 2>&1 || true
+if [[ -x "${COMMON_DIR}/age-cache-populate.sh" ]]; then
+  "${COMMON_DIR}/age-cache-populate.sh" >/dev/null 2>&1 || true
 fi

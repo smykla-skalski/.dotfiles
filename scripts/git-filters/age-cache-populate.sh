@@ -4,8 +4,10 @@
 
 set -euo pipefail
 
-CACHE_DIR="${GIT_DIR:-.git}/age-cache"
-SMUDGE_SCRIPT="${GIT_DIR:-.git}/age-smudge.sh"
+# The cache is per worktree, as the clean filter reads it from the worktree's git
+# dir, while the filter scripts sit in the common git dir all worktrees share.
+CACHE_DIR="$(git rev-parse --git-dir)/age-cache"
+SMUDGE_SCRIPT="$(git rev-parse --git-common-dir)/age-smudge.sh"
 
 mkdir -p "${CACHE_DIR}"
 
