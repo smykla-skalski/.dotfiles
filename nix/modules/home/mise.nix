@@ -16,6 +16,14 @@ let
       auto_install_disable_tools = [
         "go:github.com/chrusty/protoc-gen-jsonschema/cmd/protoc-gen-jsonschema"
       ];
+      # golangci-lint always resolves to golt from the global tools, even when a
+      # project config asks for upstream under one of these names
+      disable_tools = [
+        "golangci-lint"
+        "aqua:golangci/golangci-lint"
+        "asdf:hypnoglow/asdf-golangci-lint"
+        "github:golangci/golangci-lint"
+      ];
       fetch_remote_versions_cache = "24h";
       fetch_remote_versions_timeout = "2s";
       cache_prune_age = "90d";
