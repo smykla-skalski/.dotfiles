@@ -144,16 +144,6 @@
 
     # .bashrc content (interactive shells)
     initExtra = ''
-      # tokenwar shell integration. Kept here so home-manager keeps owning ~/.bashrc:
-      # tokenwar's installer appends to the file directly, which replaces the
-      # home-manager symlink with a regular file and blocks the next activation.
-      case ":$PATH:" in *":$HOME/.local/bin:"*) : ;; *) export PATH="$HOME/.local/bin:$PATH" ;; esac
-      tokenwar() { command bash "$HOME/.claude/skills/tokenwar/scripts/tokenwar.sh" "$@"; }
-      codex() { command bash "$HOME/.claude/skills/tokenwar/scripts/tokenwar-launch.sh" codex "$@"; command codex "$@"; }
-      gemini() { command bash "$HOME/.claude/skills/tokenwar/scripts/tokenwar-launch.sh" gemini "$@"; command gemini "$@"; }
-      kimi() { command bash "$HOME/.claude/skills/tokenwar/scripts/tokenwar-launch.sh" kimi "$@"; command kimi "$@"; }
-      opencode() { command bash "$HOME/.claude/skills/tokenwar/scripts/tokenwar-launch.sh" opencode "$@"; command opencode "$@"; }
-
       # Suppress pkg_resources deprecation warning from kathara_lab_checker
       export PYTHONWARNINGS="ignore::UserWarning"
 
