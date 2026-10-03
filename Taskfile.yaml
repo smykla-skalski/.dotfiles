@@ -614,7 +614,7 @@ tasks:
   # ==========================================================================
 
   hooks:install:
-    desc: Install git hooks (pre-commit, pre-push, post-checkout)
+    desc: Install git hooks (pre-commit, pre-push, post-checkout) and age filters
     summary: |
       Install git hooks to automate quality checks:
       - pre-commit: Runs 'task lint' before each commit
@@ -625,22 +625,27 @@ tasks:
       Hooks can be bypassed with --no-verify flag (except post-checkout/post-merge).
       Use 'task test' manually to run full test suite.
     dir: '{{.G_DOTFILES}}'
+    vars:
+      # Hooks and filters live in the common git dir, which a linked worktree's .git file only points to
+      GIT_COMMON:
+        sh: git rev-parse --path-format=absolute --git-common-dir
     sources:
       - hooks/pre-commit
       - hooks/pre-push
       - hooks/post-checkout
+      - scripts/git-filters/*.sh
     generates:
-      - .git/hooks/pre-commit
-      - .git/hooks/pre-push
-      - .git/hooks/post-checkout
-      - .git/hooks/post-merge
+      - '{{.GIT_COMMON}}/hooks/pre-commit'
+      - '{{.GIT_COMMON}}/hooks/pre-push'
+      - '{{.GIT_COMMON}}/hooks/post-checkout'
+      - '{{.GIT_COMMON}}/hooks/post-merge'
+      - '{{.GIT_COMMON}}/age-*.sh'
     cmds:
       - echo "▶ Installing git hooks"
-      - cp hooks/pre-commit .git/hooks/pre-commit
-      - cp hooks/pre-push .git/hooks/pre-push
-      - cp hooks/post-checkout .git/hooks/post-checkout
-      - chmod +x .git/hooks/pre-commit .git/hooks/pre-push .git/hooks/post-checkout
-      - ln -sf post-checkout .git/hooks/post-merge
+      - install -m 755 hooks/pre-commit hooks/pre-push hooks/post-checkout '{{.GIT_COMMON}}/hooks/'
+      - ln -sf post-checkout '{{.GIT_COMMON}}/hooks/post-merge'
+      # The age filters run from the common git dir, so fixes in scripts/git-filters only apply once copied
+      - install -m 755 scripts/git-filters/age-*.sh '{{.GIT_COMMON}}/'
       - echo "✓ Git hooks installed"
       - echo ""
       - echo "  pre-commit - Runs task lint"
