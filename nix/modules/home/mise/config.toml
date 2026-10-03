@@ -6,7 +6,7 @@
 
 [tools]
 actionlint = "1.7.12"
-age = "1.3.1"
+age = "1.3.2"
 cosign = "3.1.3"
 go = "1.27.0"
 # golt ships a golangci-lint binary - see disable_tools in mise.nix
