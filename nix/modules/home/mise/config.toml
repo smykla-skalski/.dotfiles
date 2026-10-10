@@ -12,7 +12,7 @@ go = "1.27.0"
 # golt ships a golangci-lint binary - see disable_tools in mise.nix
 "github:smykla-skalski/golt" = "2.14.0-golt.1"
 "go:mvdan.cc/gofumpt" = "0.11.0"
-"npm:markdownlint-cli2" = "0.23.2"
+"npm:markdownlint-cli2" = "0.23.3"
 pnpm = "10.34.5"
 ruff = "0.16.3"
 ruby = "4.0.6"
